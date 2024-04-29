@@ -254,9 +254,12 @@
 <p>你应该使用专用的硬盘时存储edit logs，如果hdfs-site.xml中没有配置，将等于dfs.name.name.dir的值</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&lt;property&gt;</span><br><span class="line">   &lt;name&gt;dfs.namenode.name.dir&lt;/name&gt;</span><br><span class="line">   &lt;value&gt;/mnt/disk1,/mnt/disk2&lt;/value&gt;</span><br><span class="line"> &lt;/property&gt;</span><br></pre></td></tr></table></figure>
 
-<p>对于DN来说，默认的Du，会产生大量的du -sk的操作，会造成集群严重的IO Wait增加，从而导致任务会变得缓慢 <a target="_blank" rel="noopener" href="http://outline-wordpress.stor.sinaapp.com/uploads/2017/05/GetImage.jpg"><img src="http://outline-wordpress.stor.sinaapp.com/uploads/2017/05/GetImage.jpg" title="GetImage"></a></p>
-<p>负载图 <a target="_blank" rel="noopener" href="http://outline-wordpress.stor.sinaapp.com/uploads/2017/05/GetImage.png"><img src="http://outline-wordpress.stor.sinaapp.com/uploads/2017/05/GetImage.png" title="GetImage"></a></p>
-<p>产生大量的DU操作 <a target="_blank" rel="noopener" href="http://outline-wordpress.stor.sinaapp.com/uploads/2017/05/du_b.png"><img src="http://outline-wordpress.stor.sinaapp.com/uploads/2017/05/du_b.png" title="du_b"></a></p>
+<p>对于DN来说，默认的Du，会产生大量的du -sk的操作，会造成集群严重的IO Wait增加，从而导致任务会变得缓慢</p>
+<p> <a target="_blank" rel="noopener" href="http://outline-wordpress.stor.sinaapp.com/uploads/2017/05/GetImage.jpg"><img src="http://outline-wordpress.stor.sinaapp.com/uploads/2017/05/GetImage.jpg" alt="img" title="GetImage"></a></p>
+<p>负载图</p>
+<p> <a target="_blank" rel="noopener" href="http://outline-wordpress.stor.sinaapp.com/uploads/2017/05/GetImage.png"><img src="http://outline-wordpress.stor.sinaapp.com/uploads/2017/05/GetImage.png" alt="img" title="GetImage"></a></p>
+<p>产生大量的DU操作</p>
+<p> <a target="_blank" rel="noopener" href="http://outline-wordpress.stor.sinaapp.com/uploads/2017/05/du_b.png"><img src="http://outline-wordpress.stor.sinaapp.com/uploads/2017/05/du_b.png" alt="img" title="du_b"></a></p>
 <p>解决方案是</p>
 <p>将同时产生的du操作，加个随机数，随机到集群的不同时间段，并且每天只du一次，这样虽然可能会造成hdfs上显示的使用率会有延时，但基本可以满足要求<a target="_blank" rel="noopener" href="https://issues.apache.org/jira/browse/HADOOP-9884">HADOOP-9884</a></p>
 <p>打patch之后，修改hdfs-site.xml</p>

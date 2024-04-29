@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- Head tag -->
+<head>
+
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+    <!--Description-->
+
+    
+
+    
+        <meta name="description" content="之前在准备中级课程PPT，整理了下HA的基本内容，并且感谢松哥为我们提供了HA不会切的问题，以至于之后刚好出现的NameNode宕机，能够快速解决。
+NameNode的HA可以个人认为简单分为共享editLog机制和ZKFC对NameNode状态的控制
+在此之前，我先提几个问题：
+
+一般导致Name"/>
+    
+
+    <!--Author-->
+    
+        <meta name="author" content="shangwen_"/>
+    
+
+    <!--Open Graph Title-->
+    
+        <meta property="og:title" content="[HDFS] 简单了解 NameNode 的 ZKFC 机制"/>
+    
+
+    <!--Open Graph Description-->
+    
+        <meta property="og:description" content="之前在准备中级课程PPT，整理了下HA的基本内容，并且感谢松哥为我们提供了HA不会切的问题，以至于之后刚好出现的NameNode宕机，能够快速解决。
+NameNode的HA可以个人认为简单分为共享editLog机制和ZKFC对NameNode状态的控制
+在此之前，我先提几个问题：
+
+一般导致Name"/>
+    
+
+    <!--Open Graph Site Name-->
+        <meta property="og:site_name" content="Tang&#39;s Blog"/>
+
+    <!--Type page-->
+    
+        <meta property="og:type" content="article"/>
+    
+
+    <!--Page Cover-->
+    
+    
+        <meta property="og:image" content="http://example.comimg/home-bg.jpg"/>
+    
+
+        <meta name="twitter:card" content="summary_large_image"/>
+
+    
+
+    
+        <meta name="twitter:image" content="http://example.comimg/home-bg.jpg"/>
+    
+
+    <!-- Title -->
+    
+    <title>[HDFS] 简单了解 NameNode 的 ZKFC 机制 - Tang&#39;s Blog</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet"/>
+
+    <!-- Custom CSS -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+
+    <!-- Custom Fonts -->
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css"/>
+    <link href="//fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic" rel="stylesheet" type="text/css"/>
+    <link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css"/>
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="//oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="//oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- Gallery -->
+    <link href="//cdnjs.cloudflare.com/ajax/libs/featherlight/1.3.5/featherlight.min.css" type="text/css" rel="stylesheet"/>
+
+    <!-- Google Analytics -->
+    
+
+
+    <!-- favicon -->
+    
+
+<meta name="generator" content="Hexo 7.2.0"></head>
+
+
+<body>
+
+    <!-- Menu -->
+    <!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">Tang's blog</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav navbar-right">
+                
+                    <li>
+                        <a href="/">
+                            
+                                Home
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/archives">
+                            
+                                Archives
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/tags">
+                            
+                                Tags
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/categories">
+                            
+                                Categories
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a target="_blank" rel="noopener" href="https://github.com/klugjo/hexo-theme-clean-blog">
+                            
+                                <i class="fa fa-github fa-stack-2x"></i>
+                            
+                        </a>
+                    </li>
+                
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+
+    <!-- Main Content -->
+    <!-- Page Header -->
+<!-- Set your background image for this header in your post front-matter: cover -->
+
+<header class="intro-header" style="background-image: url('/img/home-bg.jpg')">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <h1>[HDFS] 简单了解 NameNode 的 ZKFC 机制</h1>
+                    
+                    <span class="meta">
+                        <!-- Date and Author -->
+                        
+                        
+                            2015-12-17
+                        
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+            <!-- Tags and categories -->
+           
+                <div class="col-lg-4 col-lg-offset-2 col-md-5 col-md-offset-1 post-tags">
+                    
+                        
+
+
+<a href="/tags/HADOOP/">#HADOOP</a> <a href="/tags/HDFS/">#HDFS</a> <a href="/tags/高可用/">#高可用</a>
+
+
+                    
+                </div>
+                <div class="col-lg-4 col-md-5 post-categories">
+                    
+                </div>
+            
+
+            <!-- Gallery -->
+            
+
+            <!-- Post Main Content -->
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <hr>
+<p>之前在准备中级课程PPT，整理了下HA的基本内容，并且感谢松哥为我们提供了HA不会切的问题，以至于之后刚好出现的NameNode宕机，能够快速解决。</p>
+<p>NameNode的HA可以个人认为简单分为共享editLog机制和ZKFC对NameNode状态的控制</p>
+<p><strong>在此之前，我先提几个问题：</strong></p>
+<ul>
+<li>一般导致NameNode切换的原因</li>
+<li>ZKFC的作用是什么？如何判断一个NN是否健康</li>
+<li>NameNode HA是如何实现的？</li>
+<li>NameNode因为断电导致不能切换的原理，怎样进行恢复</li>
+</ul>
+<p><strong>一般导致NameNode切换的原因</strong></p>
+<p>随着集群规模的变大和任务量变多，NameNode的压力会越来越大，一些默认参数已经不能满足集群的日常需求，除此之外，异常的Job在短时间内创建和删除大量文件，引起NN节点频繁更新内存的数据结构从而导致RPC的处理时间变长，CallQueue里面的RpcCall堆积，甚至严重的情况下打满CallQueue，导致NameNode响应变慢，甚至无响应，ZKFC的HealthMonitor监控自己的NN异常时，则会断开与ZooKeeper的链接，从而释放锁，另外一个NN上的ZKFC进行抢锁进行Standby到Active状态的切换。这是一般引起的切换的流程。</p>
+<p>当然，如果你是手动去切换这也是可以的，当Active主机出现异常时，有时候则需要在必要的时间内进行切换。</p>
+<p><strong>ZKFC的作用是什么？如何判断一个NN是否健康</strong></p>
+<p>在正常的情况下，ZKFC的HealthMonitor主要是监控NameNode主机上的磁盘还是否可用（空间），我们都知道，NameNode负责维护集群上的元数据信息，当磁盘不可用的时候，NN就该进行切换了。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line">  * Return true if disk space is available on at least one of the configured</span><br><span class="line">  * redundant volumes, and all of the configured required volumes.</span><br><span class="line">  * </span><br><span class="line">  * @return True if the configured amount of disk space is available on at</span><br><span class="line">  *         least one redundant volume and all of the required volumes, false</span><br><span class="line">  *         otherwise.</span><br><span class="line">  */</span><br><span class="line"> public boolean hasAvailableDiskSpace() &#123;</span><br><span class="line">   return NameNodeResourcePolicy.areResourcesAvailable(volumes.values(),</span><br><span class="line">       minimumRedundantVolumes);</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+
+<p>除了可用状态（ <strong>SERVICE_HEALTHY</strong> ）之外，还有 <strong>SERVICE_UNHEALTHY</strong> (磁盘空间不可用)， <strong>SERVICE_NOT_RESPONDING</strong> （其他的一些情况）状态，在这两个状态中，它都认为NN是不健康的。</p>
+<p><strong>NameNode HA是如何实现的？</strong></p>
+<p>我们前面说到，ZKFC是如何判断NN是否健康，接下来当NN处于非健康状态时，NameNode是如何进行切换的呢？</p>
+<p><img src="http://outline.vipsinaapp.com//image/zkfc.png" alt="zkfc"></p>
+<p>在ZKFailoverController这个类中，实行了两个重要的Callbacks函数，一个叫ElectorCallbacks，另一个叫HealthCallbacks，顾名思义就是选举和健康检查用的回调函数，其中还有两个重要的组成部分 <strong>elector（ActiveStandbyElector）</strong> ， <strong>healthMonitor（HealthMonitor）</strong> ，总体的就如上图所示。</p>
+<p>ElectorCallbacks:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line">   * Callbacks from elector</span><br><span class="line">   */</span><br><span class="line">  class ElectorCallbacks implements ActiveStandbyElectorCallback &#123;</span><br><span class="line">    @Override</span><br><span class="line">    public void becomeActive() throws ServiceFailedException &#123;</span><br><span class="line">      ZKFailoverController.this.becomeActive();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    @Override</span><br><span class="line">    public void becomeStandby() &#123;</span><br><span class="line">      ZKFailoverController.this.becomeStandby();</span><br><span class="line">    &#125;</span><br><span class="line">...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>HealthCallbacks:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line">  * Callbacks from HealthMonitor</span><br><span class="line">  */</span><br><span class="line"> class HealthCallbacks implements HealthMonitor.Callback &#123;</span><br><span class="line">   @Override</span><br><span class="line">   public void enteredState(HealthMonitor.State newState) &#123;</span><br><span class="line">     setLastHealthState(newState);</span><br><span class="line">     recheckElectability();</span><br><span class="line">   &#125;</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+
+<p>对于HealthMonitor来说，在ZKFC进程启动的时候，就已经将HealthCallbacks注册进去了，HealthMonitor都会定期的检查NameNode是否健康，我们可以通过监控<strong>ha.health-monitor.check-interval.ms</strong>去设置监控的间隔时间和通过参数<strong>ha.health-monitor.rpc-timeout.ms</strong>设置timeout时间， <strong>当集群变大的时候，需要适当的设置改值，让ZKFC的HealthMonitor没那么“敏感”</strong> 。</p>
+<p>ZKFC通过RPC调用监控NN进程，当出现异常时，则进入不同的处理逻辑，以下是简化的代码：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"> private void doHealthChecks() throws InterruptedException &#123;</span><br><span class="line">    while (shouldRun) &#123;   </span><br><span class="line">      try &#123;</span><br><span class="line">        status = proxy.getServiceStatus();</span><br><span class="line">        proxy.monitorHealth();</span><br><span class="line">        healthy = true;</span><br><span class="line">      &#125; catch (HealthCheckFailedException e) &#123;</span><br><span class="line">       ...</span><br><span class="line">        enterState(State.SERVICE_UNHEALTHY);</span><br><span class="line">      &#125; catch (Throwable t) &#123;</span><br><span class="line">       ...</span><br><span class="line">        enterState(State.SERVICE_NOT_RESPONDING);</span><br><span class="line">        Thread.sleep(sleepAfterDisconnectMillis);</span><br><span class="line">        return;</span><br><span class="line">      &#125;</span><br><span class="line">      ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>回调函数就是这么起作用啦，那么回调函数做了什么呢？总的来说，如果NN健康（ <strong>SERVICE_HEALTHY</strong> ）就加入选举，如果不健康就退出选举（ <strong>SERVICE_UNHEALTHY</strong> ， <strong>SERVICE_NOT_RESPONDING</strong> ）</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">case SERVICE_UNHEALTHY:</span><br><span class="line">       case SERVICE_NOT_RESPONDING:</span><br><span class="line">         LOG.info(&quot;Quitting master election for &quot; + localTarget +</span><br><span class="line">             &quot; and marking that fencing is necessary&quot;);</span><br><span class="line">         elector.quitElection(true);</span><br><span class="line">         break;</span><br></pre></td></tr></table></figure>
+
+<p>说到退出选举就关系到 <strong>elector（ActiveStandbyElector）</strong> 了， <strong>true代表如果NN从Actice变为Standby出现异常是要去fence的</strong> ，这就是为啥NN会挂掉的原因之一</p>
+<p>如何退出选举？就是close zkClient的链接，让ZooKeeper上面的维持的选举锁消失</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">void terminateConnection() &#123;</span><br><span class="line">    if (zkClient == null) &#123;</span><br><span class="line">      return;</span><br><span class="line">    &#125;</span><br><span class="line">    LOG.debug(&quot;Terminating ZK connection for &quot; + this);</span><br><span class="line">    ZooKeeper tempZk = zkClient;</span><br><span class="line">    ...</span><br><span class="line">    try &#123;</span><br><span class="line">      tempZk.close();</span><br><span class="line">    &#125; catch(InterruptedException e) &#123;</span><br><span class="line">      LOG.warn(e);</span><br><span class="line">    &#125;</span><br><span class="line">   ...</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+
+<p>对于ActiveStandbyElector来说，他有个WatcherWithClientRef类专门用来监听ZooKeeper上的的znode的事件变化，当事件变化时，就会调用ActiveStandbyElector的processWatchEvent的方法</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">watcher = new WatcherWithClientRef();</span><br><span class="line">ZooKeeper zk = new ZooKeeper(zkHostPort, zkSessionTimeout, watcher);</span><br></pre></td></tr></table></figure>
+
+<p>和</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line">   * Watcher implementation which keeps a reference around to the</span><br><span class="line">   * original ZK connection, and passes it back along with any</span><br><span class="line">   * events.</span><br><span class="line">   */</span><br><span class="line">  private final class WatcherWithClientRef implements Watcher &#123;</span><br><span class="line">...</span><br><span class="line">    @Override</span><br><span class="line">        public void process(WatchedEvent event) &#123;</span><br><span class="line">          hasReceivedEvent.countDown();</span><br><span class="line">          try &#123;</span><br><span class="line">            hasSetZooKeeper.await(zkSessionTimeout, TimeUnit.MILLISECONDS);</span><br><span class="line">            ActiveStandbyElector.this.processWatchEvent(</span><br><span class="line">                zk, event);</span><br><span class="line">          &#125; catch (Throwable t) &#123;</span><br><span class="line">            fatalError(</span><br><span class="line">                &quot;Failed to process watcher event &quot; + event + &quot;: &quot; +</span><br><span class="line">                StringUtils.stringifyException(t));</span><br><span class="line">          &#125;</span><br><span class="line">        &#125;</span><br><span class="line">...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在ActiveStandbyElector的processWatchEvent方法中， <strong>处理来自不同事件的逻辑</strong> ，<strong>重新加入选举</strong>或者 <strong>继续监控znode的变化</strong> ，当另外一个ZKFC监控到事件变化得时候，就去抢锁，抢锁实质上就是创建znode的过程，而且创建的是<strong>CreateMode.EPHEMERAL类型</strong>的，所以，当HealthMonitor监控到NN不健康时，就会断开连接，节点就会消失，watcher就会监控到NodeDeleted事件，进行创建节点。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">switch (eventType) &#123;</span><br><span class="line">     case NodeDeleted:</span><br><span class="line">       if (state == State.ACTIVE) &#123;</span><br><span class="line">         enterNeutralMode();</span><br><span class="line">       &#125;</span><br><span class="line">       joinElectionInternal();</span><br><span class="line">       break;</span><br><span class="line">     case NodeDataChanged:</span><br><span class="line">       monitorActiveStatus();</span><br><span class="line">       break;</span><br></pre></td></tr></table></figure>
+
+<p>又因为ActiveStandbyElector实现了StatCallback接口，当节点创建成功时，就会回调processResult方法看是否创建成功， <strong>如果创建成功则去检查zkBreadCrumbPath是否存在之前的Active节点，如果存在，则调用RPC让其变为Standby，看能否转变成功，否则则SSH过去fence掉NN进程。</strong> ，保持Active节点只有一个，并且恢复正常服务</p>
+<p><strong>NameNode因为断电导致不能切换的原理，怎样进行恢复</strong></p>
+<p>ActiveNN断电，网络异常，负载过高或者机器出现异常无法连接，Standby NN无法转化为Active，使得HA集群无法对外服务,原因是Active NN节点在断电和不能服务的情况下，zknode上保存着ActiveBreadCrumb， ActiveStandbyElectorLock两个Active NN的信息，ActiveStandbyElectorLock由于Active NN出现异常断开，Standby NN去抢锁的时候就会去检查ActiveBreadCrumb是否有上一次的Active NN节点，如果有，就会就会尝试让Active NN变为Standby NN，自己转化为Active NN，但是由于调用出现异常，所以会采用ssh的方式去Fence之前的Active NN，因为机器始终连接不上，所以无法确保old active NN变为Standby NN，自己也无法变为Active NN，所以还是保持Standby状态，避免出现脑裂问题。</p>
+<p>解决方案是确定Active关机的情况下重新hdfs zkfc -formatZK就可以了。</p>
+<p><strong>总 结</strong></p>
+<p>NN GC或者在压力大的情况下可以调整GC算法和增加NameNode节点的线程数，加快NN对请求的处理速度，也可以分离节点的端口<strong>dfs.namenode.rpc-address.ns1.nn2</strong>和<strong>dfs.namenode.servicerpc-address.ns1.nn2</strong>分离client和datanode节点等服务类型的请求，进行分担压力，也可以适当的调整ZKFC的监控timeout的时间等等</p>
+<p>但是遇到异常的job，只能通过别的方式去处理问题了，祷告吧！哈哈</p>
+
+
+                
+            </div>
+
+            <!-- Comments -->
+            
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                    
+
+
+                </div>
+            
+        </div>
+    </div>
+</article>
+
+    <!-- Footer -->
+    <hr />
+
+<!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                    
+
+                    
+
+                    
+                        <li>
+                            <a href="https://github.com/shangwen" target="_blank">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    
+
+                    
+
+                    
+                        <li>
+                            <a href="mailto:kevin.shangwen@gmail.com" target="_blank">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-envelope-o fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    
+
+                    
+                </ul>
+                <p class="copyright text-muted">&copy; 2024 shangwen_<br></p>
+                <p class="copyright text-muted">Original Theme <a target="_blank" href="http://startbootstrap.com/template-overviews/clean-blog/">Clean Blog</a> from <a href="http://startbootstrap.com/" target="_blank">Start Bootstrap</a></p>
+                <p class="copyright text-muted">Adapted for <a target="_blank" href="https://hexo.io/">Hexo</a> by <a href="http://www.codeblocq.com/" target="_blank">Jonathan Klughertz</a></p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+
+    <!-- After footer scripts -->
+    
+<!-- jQuery -->
+<script src="//code.jquery.com/jquery-2.1.4.min.js"></script>
+
+<!-- Bootstrap -->
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+
+<!-- Gallery -->
+<script src="//cdnjs.cloudflare.com/ajax/libs/featherlight/1.3.5/featherlight.min.js" type="text/javascript" charset="utf-8"></script>
+
+<!-- Disqus Comments -->
+
+
+
+</body>
+
+</html>

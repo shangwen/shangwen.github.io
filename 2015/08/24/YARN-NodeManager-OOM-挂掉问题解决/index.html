@@ -13,6 +13,9 @@
     
 
     
+        <meta name="description" content="在更换JDK1.6_25到JDK1.7_45后，集群出现频繁死掉NM，出现结果为如下：
+1234567892015-08-12 16:35:06,662 FATAL org.apache.hadoop.yarn.YarnUncaughtExceptionHandler: Thread Thread["/>
+    
 
     <!--Author-->
     
@@ -21,10 +24,13 @@
 
     <!--Open Graph Title-->
     
-        <meta property="og:title" content="Tang&#39;s Blog"/>
+        <meta property="og:title" content="[YARN] NodeManager OOM 挂掉问题解决"/>
     
 
     <!--Open Graph Description-->
+    
+        <meta property="og:description" content="在更换JDK1.6_25到JDK1.7_45后，集群出现频繁死掉NM，出现结果为如下：
+1234567892015-08-12 16:35:06,662 FATAL org.apache.hadoop.yarn.YarnUncaughtExceptionHandler: Thread Thread["/>
     
 
     <!--Open Graph Site Name-->
@@ -32,7 +38,7 @@
 
     <!--Type page-->
     
-        <meta property="og:type" content="website"/>
+        <meta property="og:type" content="article"/>
     
 
     <!--Page Cover-->
@@ -51,7 +57,7 @@
 
     <!-- Title -->
     
-    <title>Tang&#39;s Blog</title>
+    <title>[YARN] NodeManager OOM 挂掉问题解决 - Tang&#39;s Blog</title>
 
     <!-- Bootstrap Core CSS -->
     <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet"/>
@@ -156,188 +162,83 @@
 
     <!-- Main Content -->
     <!-- Page Header -->
-<!-- Set your background image for this header in the theme's configuration: index_cover -->
+<!-- Set your background image for this header in your post front-matter: cover -->
+
 <header class="intro-header" style="background-image: url('/img/home-bg.jpg')">
     <div class="container">
         <div class="row">
             <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
-                <div class="site-heading">
-                    <h1>Tang's Blog</h1>
-                    <hr class="small">
-                    <span class="subheading"></span>
+                <div class="post-heading">
+                    <h1>[YARN] NodeManager OOM 挂掉问题解决</h1>
+                    
+                    <span class="meta">
+                        <!-- Date and Author -->
+                        
+                        
+                            2015-08-24
+                        
+                    </span>
                 </div>
             </div>
         </div>
     </div>
 </header>
 
-<!-- Main Content -->
-<div class="container">
-    <div class="row">
-        <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
-            
-                <div class="post-preview">
-    <a href="/2020/08/28/Flink-Flink-SQL-原理解析-1/">
-        <h2 class="post-title">
-            [Flink] Flink SQL 原理解析 (1)
-        </h2>
-        
-    </a>
-    <p class="post-meta">
-        <!-- Date and Author -->
-        
-        2020-08-28
-    </p>
-</div>
-<hr>
-            
-                <div class="post-preview">
-    <a href="/2020/06/22/HDFS-浅谈-Hadoop-Distcp-工具的-InputFormat/">
-        <h2 class="post-title">
-            [HDFS] 浅谈 Hadoop Distcp 工具的 InputFormat
-        </h2>
-        
-    </a>
-    <p class="post-meta">
-        <!-- Date and Author -->
-        
-        2020-06-22
-    </p>
-</div>
-<hr>
-            
-                <div class="post-preview">
-    <a href="/2020/06/15/HDFS-Standby-NameNode性能问题排查/">
-        <h2 class="post-title">
-            [HDFS] Standby NameNode性能问题排查
-        </h2>
-        
-    </a>
-    <p class="post-meta">
-        <!-- Date and Author -->
-        
-        2020-06-15
-    </p>
-</div>
-<hr>
-            
-                <div class="post-preview">
-    <a href="/2020/06/09/Flink-记-Flink-1-10-0-JDBC-Connectors-重连失效分析/">
-        <h2 class="post-title">
-            [Flink] 记 Flink 1.10.0 JDBC Connectors 重连失效分析
-        </h2>
-        
-    </a>
-    <p class="post-meta">
-        <!-- Date and Author -->
-        
-        2020-06-09
-    </p>
-</div>
-<hr>
-            
-                <div class="post-preview">
-    <a href="/2020/05/20/JVM-如何通过jcmd画火焰图/">
-        <h2 class="post-title">
-            [JVM] 如何通过jcmd画火焰图
-        </h2>
-        
-    </a>
-    <p class="post-meta">
-        <!-- Date and Author -->
-        
-        2020-05-20
-    </p>
-</div>
-<hr>
-            
-                <div class="post-preview">
-    <a href="/2020/05/14/Flink-Flink-时间、窗口和函数等相关原理解析/">
-        <h2 class="post-title">
-            [Flink] Flink 时间、窗口和函数等相关原理解析
-        </h2>
-        
-    </a>
-    <p class="post-meta">
-        <!-- Date and Author -->
-        
-        2020-05-14
-    </p>
-</div>
-<hr>
-            
-                <div class="post-preview">
-    <a href="/2020/05/13/Flink-Flink-Kafka-Connector-实现机制简析/">
-        <h2 class="post-title">
-            [Flink] Flink Kafka Connector 实现机制简析
-        </h2>
-        
-    </a>
-    <p class="post-meta">
-        <!-- Date and Author -->
-        
-        2020-05-13
-    </p>
-</div>
-<hr>
-            
-                <div class="post-preview">
-    <a href="/2020/03/15/JAVA-Failed-to-load-class-“org-slf4j-impl-StaticLoggerBinder”-问题解决/">
-        <h2 class="post-title">
-            [JAVA] Failed to load class “org.slf4j.impl.StaticLoggerBinder” 问题解决
-        </h2>
-        
-    </a>
-    <p class="post-meta">
-        <!-- Date and Author -->
-        
-        2020-03-15
-    </p>
-</div>
-<hr>
-            
-                <div class="post-preview">
-    <a href="/2017/07/16/SPARK-Spark-Streaming-在进行-YARN-kill-的时候无法对-eventlog-的-inprogress-进行-rename/">
-        <h2 class="post-title">
-            [SPARK] Spark Streaming 在进行 YARN kill 的时候无法对 eventlog 的 inprogress 进行 rename
-        </h2>
-        
-    </a>
-    <p class="post-meta">
-        <!-- Date and Author -->
-        
-        2017-07-16
-    </p>
-</div>
-<hr>
-            
-                <div class="post-preview">
-    <a href="/2017/05/30/HDFS-HDFS调优笔记/">
-        <h2 class="post-title">
-            [HDFS] HDFS 调优笔记
-        </h2>
-        
-    </a>
-    <p class="post-meta">
-        <!-- Date and Author -->
-        
-        2017-05-30
-    </p>
-</div>
-<hr>
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+            <!-- Tags and categories -->
+           
+                <div class="col-lg-4 col-lg-offset-2 col-md-5 col-md-offset-1 post-tags">
+                    
+                        
+
+
+<a href="/tags/HADOOP/">#HADOOP</a> <a href="/tags/JVM/">#JVM</a> <a href="/tags/YARN/">#YARN</a>
+
+
+                    
+                </div>
+                <div class="col-lg-4 col-md-5 post-categories">
+                    
+                </div>
             
 
-            <ul class="pager">
-    
-    
-        <li class="next"><a href="/page/2/">Older Posts  &rarr;</a></li>
-    
-</ul>
+            <!-- Gallery -->
+            
+
+            <!-- Post Main Content -->
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <hr>
+<p>在更换JDK1.6_25到JDK1.7_45后，集群出现频繁死掉NM，出现结果为如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">2015-08-12 16:35:06,662 FATAL org.apache.hadoop.yarn.YarnUncaughtExceptionHandler: Thread Thread[process reaper,10,system] threw an Error. Shutting down now...</span><br><span class="line">java.lang.OutOfMemoryError: Requested array size exceeds VM limit</span><br><span class="line">at java.lang.UNIXProcess$ProcessPipeInputStream.drainInputStream(UNIXProcess.java:267)</span><br><span class="line">at java.lang.UNIXProcess$ProcessPipeInputStream.processExited(UNIXProcess.java:280)</span><br><span class="line">at java.lang.UNIXProcess.processExited(UNIXProcess.java:187)</span><br><span class="line">at java.lang.UNIXProcess$3.run(UNIXProcess.java:175)</span><br><span class="line">at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)</span><br><span class="line">at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)</span><br><span class="line">at java.lang.Thread.run(Thread.java:744)</span><br></pre></td></tr></table></figure>
+
+<p>和类似的</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">2015-08-12 16:37:56,893 FATAL org.apache.hadoop.yarn.YarnUncaughtExceptionHandler: Thread Thread[process reaper,10,system] threw an Error. Shutting down now...</span><br><span class="line">java.lang.OutOfMemoryError: Java heap space</span><br><span class="line">at java.lang.UNIXProcess$ProcessPipeInputStream.drainInputStream(UNIXProcess.java:267)</span><br><span class="line">at java.lang.UNIXProcess$ProcessPipeInputStream.processExited(UNIXProcess.java:280)</span><br><span class="line">at java.lang.UNIXProcess.processExited(UNIXProcess.java:187)</span><br><span class="line">at java.lang.UNIXProcess$3.run(UNIXProcess.java:175)</span><br><span class="line">at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)</span><br><span class="line">at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)</span><br><span class="line">at java.lang.Thread.run(Thread.java:744)</span><br></pre></td></tr></table></figure>
+
+<p>在google搜索关键字hadoop UNIXProcess drainInputStream，找到关于JDK7的一些bug，在NM负载高的情况下，出现OOM问题。 详情请看<a target="_blank" rel="noopener" href="https://issues.apache.org/jira/browse/HADOOP-10146">HADOOP-10146</a></p>
+<p>和一些相关解释：</p>
+<p><a target="_blank" rel="noopener" href="https://bugs.openjdk.java.net/browse/JDK-8027348">JDK-8027348</a></p>
+<p><a target="_blank" rel="noopener" href="https://bugs.openjdk.java.net/browse/JDK-8024521">JDK-8024521</a></p>
+<p>后来更换 JDK 1.7_67 则没出现OOM的问题</p>
+
+
+                
+            </div>
+
+            <!-- Comments -->
+            
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                    
+
+
+                </div>
+            
         </div>
     </div>
-</div>
-
-
+</article>
 
     <!-- Footer -->
     <hr />

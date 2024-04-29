@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- Head tag -->
+<head>
+
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+    <!--Description-->
+
+    
+
+    
+        <meta name="description" content="背 景随着集群变大，使用用户越来越多，原生的Hadoop权限控制已经不能满足用户的需求，社区也围绕着安全做了很多工作，例如原生支持的Kerberos认证和LDAP，Apache Sentry和Apache Ranger等开源项目也在不同程度上做了很多工作，但是各自都有自己的优缺点，所以按照自身需求选"/>
+    
+
+    <!--Author-->
+    
+        <meta name="author" content="shangwen_"/>
+    
+
+    <!--Open Graph Title-->
+    
+        <meta property="og:title" content="[Hadoop] 自定义Hadoop ACL设计"/>
+    
+
+    <!--Open Graph Description-->
+    
+        <meta property="og:description" content="背 景随着集群变大，使用用户越来越多，原生的Hadoop权限控制已经不能满足用户的需求，社区也围绕着安全做了很多工作，例如原生支持的Kerberos认证和LDAP，Apache Sentry和Apache Ranger等开源项目也在不同程度上做了很多工作，但是各自都有自己的优缺点，所以按照自身需求选"/>
+    
+
+    <!--Open Graph Site Name-->
+        <meta property="og:site_name" content="Tang&#39;s Blog"/>
+
+    <!--Type page-->
+    
+        <meta property="og:type" content="article"/>
+    
+
+    <!--Page Cover-->
+    
+    
+        <meta property="og:image" content="http://example.comimg/home-bg.jpg"/>
+    
+
+        <meta name="twitter:card" content="summary_large_image"/>
+
+    
+
+    
+        <meta name="twitter:image" content="http://example.comimg/home-bg.jpg"/>
+    
+
+    <!-- Title -->
+    
+    <title>[Hadoop] 自定义Hadoop ACL设计 - Tang&#39;s Blog</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet"/>
+
+    <!-- Custom CSS -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+
+    <!-- Custom Fonts -->
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css"/>
+    <link href="//fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic" rel="stylesheet" type="text/css"/>
+    <link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css"/>
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="//oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="//oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- Gallery -->
+    <link href="//cdnjs.cloudflare.com/ajax/libs/featherlight/1.3.5/featherlight.min.css" type="text/css" rel="stylesheet"/>
+
+    <!-- Google Analytics -->
+    
+
+
+    <!-- favicon -->
+    
+
+<meta name="generator" content="Hexo 7.2.0"></head>
+
+
+<body>
+
+    <!-- Menu -->
+    <!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">Tang's blog</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav navbar-right">
+                
+                    <li>
+                        <a href="/">
+                            
+                                Home
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/archives">
+                            
+                                Archives
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/tags">
+                            
+                                Tags
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/categories">
+                            
+                                Categories
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a target="_blank" rel="noopener" href="https://github.com/klugjo/hexo-theme-clean-blog">
+                            
+                                <i class="fa fa-github fa-stack-2x"></i>
+                            
+                        </a>
+                    </li>
+                
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+
+    <!-- Main Content -->
+    <!-- Page Header -->
+<!-- Set your background image for this header in your post front-matter: cover -->
+
+<header class="intro-header" style="background-image: url('/img/home-bg.jpg')">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <h1>[Hadoop] 自定义Hadoop ACL设计</h1>
+                    
+                    <span class="meta">
+                        <!-- Date and Author -->
+                        
+                        
+                            2016-09-05
+                        
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+            <!-- Tags and categories -->
+           
+
+            <!-- Gallery -->
+            
+
+            <!-- Post Main Content -->
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <h3 id="背-景"><a href="#背-景" class="headerlink" title="背 景"></a><strong>背 景</strong></h3><p>随着集群变大，使用用户越来越多，原生的Hadoop权限控制已经不能满足用户的需求，社区也围绕着安全做了很多工作，例如原生支持的Kerberos认证和LDAP，Apache Sentry和Apache Ranger等开源项目也在不同程度上做了很多工作，但是各自都有自己的优缺点，所以按照自身需求选择不同的尤为重要。</p>
+<h3 id="JDH-ACL设计原理"><a href="#JDH-ACL设计原理" class="headerlink" title="JDH ACL设计原理"></a><strong>JDH ACL设计原理</strong></h3><p>新版的Hadoop权限设计 <strong>主要围绕着两方面：用户和组的关系，组和目录之间的关系</strong> ，并且以组作为权限管理的单位，在新版本的Hadoop开放了INodeAttributeProvider类，允许用户去自定义权限检查的逻辑，Jdh ACL的权限控制就是基于该前提去实现用户级别的权限控制。</p>
+<p>新的ACL并没有完全的抛弃原生Hadoop的权限检查，而是在其基础上增加了多组的权限检查规则</p>
+<p><a target="_blank" rel="noopener" href="http://outline-wordpress.stor.sinaapp.com/uploads/2016/09/acl-1.png"><img src="http://outline-wordpress.stor.sinaapp.com/uploads/2016/09/acl-1.png" title="acl"></a></p>
+<p>即使新版本的Hadoop中支持了像Linux一样的ACL(即支持一个文件可以属于多用户和多组的设置，并且可以设置多种权限，权限的设置需要手动递归，不能自动依赖与上层目录的权限)，但是不好的地方在于权限不方便集中的统一管理，而且权限数据会固化到fsimage中等等，所以我们希望找到一种集中管理权限，灵活配置权限的方法，并且以插件的方式实现权限管理的方案，社区中Apache Ranger项目基本符合这种需求，但由于其并不能很好的和公司已有的系统兼容，所以我们参照Ranger的设计思路，按照适合自身的权限需求，设计了自己的一套ACL控制。</p>
+<p>像文章开头所说，我们是以组为最小单位做权限控制的，即权限规则的检查也是基于组这个概念，用户是否能够有权限访问这个目录，也就是通过组给关联起来</p>
+<p><a target="_blank" rel="noopener" href="http://outline-wordpress.stor.sinaapp.com/uploads/2016/09/user2group2path.png"><img src="http://outline-wordpress.stor.sinaapp.com/uploads/2016/09/user2group2path.png" title="user2group2path"></a></p>
+<p>从上图可以知道，他们之间的映射关系主要可以分为两部分：用户和组的映射关系，组和目录的关系</p>
+<h4 id="用户和组的映射关系"><a href="#用户和组的映射关系" class="headerlink" title="用户和组的映射关系"></a><strong>用户和组的映射关系</strong></h4><p>对于用户和组的映射关系，hadoop早已经开放接口(GroupMappingServiceProvider)，允许开发者自己实现用户和组的映射关系，LdapGroupsMapping也是基于该接口实现用户和组的映射逻辑，我们自己实现了基于文件可配置的用户和组的映射，添加新的映射关系只需要在统一的权限管理界面UGDAP配置好，触发刷新即可</p>
+<h4 id="组和目录的关系"><a href="#组和目录的关系" class="headerlink" title="组和目录的关系"></a><strong>组和目录的关系</strong></h4><p>组和目录的映射关系和Ranger一样，采用的是JSON的格式形式存储，对于Ranger来说，多个目录对应多个用户和多个组，其中用户和组可以配置不同的权限，其称为一个Policy，而我们设计的Jdh policy为一个目录对应多个组，不同组分别可以有不同的权限，其中添加了组规则是否递归，是否是排除组的一些概念，以适应自身的需求。</p>
+<h4 id="JDH-ACL主要一些模块的交互简图如下："><a href="#JDH-ACL主要一些模块的交互简图如下：" class="headerlink" title="JDH ACL主要一些模块的交互简图如下："></a><strong>JDH ACL主要一些模块的交互简图如下：</strong></h4><p><a target="_blank" rel="noopener" href="http://outline-wordpress.stor.sinaapp.com/uploads/2016/09/jdhsecure.png"><img src="http://outline-wordpress.stor.sinaapp.com/uploads/2016/09/jdhsecure.png" title="jdhsecure"></a></p>
+<p>模块的交互简图中PolicyRefresher定时的加载来自UGDAP同步过来的权限策略数据，并重新初始化PolicyEngine和更新PolicyRepository，PolicyRepository会按照一定结构初始化PolicyMaps，以加快权限检查的速度。</p>
+<h4 id="权限校验逻辑"><a href="#权限校验逻辑" class="headerlink" title="权限校验逻辑"></a><strong>权限校验逻辑</strong></h4><p>对于每一个JDH Policy来说，除了可以配置不同组不同权限之外，还可以配置该目录权限是否递归生效以方便用户权限的配置，另一方面可以配置排除组规则把小部分人加入到排除组中，做到对小部分人关键目录进行隔离。</p>
+<p>在每个权限Policy中，都有一个includeMap和excludeMap去存储正常组和排除组规则，权限检查会优先检查excludeMap中的内容，如果符合排除标准，则直接返回，如果排除组检查没有符合排除的标准，则走正常组的权限检查，如果两者都没有符合的标准，则走HDFS原生的权限检查流程。</p>
+<p><a target="_blank" rel="noopener" href="http://outline-wordpress.stor.sinaapp.com/uploads/2016/09/Untitled-Diagram.png"><img src="http://outline-wordpress.stor.sinaapp.com/uploads/2016/09/Untitled-Diagram.png" title="luoji"></a></p>
+<h4 id="缓存策略和检查优化"><a href="#缓存策略和检查优化" class="headerlink" title="缓存策略和检查优化"></a><strong>缓存策略和检查优化</strong></h4><p>为了尽可能的减少权限路径的查找和路径匹配的时间，我们在PolicyRepository初始化时，对Policy的规则进行了前部分路径的作为查找PolicyMap的key，这样的好处是当一个访问路径&#x2F;user&#x2F;bdp&#x2F;a&#x2F;b来时，就可以快速的通过key(&#x2F;user&#x2F;bdp&#x2F;a)去找到对应的Policy,如果找不到对应的Policy则默认走Hadoop原生的权限，value则通过目录的深度进行排序，这样也就意味着只要父目录的权限符合要求，就不会检查子目录的权限要求。</p>
+<p><a target="_blank" rel="noopener" href="http://outline-wordpress.stor.sinaapp.com/uploads/2016/09/map.png"><img src="http://outline-wordpress.stor.sinaapp.com/uploads/2016/09/map.png" title="map"></a></p>
+<p>对于缓存优化来说，PolicyEngine内部会维护一个固定大小的CacheMap，当进行路径匹配时，可以先从CacheMap里面lookup，看是否已经匹配成功(matchedResourceCache)或不成功的路径(notMatchResourceCache)，如果有这直接返回之前的匹配结果，避免了再次匹配目录，如果没有则加入到缓存中，CacheMap通过Key的访问时间去决定这个Entry是否从CacheMap中移除。</p>
+
+
+                
+            </div>
+
+            <!-- Comments -->
+            
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                    
+
+
+                </div>
+            
+        </div>
+    </div>
+</article>
+
+    <!-- Footer -->
+    <hr />
+
+<!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                    
+
+                    
+
+                    
+                        <li>
+                            <a href="https://github.com/shangwen" target="_blank">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    
+
+                    
+
+                    
+                        <li>
+                            <a href="mailto:kevin.shangwen@gmail.com" target="_blank">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-envelope-o fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    
+
+                    
+                </ul>
+                <p class="copyright text-muted">&copy; 2024 shangwen_<br></p>
+                <p class="copyright text-muted">Original Theme <a target="_blank" href="http://startbootstrap.com/template-overviews/clean-blog/">Clean Blog</a> from <a href="http://startbootstrap.com/" target="_blank">Start Bootstrap</a></p>
+                <p class="copyright text-muted">Adapted for <a target="_blank" href="https://hexo.io/">Hexo</a> by <a href="http://www.codeblocq.com/" target="_blank">Jonathan Klughertz</a></p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+
+    <!-- After footer scripts -->
+    
+<!-- jQuery -->
+<script src="//code.jquery.com/jquery-2.1.4.min.js"></script>
+
+<!-- Bootstrap -->
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+
+<!-- Gallery -->
+<script src="//cdnjs.cloudflare.com/ajax/libs/featherlight/1.3.5/featherlight.min.js" type="text/javascript" charset="utf-8"></script>
+
+<!-- Disqus Comments -->
+
+
+
+</body>
+
+</html>

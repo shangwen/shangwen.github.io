@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- Head tag -->
+<head>
+
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+    <!--Description-->
+
+    
+
+    
+        <meta name="description" content="这个我一直处于看了忘，忘了看的过程，所以决定把总结写下。
+在此之前，先提两个问题
+
+队列配置的Max Resources加起来超过集群资源的总量时，会有什么影响？
+队列使用的资源量不会超过我们设置的Max Resources？
+
+我使用的版本是Apache hadoop 2.2.0,所以下都是基于该"/>
+    
+
+    <!--Author-->
+    
+        <meta name="author" content="shangwen_"/>
+    
+
+    <!--Open Graph Title-->
+    
+        <meta property="og:title" content="[YARN] 简单了解 FairShare 是如何进行计算的？"/>
+    
+
+    <!--Open Graph Description-->
+    
+        <meta property="og:description" content="这个我一直处于看了忘，忘了看的过程，所以决定把总结写下。
+在此之前，先提两个问题
+
+队列配置的Max Resources加起来超过集群资源的总量时，会有什么影响？
+队列使用的资源量不会超过我们设置的Max Resources？
+
+我使用的版本是Apache hadoop 2.2.0,所以下都是基于该"/>
+    
+
+    <!--Open Graph Site Name-->
+        <meta property="og:site_name" content="Tang&#39;s Blog"/>
+
+    <!--Type page-->
+    
+        <meta property="og:type" content="article"/>
+    
+
+    <!--Page Cover-->
+    
+    
+        <meta property="og:image" content="http://example.comimg/home-bg.jpg"/>
+    
+
+        <meta name="twitter:card" content="summary_large_image"/>
+
+    
+
+    
+        <meta name="twitter:image" content="http://example.comimg/home-bg.jpg"/>
+    
+
+    <!-- Title -->
+    
+    <title>[YARN] 简单了解 FairShare 是如何进行计算的？ - Tang&#39;s Blog</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet"/>
+
+    <!-- Custom CSS -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+
+    <!-- Custom Fonts -->
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css"/>
+    <link href="//fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic" rel="stylesheet" type="text/css"/>
+    <link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css"/>
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="//oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="//oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- Gallery -->
+    <link href="//cdnjs.cloudflare.com/ajax/libs/featherlight/1.3.5/featherlight.min.css" type="text/css" rel="stylesheet"/>
+
+    <!-- Google Analytics -->
+    
+
+
+    <!-- favicon -->
+    
+
+<meta name="generator" content="Hexo 7.2.0"></head>
+
+
+<body>
+
+    <!-- Menu -->
+    <!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">Tang's blog</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav navbar-right">
+                
+                    <li>
+                        <a href="/">
+                            
+                                Home
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/archives">
+                            
+                                Archives
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/tags">
+                            
+                                Tags
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/categories">
+                            
+                                Categories
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a target="_blank" rel="noopener" href="https://github.com/klugjo/hexo-theme-clean-blog">
+                            
+                                <i class="fa fa-github fa-stack-2x"></i>
+                            
+                        </a>
+                    </li>
+                
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+
+    <!-- Main Content -->
+    <!-- Page Header -->
+<!-- Set your background image for this header in your post front-matter: cover -->
+
+<header class="intro-header" style="background-image: url('/img/home-bg.jpg')">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <h1>[YARN] 简单了解 FairShare 是如何进行计算的？</h1>
+                    
+                    <span class="meta">
+                        <!-- Date and Author -->
+                        
+                        
+                            2015-11-13
+                        
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+            <!-- Tags and categories -->
+           
+                <div class="col-lg-4 col-lg-offset-2 col-md-5 col-md-offset-1 post-tags">
+                    
+                        
+
+
+<a href="/tags/HADOOP/">#HADOOP</a> <a href="/tags/YARN/">#YARN</a>
+
+
+                    
+                </div>
+                <div class="col-lg-4 col-md-5 post-categories">
+                    
+                </div>
+            
+
+            <!-- Gallery -->
+            
+
+            <!-- Post Main Content -->
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <hr>
+<p>这个我一直处于看了忘，忘了看的过程，所以决定把总结写下。</p>
+<p><strong>在此之前，先提两个问题</strong></p>
+<ul>
+<li>队列配置的Max Resources加起来超过集群资源的总量时，会有什么影响？</li>
+<li>队列使用的资源量不会超过我们设置的Max Resources？</li>
+</ul>
+<p>我使用的版本是Apache hadoop 2.2.0,所以下都是基于该版本进行分析的。</p>
+<p>在YARN中，我们都是通过队列的方式进行资源管理的，队列中可以建立子队列，队列可以通过配置不同的属性，包括提交权限，资源大小，权重等，对于FS来说，每个队列都被抽象成一个Schedulable，其计算过程就是给定一系列的Schedulable和一系列的slot，计算出他们的加权fairshare（weighted fair share）。</p>
+<p><strong>资源公平性计算</strong></p>
+<p>如果我们不设置minumum share和maximum share，加权fairshare的R &#x3D; soltAssigned &#x2F; weight（默认1），可以看出每个Schedulable都可以获得相同的资源量</p>
+<p>在实际中，有些Schedulable可能会出现minShare高于他们设置的maxShare或者maxShare低于他们分配的share值，为了处理这些类似的问题，资源分配需要满足：</p>
+<ul>
+<li>如果S.minShare &gt; R*S.weight，则分配S.minShare</li>
+<li>如果S.maxShare &lt; R*S.weirht，则分配S.maxShare</li>
+<li>其他则分配R*S.weight</li>
+</ul>
+<p>主要计算实现：ComputeFairShares</p>
+<p><strong>基本原理：</strong></p>
+<ul>
+<li>0.首先计算<strong>每个schedulable的maxShare的值的和</strong>与<strong>totalResource</strong>比较，取最小值</li>
+<li>1、rMax&#x3D;1</li>
+<li>2、计算当前的使用量U</li>
+<li>3、如果U &lt; TotalResource，则rMax &#x3D; rMax*2，跳转2</li>
+<li>定义left&#x3D;0，right&#x3D;rMax</li>
+<li>4、mid &#x3D;（left + right）&#x2F; 2</li>
+<li>5、计算当前的使用量U</li>
+<li>6、如果U&lt;TotalResource,left &#x3D; mid</li>
+<li>7、否则right &#x3D; mid</li>
+<li>8、当前迭代次数&lt;规定迭代次数，跳转4，否则退出</li>
+<li>9、通过right值计算每个schedulable的FairShare</li>
+</ul>
+<p>如何计算当前资源的使用量U，通过尝试w2rRatio的值，计算出每个schedulable资源的使用量之和，使之接近于资源总量</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">private static int resourceUsedWithWeightToResourceRatio(double w2rRatio, Collection&lt;? extends Schedulable&gt; schedulables) &#123;</span><br><span class="line">       int resourceTaken = 0;</span><br><span class="line">       for (Schedulable sched : schedulables) &#123;</span><br><span class="line">           int share = computeShare(sched, w2rRatio);</span><br><span class="line">           resourceTaken += share;</span><br><span class="line">       &#125;</span><br><span class="line">       return resourceTaken;</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+
+<p>上述所说的主要方法</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">private static int computeShare(Schedulable schedulable, double w2rRatio) &#123;</span><br><span class="line">    double share = schedulable.getWeight() * w2rRatio;</span><br><span class="line">    share = Math.max(share, schedulable.getMinShare());</span><br><span class="line">    share = Math.min(share, schedulable.getMaxShare());</span><br><span class="line">    return (int) share;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>说完如何计算fairshare的基本流程，下面来讨论FairSharePolicy是如何对slot进行分配的</strong></p>
+<p>对于FairScheduler的FairSharePolicy机制，它采用的是DefaultResourceCalculator，即只对内存做资源计算，规则为通过比较两个Schedulable的加权fairShare（weighted fair sharing），那些低于minShare的Schedulable将会比那些高于minShare的拥有更高的优先级获取资源。</p>
+<p>如果Schedulable都低于他们的minShare，则通过他们低于minShare的比例的多少来比较，例如，如果一个job A拥有8个task（minShare 10即比例为80%），job B拥有50个task（minShare 100即比例为50%），则job B将会有更高的优先级在下次资源分配时获取资源。</p>
+<p>如果Schedulable在他们的minShare之上，则通过比较他们的（runningTasks&#x2F;weight），如果所有的权重都相等，则slot资源需求少的job优先获得资源，另外，如果一个job拥有更高的权重则拥有机会获得多slot。</p>
+<p><strong>另外还有一张图：</strong></p>
+<p><img src="http://outline.vipsinaapp.com//image/fair.png" alt="fair"></p>
+<p>或许可以参考这里<a target="_blank" rel="noopener" href="https://issues.apache.org/jira/browse/YARN-2083">In fair scheduler, Queue should not been assigned more containers when its usedResource had reach the maxResource limit</a></p>
+<p><strong>总结</strong></p>
+<p>这篇文档，断断续续写了很久，温故知新，能有让自己能有对FS调度有个较为全面的认识。</p>
+
+
+                
+            </div>
+
+            <!-- Comments -->
+            
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                    
+
+
+                </div>
+            
+        </div>
+    </div>
+</article>
+
+    <!-- Footer -->
+    <hr />
+
+<!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                    
+
+                    
+
+                    
+                        <li>
+                            <a href="https://github.com/shangwen" target="_blank">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    
+
+                    
+
+                    
+                        <li>
+                            <a href="mailto:kevin.shangwen@gmail.com" target="_blank">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-envelope-o fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    
+
+                    
+                </ul>
+                <p class="copyright text-muted">&copy; 2024 shangwen_<br></p>
+                <p class="copyright text-muted">Original Theme <a target="_blank" href="http://startbootstrap.com/template-overviews/clean-blog/">Clean Blog</a> from <a href="http://startbootstrap.com/" target="_blank">Start Bootstrap</a></p>
+                <p class="copyright text-muted">Adapted for <a target="_blank" href="https://hexo.io/">Hexo</a> by <a href="http://www.codeblocq.com/" target="_blank">Jonathan Klughertz</a></p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+
+    <!-- After footer scripts -->
+    
+<!-- jQuery -->
+<script src="//code.jquery.com/jquery-2.1.4.min.js"></script>
+
+<!-- Bootstrap -->
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+
+<!-- Gallery -->
+<script src="//cdnjs.cloudflare.com/ajax/libs/featherlight/1.3.5/featherlight.min.js" type="text/javascript" charset="utf-8"></script>
+
+<!-- Disqus Comments -->
+
+
+
+</body>
+
+</html>

@@ -13,6 +13,10 @@
     
 
     
+        <meta name="description" content="在新版本的hadoop中，配置linux container已经不需要在每台机器上新建用户了，让使用变得更加灵活，之前我用的是2.2版本，详细的看官网，2.7.1的配置在这里，具体配置就不多说了
+secure container
+对于配置的权限，还是会有要求，container-executor.c"/>
+    
 
     <!--Author-->
     
@@ -21,10 +25,14 @@
 
     <!--Open Graph Title-->
     
-        <meta property="og:title" content="Tang&#39;s Blog"/>
+        <meta property="og:title" content="[YARN] Hadoop-2.7.1 Linux Container 和 CGroup 配置笔记"/>
     
 
     <!--Open Graph Description-->
+    
+        <meta property="og:description" content="在新版本的hadoop中，配置linux container已经不需要在每台机器上新建用户了，让使用变得更加灵活，之前我用的是2.2版本，详细的看官网，2.7.1的配置在这里，具体配置就不多说了
+secure container
+对于配置的权限，还是会有要求，container-executor.c"/>
     
 
     <!--Open Graph Site Name-->
@@ -32,7 +40,7 @@
 
     <!--Type page-->
     
-        <meta property="og:type" content="website"/>
+        <meta property="og:type" content="article"/>
     
 
     <!--Page Cover-->
@@ -51,7 +59,7 @@
 
     <!-- Title -->
     
-    <title>Tang&#39;s Blog</title>
+    <title>[YARN] Hadoop-2.7.1 Linux Container 和 CGroup 配置笔记 - Tang&#39;s Blog</title>
 
     <!-- Bootstrap Core CSS -->
     <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet"/>
@@ -156,188 +164,98 @@
 
     <!-- Main Content -->
     <!-- Page Header -->
-<!-- Set your background image for this header in the theme's configuration: index_cover -->
+<!-- Set your background image for this header in your post front-matter: cover -->
+
 <header class="intro-header" style="background-image: url('/img/home-bg.jpg')">
     <div class="container">
         <div class="row">
             <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
-                <div class="site-heading">
-                    <h1>Tang's Blog</h1>
-                    <hr class="small">
-                    <span class="subheading"></span>
+                <div class="post-heading">
+                    <h1>[YARN] Hadoop-2.7.1 Linux Container 和 CGroup 配置笔记</h1>
+                    
+                    <span class="meta">
+                        <!-- Date and Author -->
+                        
+                        
+                            2015-10-29
+                        
+                    </span>
                 </div>
             </div>
         </div>
     </div>
 </header>
 
-<!-- Main Content -->
-<div class="container">
-    <div class="row">
-        <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
-            
-                <div class="post-preview">
-    <a href="/2020/08/28/Flink-Flink-SQL-原理解析-1/">
-        <h2 class="post-title">
-            [Flink] Flink SQL 原理解析 (1)
-        </h2>
-        
-    </a>
-    <p class="post-meta">
-        <!-- Date and Author -->
-        
-        2020-08-28
-    </p>
-</div>
-<hr>
-            
-                <div class="post-preview">
-    <a href="/2020/06/22/HDFS-浅谈-Hadoop-Distcp-工具的-InputFormat/">
-        <h2 class="post-title">
-            [HDFS] 浅谈 Hadoop Distcp 工具的 InputFormat
-        </h2>
-        
-    </a>
-    <p class="post-meta">
-        <!-- Date and Author -->
-        
-        2020-06-22
-    </p>
-</div>
-<hr>
-            
-                <div class="post-preview">
-    <a href="/2020/06/15/HDFS-Standby-NameNode性能问题排查/">
-        <h2 class="post-title">
-            [HDFS] Standby NameNode性能问题排查
-        </h2>
-        
-    </a>
-    <p class="post-meta">
-        <!-- Date and Author -->
-        
-        2020-06-15
-    </p>
-</div>
-<hr>
-            
-                <div class="post-preview">
-    <a href="/2020/06/09/Flink-记-Flink-1-10-0-JDBC-Connectors-重连失效分析/">
-        <h2 class="post-title">
-            [Flink] 记 Flink 1.10.0 JDBC Connectors 重连失效分析
-        </h2>
-        
-    </a>
-    <p class="post-meta">
-        <!-- Date and Author -->
-        
-        2020-06-09
-    </p>
-</div>
-<hr>
-            
-                <div class="post-preview">
-    <a href="/2020/05/20/JVM-如何通过jcmd画火焰图/">
-        <h2 class="post-title">
-            [JVM] 如何通过jcmd画火焰图
-        </h2>
-        
-    </a>
-    <p class="post-meta">
-        <!-- Date and Author -->
-        
-        2020-05-20
-    </p>
-</div>
-<hr>
-            
-                <div class="post-preview">
-    <a href="/2020/05/14/Flink-Flink-时间、窗口和函数等相关原理解析/">
-        <h2 class="post-title">
-            [Flink] Flink 时间、窗口和函数等相关原理解析
-        </h2>
-        
-    </a>
-    <p class="post-meta">
-        <!-- Date and Author -->
-        
-        2020-05-14
-    </p>
-</div>
-<hr>
-            
-                <div class="post-preview">
-    <a href="/2020/05/13/Flink-Flink-Kafka-Connector-实现机制简析/">
-        <h2 class="post-title">
-            [Flink] Flink Kafka Connector 实现机制简析
-        </h2>
-        
-    </a>
-    <p class="post-meta">
-        <!-- Date and Author -->
-        
-        2020-05-13
-    </p>
-</div>
-<hr>
-            
-                <div class="post-preview">
-    <a href="/2020/03/15/JAVA-Failed-to-load-class-“org-slf4j-impl-StaticLoggerBinder”-问题解决/">
-        <h2 class="post-title">
-            [JAVA] Failed to load class “org.slf4j.impl.StaticLoggerBinder” 问题解决
-        </h2>
-        
-    </a>
-    <p class="post-meta">
-        <!-- Date and Author -->
-        
-        2020-03-15
-    </p>
-</div>
-<hr>
-            
-                <div class="post-preview">
-    <a href="/2017/07/16/SPARK-Spark-Streaming-在进行-YARN-kill-的时候无法对-eventlog-的-inprogress-进行-rename/">
-        <h2 class="post-title">
-            [SPARK] Spark Streaming 在进行 YARN kill 的时候无法对 eventlog 的 inprogress 进行 rename
-        </h2>
-        
-    </a>
-    <p class="post-meta">
-        <!-- Date and Author -->
-        
-        2017-07-16
-    </p>
-</div>
-<hr>
-            
-                <div class="post-preview">
-    <a href="/2017/05/30/HDFS-HDFS调优笔记/">
-        <h2 class="post-title">
-            [HDFS] HDFS 调优笔记
-        </h2>
-        
-    </a>
-    <p class="post-meta">
-        <!-- Date and Author -->
-        
-        2017-05-30
-    </p>
-</div>
-<hr>
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+            <!-- Tags and categories -->
+           
+                <div class="col-lg-4 col-lg-offset-2 col-md-5 col-md-offset-1 post-tags">
+                    
+                        
+
+
+<a href="/tags/HADOOP/">#HADOOP</a> <a href="/tags/YARN/">#YARN</a>
+
+
+                    
+                </div>
+                <div class="col-lg-4 col-md-5 post-categories">
+                    
+                </div>
             
 
-            <ul class="pager">
-    
-    
-        <li class="next"><a href="/page/2/">Older Posts  &rarr;</a></li>
-    
-</ul>
+            <!-- Gallery -->
+            
+
+            <!-- Post Main Content -->
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <hr>
+<p>在新版本的hadoop中，配置linux container已经不需要在每台机器上新建用户了，让使用变得更加灵活，之前我用的是2.2版本，详细的看官网，2.7.1的配置在<a target="_blank" rel="noopener" href="http://hadoop.apache.org/docs/r2.7.1/hadoop-yarn/hadoop-yarn-site/NodeManagerCgroups.html">这里</a>，具体配置就不多说了</p>
+<p><strong>secure container</strong></p>
+<p>对于配置的权限，还是会有要求，container-executor.cfg文件需要root权限，和其父目录等向上拥有者为root，所以，可以把改文件放置到&#x2F;etc&#x2F;目录下满足其要求，同时方便配置同步管理，然而，container-executor的默认读取路径是$HADOOP_HOME&#x2F;etc&#x2F;hadoop&#x2F;目录下，所以我们需要传入指定路径去重新编译container-executor，该文件权限可以设置为6050。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mvn package -Pdist,native -DskipTests -Dtar -Dcontainer-executor.conf.dir=/etc</span><br></pre></td></tr></table></figure>
+
+<p>编译完成后，就可以检查是否成功了</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">strings container-executor | grep etc</span><br></pre></td></tr></table></figure>
+
+<p><strong>关于Cgroup</strong></p>
+<p>要开启该功能，在新机器中要确保安装开启和内核支持该功能</p>
+<p>在yarn配置了CGroup的模式下，它是通过cpu.cfs_period_us，cpu.cfs_quota_us，cpu.shares来对container进行CPU的资源控制。</p>
+<p>举个例子：</p>
+<p>假设我们设置yarn.nodemanager.resource.percentage-physical-cpu-limit参数为80和yarn.nodemanager.linux-container-executor.cgroups.strict-resource-usage参数为true（假设测试虚拟机的核数为4），在该模式下所有container能使用的核数为</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yarnProcessors = nodeCpuPercentage * numProcessors = 0.8 * 4 = 3.2</span><br></pre></td></tr></table></figure>
+
+<p>CPU shares为</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cpuShares = CPU_DEFAULT_WEIGHT * containerVCores = 1024 * 1</span><br></pre></td></tr></table></figure>
+
+<p>其中CPU_DEFAULT_WEIGHT&#x3D;1024代表一个CPU时间</p>
+<p>即containers能使用的核数量为3.2个，然后通过公式：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">containerCPU = (containerVCores * yarnProcessors) / nodeVCores</span><br></pre></td></tr></table></figure>
+
+<p><strong>注：</strong> nodeVCore为配置NM的核数为4，containerVCores为应用为每个container申请的核数</p>
+<p>即按照上面的公式得到containerCPU为1<em>3.2除以4&#x3D;0.8，然后根据quotaUS &#x3D; periodUS * containerCPU，即1000</em>1000*0.8得到800000，即cpu.cfs_quota_us的值，即该进程使用的CPU不会超过80%,当应用申请的container核数为2时，得到shares为2048，意味着其将会获得比1024多2倍的CPU时间，由此类推。</p>
+<p><strong>参考资料</strong></p>
+<p><a target="_blank" rel="noopener" href="http://xiezhenye.com/2013/10/%E7%94%A8-cgroups-%E7%AE%A1%E7%90%86-cpu-%E8%B5%84%E6%BA%90.html">用 cgroups 管理 cpu 资源</a></p>
+
+
+                
+            </div>
+
+            <!-- Comments -->
+            
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                    
+
+
+                </div>
+            
         </div>
     </div>
-</div>
-
-
+</article>
 
     <!-- Footer -->
     <hr />

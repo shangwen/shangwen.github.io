@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- Head tag -->
+<head>
+
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+    <!--Description-->
+
+    
+
+    
+        <meta name="description" content="Flink 的时间属性在日常的流式数据处理中，很多操作都需要依赖时间属性，Flink根据时间产生位置的差异，将时间分成了三种类型分别是
+
+Event Time：事件在设备上发生的时间
+Processing Time：事件在系统中被处理的时间
+Ingestion Time：数据进入到流计算处理系统的时"/>
+    
+
+    <!--Author-->
+    
+        <meta name="author" content="shangwen_"/>
+    
+
+    <!--Open Graph Title-->
+    
+        <meta property="og:title" content="[Flink] Flink 时间、窗口和函数等相关原理解析"/>
+    
+
+    <!--Open Graph Description-->
+    
+        <meta property="og:description" content="Flink 的时间属性在日常的流式数据处理中，很多操作都需要依赖时间属性，Flink根据时间产生位置的差异，将时间分成了三种类型分别是
+
+Event Time：事件在设备上发生的时间
+Processing Time：事件在系统中被处理的时间
+Ingestion Time：数据进入到流计算处理系统的时"/>
+    
+
+    <!--Open Graph Site Name-->
+        <meta property="og:site_name" content="Tang&#39;s Blog"/>
+
+    <!--Type page-->
+    
+        <meta property="og:type" content="article"/>
+    
+
+    <!--Page Cover-->
+    
+    
+        <meta property="og:image" content="http://example.comimg/home-bg.jpg"/>
+    
+
+        <meta name="twitter:card" content="summary_large_image"/>
+
+    
+
+    
+        <meta name="twitter:image" content="http://example.comimg/home-bg.jpg"/>
+    
+
+    <!-- Title -->
+    
+    <title>[Flink] Flink 时间、窗口和函数等相关原理解析 - Tang&#39;s Blog</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet"/>
+
+    <!-- Custom CSS -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+
+    <!-- Custom Fonts -->
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css"/>
+    <link href="//fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic" rel="stylesheet" type="text/css"/>
+    <link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css"/>
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="//oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="//oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- Gallery -->
+    <link href="//cdnjs.cloudflare.com/ajax/libs/featherlight/1.3.5/featherlight.min.css" type="text/css" rel="stylesheet"/>
+
+    <!-- Google Analytics -->
+    
+
+
+    <!-- favicon -->
+    
+
+<meta name="generator" content="Hexo 7.2.0"></head>
+
+
+<body>
+
+    <!-- Menu -->
+    <!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">Tang's blog</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav navbar-right">
+                
+                    <li>
+                        <a href="/">
+                            
+                                Home
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/archives">
+                            
+                                Archives
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/tags">
+                            
+                                Tags
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/categories">
+                            
+                                Categories
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a target="_blank" rel="noopener" href="https://github.com/klugjo/hexo-theme-clean-blog">
+                            
+                                <i class="fa fa-github fa-stack-2x"></i>
+                            
+                        </a>
+                    </li>
+                
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+
+    <!-- Main Content -->
+    <!-- Page Header -->
+<!-- Set your background image for this header in your post front-matter: cover -->
+
+<header class="intro-header" style="background-image: url('/img/home-bg.jpg')">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <h1>[Flink] Flink 时间、窗口和函数等相关原理解析</h1>
+                    
+                    <span class="meta">
+                        <!-- Date and Author -->
+                        
+                        
+                            2020-05-14
+                        
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+            <!-- Tags and categories -->
+           
+                <div class="col-lg-4 col-lg-offset-2 col-md-5 col-md-offset-1 post-tags">
+                    
+                        
+
+
+<a href="/tags/FLINK/">#FLINK</a> <a href="/tags/HADOOP/">#HADOOP</a>
+
+
+                    
+                </div>
+                <div class="col-lg-4 col-md-5 post-categories">
+                    
+                </div>
+            
+
+            <!-- Gallery -->
+            
+
+            <!-- Post Main Content -->
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <h4 id="Flink-的时间属性"><a href="#Flink-的时间属性" class="headerlink" title="Flink 的时间属性"></a><strong>Flink 的时间属性</strong></h4><p>在日常的流式数据处理中，很多操作都需要依赖时间属性，Flink根据时间产生位置的差异，将时间分成了三种类型分别是</p>
+<ul>
+<li>Event Time：事件在设备上发生的时间</li>
+<li>Processing Time：事件在系统中被处理的时间</li>
+<li>Ingestion Time：数据进入到流计算处理系统的时间</li>
+</ul>
+<p>对于 Event Time 来说，它是一个不可变的属性，它在流计算系统中各个节点流转，始终不变，Processing Time 则依赖于处理该事件机器的本地时钟，在系统中流转，该属性是变化的，而 Ingestion Time 则是数据进入到流计算系统时的时间。</p>
+<h4 id="Window"><a href="#Window" class="headerlink" title="Window"></a><strong>Window</strong></h4><p>窗口是流计算常用的计算方式之一，Flink用窗口将无限连续的数据流按照一定规则划分成为一个个有限的数据集，我们可以利用窗口对窗口内的数据进行聚合运算，从而得到一定范围内的一些数值统计结果</p>
+<p>在Flink中Window只有一个属性，就是maxTimestamp，表示这个窗口的最大边界，它的实现类分别为：</p>
+<ul>
+<li>GlobalWindow：全局窗口，单例，最大的maxTimestamp为Long的最大值</li>
+<li>TimeWindow：表示一个时间间隔，拥有[start, end)的开始时间和结束时间，</li>
+</ul>
+<h4 id="Evictor"><a href="#Evictor" class="headerlink" title="Evictor"></a><strong>Evictor</strong></h4><p>它剔除元素的时机是在触发器触发之后，在窗口被处理(apply windowFunction)之前被触发，它在Flink的实现类为：</p>
+<ul>
+<li>CountEvictor：保持一定数量的Evictor</li>
+<li>DeltaEvictor：待了解</li>
+<li>TimeEvictor：基于保留时间作为剔除规则，将大于保存时间的elements剔除</li>
+</ul>
+<h4 id="Windows-Assigner"><a href="#Windows-Assigner" class="headerlink" title="Windows Assigner"></a><strong>Windows Assigner</strong></h4><p>在流式计算的系统中，WindowAssigner负责分配0或者多个Window给一个element，我们可以根据WindowAssigner分配窗口的方式归纳为四类：</p>
+<ul>
+<li>Tumbling Windows（滚动窗口）：根据固定时间或大小划分，窗口不重叠，适合按照固定大小周期统计某一个指标</li>
+<li>Sliding Windows（滑动窗口）：在滚动窗口的基础上，增加滑动属性，允许窗口发生重叠，适合根据用户设定的统计频率计算指定窗口的大小统计指标，例如每隔30s统计最近10min的用户</li>
+<li>Session Windows（会话窗口）：主要将某个时间段活跃较高的数据聚成一个窗口，触发条件是Session Gap，适合非连续数据处理或周期产生的数据</li>
+<li>Global Windows （全局窗口）：将相同的Key分配到单个窗口中计算结果，没有开始时间和结束时间，需要借助Trigger触发，否则数据一直保存在内存中</li>
+</ul>
+<h4 id="Windows-Trigger"><a href="#Windows-Trigger" class="headerlink" title="Windows Trigger"></a><strong>Windows Trigger</strong></h4><p>数据进入到窗口之后，窗口是否触发WindowFunction计算，取决于窗口是否满足触发条件，每种类型的窗口都有对应的触发机制，常见的Trigger有：</p>
+<ul>
+<li>CountTrigger：通过判断接入的数据量是否超过设定的阈值决定是否触发窗口</li>
+<li>EventTimeTrigger：通过比较WaterMark和窗口的EndTime判断窗口是否触发</li>
+<li>ProcessingTimeTrigger：通过比较ProcessTime和窗口的EndTime判断窗口是否触发</li>
+<li>其他</li>
+</ul>
+<p>我们可以看下一般实现一个Trigger需要大约实现哪些方法：</p>
+<ul>
+<li>onElement：针对每一个进入窗口的element进行触发操作</li>
+<li>onProcessingTime：系统时间时间定时器触发</li>
+<li>onEventTime：事件时间定时器触发</li>
+<li>onMerge：对多个窗口和状态进行合并</li>
+<li>clear：清除窗口和状态</li>
+</ul>
+<p>我们通过Trigger返回的TriggerResult的类型决定是否触发端口：</p>
+<ul>
+<li>CONTINUE：等待，不触发窗口</li>
+<li>FIRE_AND_PURGE：触发窗口计算同时清除元素</li>
+<li>FIRE：触发窗口计算，不清除元素</li>
+<li>PURGE：清除window中的元素</li>
+</ul>
+<h4 id="WindowFunction"><a href="#WindowFunction" class="headerlink" title="WindowFunction"></a><strong>WindowFunction</strong></h4><p>说完了Trigger之后，我们先简单的了解下WindowFunction，它可以按照计算原理分成了两大类：</p>
+<ol>
+<li>增量聚合函数：ReduceFuction, AggregateFunction, FlodFunction</li>
+<li>全量窗口函数：ProcessWindowFuction</li>
+</ol>
+<p>增量聚合函数基于中间状态计算结果，窗口只维护中间状态，不需要换成原数据，而全量窗口需要维护原始数据，如果接入的数据量或者时间较大，可能会导致程序的性能下降</p>
+<h4 id="WaterMark"><a href="#WaterMark" class="headerlink" title="WaterMark"></a><strong>WaterMark</strong></h4><p>因为基于 Event Time 的模式下，数据由于网络延时等原因，往往不能准时到达，所以导致数据进入到流计算系统时会出现乱序的情况， 所以需要一种手段去衡量，当前数据处理的进度，所以 WaterMark 就是解决这个问题而设计，它表示了小于 WaterMark 的时间的数据已经到达，如果 WaterMark 的时间超过了 Window 的EndTime，就会触发窗口的计算</p>
+<p><strong>WaterMark是如何生成的？</strong></p>
+<p>目前Flink支持两种方式指定 Timestamps 和生成 WaterMark：</p>
+<ol>
+<li>在Source Function中定义，SourceContenxt中可以调用, ctx.emitWatermark 方法进行 Watermark 的传递</li>
+<li>自定义Timestamp Assigner 和 Watermark Generator 生成</li>
+</ol>
+<p>WaterMark的生成形式上分为两种类型：</p>
+<ol>
+<li>Periodic WaterMarks：根据事件间隔周期性的生成WaterMark，例如 <code>DataStream.assignTimestampsAndWatermarks(AssignerWithPeriodicWatermarks)</code></li>
+<li>Punctuated WaterMarks：依赖于数据流中的特殊元素生成WaterMark，例如 <code>DataStream.assignTimestampsAndWatermarks(AssignerWithPunctuatedWatermarks)</code></li>
+</ol>
+<p>对于AssignerWithPunctuatedWatermarks&#x2F;AssignerWithPeriodicWatermarks，最终都会生成一个TimestampsAndXXXWatermarksOperator加入到transform中，例如：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">public SingleOutputStreamOperator&lt;T&gt; assignTimestampsAndWatermarks(</span><br><span class="line">        AssignerWithPeriodicWatermarks&lt;T&gt; timestampAndWatermarkAssigner) &#123;</span><br><span class="line"></span><br><span class="line">    // match parallelism to input, otherwise dop=1 sources could lead to some strange</span><br><span class="line">    // behaviour: the watermark will creep along very slowly because the elements</span><br><span class="line">    // from the source go to each extraction operator round robin.</span><br><span class="line">    final int inputParallelism = getTransformation().getParallelism();</span><br><span class="line">    final AssignerWithPeriodicWatermarks&lt;T&gt; cleanedAssigner = clean(timestampAndWatermarkAssigner);</span><br><span class="line"></span><br><span class="line">    TimestampsAndPeriodicWatermarksOperator&lt;T&gt; operator =</span><br><span class="line">            new TimestampsAndPeriodicWatermarksOperator&lt;&gt;(cleanedAssigner);</span><br><span class="line"></span><br><span class="line">    return transform(&quot;Timestamps/Watermarks&quot;, getTransformation().getOutputType(), operator)</span><br><span class="line">            .setParallelism(inputParallelism);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="WindowOperator"><a href="#WindowOperator" class="headerlink" title="WindowOperator"></a><strong>WindowOperator</strong></h4><p>因为关于窗口的操作基本都在WindowOperator中，所以，今天我们通过一个简单的例子：org.apache.flink.streaming.examples.join.WindowJoin 这个例子分析WindowOperator究竟做了什么，这里是主要的代码</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">public static DataStream&lt;Tuple3&lt;String, Integer, Integer&gt;&gt; runWindowJoin(</span><br><span class="line">        DataStream&lt;Tuple2&lt;String, Integer&gt;&gt; grades,</span><br><span class="line">        DataStream&lt;Tuple2&lt;String, Integer&gt;&gt; salaries,</span><br><span class="line">        long windowSize) &#123;</span><br><span class="line"></span><br><span class="line">    return grades.join(salaries)</span><br><span class="line">            .where(new NameKeySelector())</span><br><span class="line">            .equalTo(new NameKeySelector())</span><br><span class="line">            .window(TumblingEventTimeWindows.of(Time.milliseconds(windowSize)))</span><br><span class="line">            .apply(new JoinFunction&lt;Tuple2&lt;String, Integer&gt;, Tuple2&lt;String, Integer&gt;, Tuple3&lt;String, Integer, Integer&gt;&gt;() &#123;</span><br><span class="line">                @Override</span><br><span class="line">                public Tuple3&lt;String, Integer, Integer&gt; join(</span><br><span class="line">                                Tuple2&lt;String, Integer&gt; first,</span><br><span class="line">                                Tuple2&lt;String, Integer&gt; second) &#123;</span><br><span class="line">                    return new Tuple3&lt;String, Integer, Integer&gt;(first.f0, first.f1, second.f1);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>通过上面的例子，两个DataStream进行join操作产生JoinedStreams，而JoinedStreams底层的实现实际调用了DataStream1.coGroup(DataStream2)产生CoGroupedStreams，而最终将数据封装成TaggedUnion类型，将两个流进行union，然后转成KeyedStream，这样两个数据流所有的相同的key都会汇聚到相同的window，最后调用window方法，得到WindowedStream，然后传入WindowFunction，进行函数计算</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line">public &lt;T&gt; DataStream&lt;T&gt; apply(CoGroupFunction&lt;T1, T2, T&gt; function, TypeInformation&lt;T&gt; resultType) &#123;</span><br><span class="line">    //clean the closure</span><br><span class="line">    function = input1.getExecutionEnvironment().clean(function);</span><br><span class="line"></span><br><span class="line">    UnionTypeInfo&lt;T1, T2&gt; unionType = new UnionTypeInfo&lt;&gt;(input1.getType(), input2.getType());</span><br><span class="line">    UnionKeySelector&lt;T1, T2, KEY&gt; unionKeySelector = new UnionKeySelector&lt;&gt;(keySelector1, keySelector2);</span><br><span class="line"></span><br><span class="line">    DataStream&lt;TaggedUnion&lt;T1, T2&gt;&gt; taggedInput1 = input1</span><br><span class="line">            .map(new Input1Tagger&lt;T1, T2&gt;())</span><br><span class="line">            .setParallelism(input1.getParallelism())</span><br><span class="line">            .returns(unionType);</span><br><span class="line">    DataStream&lt;TaggedUnion&lt;T1, T2&gt;&gt; taggedInput2 = input2</span><br><span class="line">            .map(new Input2Tagger&lt;T1, T2&gt;())</span><br><span class="line">            .setParallelism(input2.getParallelism())</span><br><span class="line">            .returns(unionType);</span><br><span class="line"></span><br><span class="line">    DataStream&lt;TaggedUnion&lt;T1, T2&gt;&gt; unionStream = taggedInput1.union(taggedInput2);</span><br><span class="line"></span><br><span class="line">    // we explicitly create the keyed stream to manually pass the key type information in</span><br><span class="line">    windowedStream =</span><br><span class="line">            new KeyedStream&lt;TaggedUnion&lt;T1, T2&gt;, KEY&gt;(unionStream, unionKeySelector, keyType)</span><br><span class="line">            .window(windowAssigner);</span><br><span class="line"></span><br><span class="line">    if (trigger != null) &#123;</span><br><span class="line">        windowedStream.trigger(trigger);</span><br><span class="line">    &#125;</span><br><span class="line">    if (evictor != null) &#123;</span><br><span class="line">        windowedStream.evictor(evictor);</span><br><span class="line">    &#125;</span><br><span class="line">    if (allowedLateness != null) &#123;</span><br><span class="line">        windowedStream.allowedLateness(allowedLateness);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    return windowedStream.apply(new CoGroupWindowFunction&lt;T1, T2, T, KEY, W&gt;(function), resultType);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在最后传入的CoGroupWindowFunction中，它最终会被封装为InternalIterableWindowFunction 和 WindowAssigner、trigger一起放入到WindowOperator里面</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">    ListStateDescriptor&lt;T&gt; stateDesc = new ListStateDescriptor&lt;&gt;(&quot;window-contents&quot;,</span><br><span class="line">        input.getType().createSerializer(getExecutionEnvironment().getConfig()));</span><br><span class="line"></span><br><span class="line">    operator =</span><br><span class="line">        new WindowOperator&lt;&gt;(windowAssigner,</span><br><span class="line">            windowAssigner.getWindowSerializer(getExecutionEnvironment().getConfig()),</span><br><span class="line">            keySel,</span><br><span class="line">            input.getKeyType().createSerializer(getExecutionEnvironment().getConfig()),</span><br><span class="line">            stateDesc,</span><br><span class="line">            function,</span><br><span class="line">            trigger,</span><br><span class="line">            allowedLateness,</span><br><span class="line">            lateDataOutputTag);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">return input.transform(opName, resultType, operator);</span><br></pre></td></tr></table></figure>
+
+<p>我们可以先简单的看下WindowOperator有哪些必要的属性：</p>
+<ul>
+<li>WindowAssigner：分配element到对应的Window</li>
+<li>Trigger：触发window计算</li>
+<li>StateDescriptor（windowStateDescriptor）：窗口状态的描述符（window-contents）</li>
+<li>InternalAppendingState（windowState）</li>
+<li>InternalTimerService：用于注册定时器</li>
+</ul>
+<p>接下来我们简单的看下当一个element来临时，它的处理逻辑:</p>
+<ol>
+<li><p>通过windowAssigner为element找到对应的窗口集合</p>
+</li>
+<li><p>将当前的数据加入到windowState（ListState）中</p>
+</li>
+<li><p>构建这个Key的triggerContext，调用onElement的方法，返回TriggerResult</p>
+</li>
+<li><p>如果TriggerResult是FIRE类型，则执行窗口计算emitWindowContents，否则将window注册到internalTimerService中，等待触发</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line">@Override</span><br><span class="line">public void processElement(StreamRecord&lt;IN&gt; element) throws Exception &#123;</span><br><span class="line">    final Collection&lt;W&gt; elementWindows = windowAssigner.assignWindows(</span><br><span class="line">        element.getValue(), element.getTimestamp(), windowAssignerContext);</span><br><span class="line">    //if element is handled by none of assigned elementWindows</span><br><span class="line">    boolean isSkippedElement = true;</span><br><span class="line"></span><br><span class="line">    final K key = this.&lt;K&gt;getKeyedStateBackend().getCurrentKey();</span><br><span class="line"></span><br><span class="line">...</span><br><span class="line">        for (W window: elementWindows) &#123;</span><br><span class="line"></span><br><span class="line">            // drop if the window is already late</span><br><span class="line">            if (isWindowLate(window)) &#123;</span><br><span class="line">                continue;</span><br><span class="line">            &#125;</span><br><span class="line">            isSkippedElement = false;</span><br><span class="line"></span><br><span class="line">            windowState.setCurrentNamespace(window);</span><br><span class="line">            windowState.add(element.getValue());</span><br><span class="line"></span><br><span class="line">            triggerContext.key = key;</span><br><span class="line">            triggerContext.window = window;</span><br><span class="line"></span><br><span class="line">            TriggerResult triggerResult = triggerContext.onElement(element);</span><br><span class="line"></span><br><span class="line">            if (triggerResult.isFire()) &#123;</span><br><span class="line">                ACC contents = windowState.get();</span><br><span class="line">                if (contents == null) &#123;</span><br><span class="line">                    continue;</span><br><span class="line">                &#125;</span><br><span class="line">                emitWindowContents(window, contents);</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            if (triggerResult.isPurge()) &#123;</span><br><span class="line">                windowState.clear();</span><br><span class="line">            &#125;</span><br><span class="line">            registerCleanupTimer(window);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p>… }</p>
+</li>
+</ol>
+<p>Operator中的internalTimerService，主要由InternalTimeServiceManager管理，InternalTimeServiceManager的主要职责有：</p>
+<ul>
+<li>维护了一个timerServices的HashMap，例如这里的（window-timers，InternalTimerServiceImpl）</li>
+<li>当Operator进行Snapshot时，将数据序列化到外界存储中</li>
+<li>当Operator进行Restore时，恢复相关的数据结构</li>
+<li>当WaterMark到来时，遍历执行InternalTimerServiceImpl的advanceWatermark方法，从而触发Triggerable实现类的onEventTime的实现逻辑</li>
+</ul>
+<p>InternalTimerServiceImpl（internalTimerService）内部维护了两个优先级队列eventTimeTimersQueue，processingTimeTimersQueue 用来存储对应的Timer，对于Event time模式来说，当Watermark到来时，会找出队列中已经排好序的timer调用Triggerable.onEventTime(WindowOperator也实现了Triggerable接口)，接下来通过Trigger.onEventTime去判断TriggerResult去决定触发窗口</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">OneInputStreamTask.emitWatermark</span><br><span class="line">    -&gt; AbstractStreamOperator.processWatermark</span><br><span class="line">        -&gt; InternalTimeServiceManager.advanceWatermark</span><br><span class="line">            -&gt; InternalTimerServiceImpl.advanceWatermark</span><br><span class="line">                -&gt; triggerTarget.onEventTime(WindowOperator.onEventTime)</span><br><span class="line">                    -&gt; triggerContext.onEventTime</span><br><span class="line">                        -&gt; EventTimeTrigger.onEventTime</span><br></pre></td></tr></table></figure>
+
+<p>而对于ProcessingTime模式来说，不需要外界触发，通过内部的一个ScheduledThreadPoolExecutor，在registerTimer时，将定时任务的callback函数注册到定时器中，到时间则触发，最终也是调用Triggerable.onProcessingTime方法，触发窗口计算</p>
+<h4 id="总-结"><a href="#总-结" class="headerlink" title="总 结"></a><strong>总 结</strong></h4><p>这边文章是一直以来的一些笔记总结，从Flink的时间概念开始，到和时间相关的一些特性，例如窗口，和触发器，最终通过WindowJoin这个例子简单的了解了WindowOperator在不同的时间类型下是如何工作的，进一步的加深对Flink的理解</p>
+
+
+                
+            </div>
+
+            <!-- Comments -->
+            
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                    
+
+
+                </div>
+            
+        </div>
+    </div>
+</article>
+
+    <!-- Footer -->
+    <hr />
+
+<!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                    
+
+                    
+
+                    
+                        <li>
+                            <a href="https://github.com/shangwen" target="_blank">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    
+
+                    
+
+                    
+                        <li>
+                            <a href="mailto:kevin.shangwen@gmail.com" target="_blank">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-envelope-o fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    
+
+                    
+                </ul>
+                <p class="copyright text-muted">&copy; 2024 shangwen_<br></p>
+                <p class="copyright text-muted">Original Theme <a target="_blank" href="http://startbootstrap.com/template-overviews/clean-blog/">Clean Blog</a> from <a href="http://startbootstrap.com/" target="_blank">Start Bootstrap</a></p>
+                <p class="copyright text-muted">Adapted for <a target="_blank" href="https://hexo.io/">Hexo</a> by <a href="http://www.codeblocq.com/" target="_blank">Jonathan Klughertz</a></p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+
+    <!-- After footer scripts -->
+    
+<!-- jQuery -->
+<script src="//code.jquery.com/jquery-2.1.4.min.js"></script>
+
+<!-- Bootstrap -->
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+
+<!-- Gallery -->
+<script src="//cdnjs.cloudflare.com/ajax/libs/featherlight/1.3.5/featherlight.min.js" type="text/javascript" charset="utf-8"></script>
+
+<!-- Disqus Comments -->
+
+
+
+</body>
+
+</html>

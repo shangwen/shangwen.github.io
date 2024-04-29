@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- Head tag -->
+<head>
+
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+    <!--Description-->
+
+    
+
+    
+        <meta name="description" content="spark在1.6的时候就已经默认把内存管理变为UnifiedMemoryManager，如果需要用回StaticMemoryManager，可以通过设置spark.memory.useLegacyMode为true，就可以用回原来的模式，下图为默认时，不同区域的内存使用的划分
+
+
+１． Reser"/>
+    
+
+    <!--Author-->
+    
+        <meta name="author" content="shangwen_"/>
+    
+
+    <!--Open Graph Title-->
+    
+        <meta property="og:title" content="[SPARK] 简单了解 Spark 2.0 的内存管理"/>
+    
+
+    <!--Open Graph Description-->
+    
+        <meta property="og:description" content="spark在1.6的时候就已经默认把内存管理变为UnifiedMemoryManager，如果需要用回StaticMemoryManager，可以通过设置spark.memory.useLegacyMode为true，就可以用回原来的模式，下图为默认时，不同区域的内存使用的划分
+
+
+１． Reser"/>
+    
+
+    <!--Open Graph Site Name-->
+        <meta property="og:site_name" content="Tang&#39;s Blog"/>
+
+    <!--Type page-->
+    
+        <meta property="og:type" content="article"/>
+    
+
+    <!--Page Cover-->
+    
+    
+        <meta property="og:image" content="http://example.comimg/home-bg.jpg"/>
+    
+
+        <meta name="twitter:card" content="summary_large_image"/>
+
+    
+
+    
+        <meta name="twitter:image" content="http://example.comimg/home-bg.jpg"/>
+    
+
+    <!-- Title -->
+    
+    <title>[SPARK] 简单了解 Spark 2.0 的内存管理 - Tang&#39;s Blog</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet"/>
+
+    <!-- Custom CSS -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+
+    <!-- Custom Fonts -->
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css"/>
+    <link href="//fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic" rel="stylesheet" type="text/css"/>
+    <link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css"/>
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="//oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="//oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- Gallery -->
+    <link href="//cdnjs.cloudflare.com/ajax/libs/featherlight/1.3.5/featherlight.min.css" type="text/css" rel="stylesheet"/>
+
+    <!-- Google Analytics -->
+    
+
+
+    <!-- favicon -->
+    
+
+<meta name="generator" content="Hexo 7.2.0"></head>
+
+
+<body>
+
+    <!-- Menu -->
+    <!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">Tang's blog</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav navbar-right">
+                
+                    <li>
+                        <a href="/">
+                            
+                                Home
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/archives">
+                            
+                                Archives
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/tags">
+                            
+                                Tags
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/categories">
+                            
+                                Categories
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a target="_blank" rel="noopener" href="https://github.com/klugjo/hexo-theme-clean-blog">
+                            
+                                <i class="fa fa-github fa-stack-2x"></i>
+                            
+                        </a>
+                    </li>
+                
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+
+    <!-- Main Content -->
+    <!-- Page Header -->
+<!-- Set your background image for this header in your post front-matter: cover -->
+
+<header class="intro-header" style="background-image: url('/img/home-bg.jpg')">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <h1>[SPARK] 简单了解 Spark 2.0 的内存管理</h1>
+                    
+                    <span class="meta">
+                        <!-- Date and Author -->
+                        
+                        
+                            2017-01-15
+                        
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+            <!-- Tags and categories -->
+           
+                <div class="col-lg-4 col-lg-offset-2 col-md-5 col-md-offset-1 post-tags">
+                    
+                        
+
+
+<a href="/tags/SPARK/">#SPARK</a>
+
+
+                    
+                </div>
+                <div class="col-lg-4 col-md-5 post-categories">
+                    
+                </div>
+            
+
+            <!-- Gallery -->
+            
+
+            <!-- Post Main Content -->
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <p>spark在1.6的时候就已经默认把内存管理变为UnifiedMemoryManager，如果需要用回StaticMemoryManager，可以通过设置spark.memory.useLegacyMode为true，就可以用回原来的模式，下图为默认时，不同区域的内存使用的划分</p>
+<p><a target="_blank" rel="noopener" href="http://outline-wordpress.stor.sinaapp.com/uploads/2017/01/sparkMemoryAnalyis.png"><img src="http://outline-wordpress.stor.sinaapp.com/uploads/2017/01/sparkMemoryAnalyis.png" title="sparkMemoryAnalyis"></a></p>
+<ul>
+<li>１． <strong>ReservedMemory</strong> ：预留内存，默认为300M，如果系统内存SystemMemory小于1.5倍的ReservedMemory就会报错</li>
+<li>２． <strong>UsableMemory</strong> ：可用内存，计算方式为SystemMemory－ReservedMemory</li>
+<li>３． <strong>MaxMemory</strong> ：最大可以使用的内存，等于usableMemory x memoryFraction(spark.memory.fraction&#x3D;0.6)</li>
+<li>4． <strong>HeapStorageMemory</strong> ：存储内存等于maxMemory x storageFraction(spark.memory.storageFraction默认0.5)</li>
+<li>5 . <strong>HeapExecutionMemory</strong> ：等于maxMemory – HeapStorageMemory</li>
+</ul>
+<h3 id="UnifiedMemoryManager"><a href="#UnifiedMemoryManager" class="headerlink" title="UnifiedMemoryManager"></a><strong>UnifiedMemoryManager</strong></h3><p>通过上面的简图内存划分为不同的区域，而MemoryManager主要用来管理execution和storage他们之间是如何共享内存，他有两个实现类UnifiedMemoryManager和StaticMemoryManager，接下来会重点查看UnifiedMemoryManager是如何进行内存的分配的。</p>
+<p>MemoryManager作为抽象类，它在初始化的时候出事会初始化ON_HEAP，OFF_HEAP的两个StorageMemoryPool和ExecutionMemoryPool对象，用来管理不同模式下的内存区域。</p>
+<p>StorageMemoryPool主要是用来记录storage的一个可调整内存池的大小，而ExecutionMemoryPool相对它复杂，因为它需要保证每个task能够合理的共享内存，如果这里有N个task，它会确保每个task在spill之前会有至少1&#x2F;2N的内存，且最多不能超过1&#x2F;N，因为N是动态变化的，当task的数量改变的时候，我们会需要重新计算1&#x2F;2N和1&#x2F;N。</p>
+<p>从ExecutionMemoryPool获取分配需要调用acquireMemory方法，首先第一步会先判断这个task是否属于Active task，如果不属于，则把他放到memoryForTask这个map的数据结构当中，value则记录该task当前使用了多少内存。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">val numActiveTasks = memoryForTask.keys.size</span><br><span class="line">val curMem = memoryForTask(taskAttemptId)</span><br></pre></td></tr></table></figure>
+
+<p>并在每次循环获取足够acquireMemory的numBytes之前，都会尝试的去回收storage从execution借去的内存</p>
+<p>当获取到的内存不能够满足required大小的需求时，它就会阻塞等待，直到内存满足</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">　   // We want to let each task get at least 1 / (2 * numActiveTasks) before blocking;</span><br><span class="line">// if we can&#x27;t give it this much now, wait for other tasks to free up memory</span><br><span class="line">// (this happens if older tasks allocated lots of memory before N grew)</span><br><span class="line">if (toGrant &lt; numBytes &amp;&amp; curMem + toGrant &lt; minMemoryPerTask) &#123;</span><br><span class="line">  logInfo(s&quot;TID $taskAttemptId waiting for at least 1/2N of $poolName pool to be free&quot;)</span><br><span class="line">  lock.wait()</span><br><span class="line">&#125; else &#123;</span><br><span class="line">  memoryForTask(taskAttemptId) += toGrant</span><br><span class="line">  return toGrant</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="TaskMemoryManager"><a href="#TaskMemoryManager" class="headerlink" title="TaskMemoryManager"></a><strong>TaskMemoryManager</strong></h3><p>UnifiedMemoryManager是对内存的统一管理，而TaskMemoryManager则是管理每个独立Task的内存分配，TaskMemoryManager通过MemoryManager的acquireExecutionMemory接口进行内存申请，如果不能满足，则从consumers中挑选可以spill，进行内存释放，什么是consumer，其实我们可以用过日志打印直观的看出改Task使用了哪些consumer.</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">log4j.logger.org.apache.spark.memory.TaskMemoryManager=DEBUG</span><br></pre></td></tr></table></figure>
+
+<p>然后就可以清楚的在日志里面看到了</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">17/01/13 16:07:24 DEBUG TaskMemoryManager: Task 32 acquired 5.2 MB for org.apache.spark.util.collection.ExternalAppendOnlyMap@3bb49e9</span><br><span class="line">17/01/13 16:07:24 DEBUG TaskMemoryManager: Task 32 acquired 10.3 MB for org.apache.spark.util.collection.ExternalAppendOnlyMap@3bb49e9</span><br><span class="line">17/01/13 16:07:24 DEBUG TaskMemoryManager: Task 32 acquired 21.4 MB for org.apache.spark.util.collection.ExternalAppendOnlyMap@3bb49e9</span><br><span class="line">17/01/13 16:07:24 DEBUG TaskMemoryManager: Task 32 acquired 47.7 MB for org.apache.spark.util.collection.ExternalAppendOnlyMap@3bb49e9</span><br></pre></td></tr></table></figure>
+
+<p>对于consumer来说，他有不同的实现类，ShuffleExternalSorter就是其中一个consumer的实现类，当我们在ShuffleExternalSorter插入一条record时他就会调用acquireNewPageIfNecessary，尝试的从TaskMemoryManager获取一个MemoryBlock(即一个page)同时，会将这个page记录到自己的pageTable中，并得到对应的pageCursor偏移量。</p>
+<p>Spark用MemoryLocation记录和追踪在off-heap或on-heap内存地址，在off-heap模式，内存可以直接通过64-bit长度的地址进行寻址，在In-heap模式中，内存由该对象的引用和64-bit的offset去寻址，MemoryBlock在MemoryLocation的基础上增加了pageNumber和对应数据的length。</p>
+<p>简单的函数调用关系为：consumer.allocatePage -&gt; TaskMemoryManager.allocatePage -&gt; MemoryManager的MemoryAllocator.allocate</p>
+<p>在HeapMemoryAllocator中，我们可以看到，我们会通过内存对齐产生一个long类型的数组，并通过这个数组构成一个MemoryBlock</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">long[] array = new long[(int) ((size + 7) / 8)];</span><br><span class="line">MemoryBlock memory = new MemoryBlock(array, Platform.LONG_ARRAY_OFFSET, size);</span><br></pre></td></tr></table></figure>
+
+<p>在得到对应的MemoryBlock之后，通过pageCursor偏移量(通过unsafe的arrayBaseOffset获取对象头的长度，我的是16)将数据写入到内存当中</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line"> * Created by tangshangwen on 17-1-13.</span><br><span class="line"> */</span><br><span class="line">public class TestUnsafe &#123;</span><br><span class="line">    public static void main(String[] args) &#123;</span><br><span class="line">        sun.misc.Unsafe unsafe;</span><br><span class="line">        try &#123;</span><br><span class="line">            Field unsafeField = Unsafe.class.getDeclaredField(&quot;theUnsafe&quot;);</span><br><span class="line">            unsafeField.setAccessible(true);</span><br><span class="line">            unsafe = (sun.misc.Unsafe) unsafeField.get(null);</span><br><span class="line">        &#125; catch (Throwable cause) &#123;</span><br><span class="line">            unsafe = null;</span><br><span class="line">        &#125;</span><br><span class="line">        System.out.println(unsafe.arrayBaseOffset(long[].class));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>和copyMemory将数据复制到对应的内存位置当中，并每次对pageCursor进行和数据长度length相加，找到下次数据写入的位置</p>
+<p><a target="_blank" rel="noopener" href="http://outline-wordpress.stor.sinaapp.com/uploads/2017/01/m.png"><img src="http://outline-wordpress.stor.sinaapp.com/uploads/2017/01/m.png" title="m"></a></p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a><strong>总结</strong></h3><p>通过阅读和理解代码，加深了spark对内存管理方面知识的理解</p>
+<h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a><strong>参考资料</strong></h3><p><a target="_blank" rel="noopener" href="http://www.jianshu.com/p/34729f9f833c">Spark Tungsten in-heap &#x2F; off-heap 内存管理机制</a></p>
+
+
+                
+            </div>
+
+            <!-- Comments -->
+            
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                    
+
+
+                </div>
+            
+        </div>
+    </div>
+</article>
+
+    <!-- Footer -->
+    <hr />
+
+<!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                    
+
+                    
+
+                    
+                        <li>
+                            <a href="https://github.com/shangwen" target="_blank">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    
+
+                    
+
+                    
+                        <li>
+                            <a href="mailto:kevin.shangwen@gmail.com" target="_blank">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-envelope-o fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    
+
+                    
+                </ul>
+                <p class="copyright text-muted">&copy; 2024 shangwen_<br></p>
+                <p class="copyright text-muted">Original Theme <a target="_blank" href="http://startbootstrap.com/template-overviews/clean-blog/">Clean Blog</a> from <a href="http://startbootstrap.com/" target="_blank">Start Bootstrap</a></p>
+                <p class="copyright text-muted">Adapted for <a target="_blank" href="https://hexo.io/">Hexo</a> by <a href="http://www.codeblocq.com/" target="_blank">Jonathan Klughertz</a></p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+
+    <!-- After footer scripts -->
+    
+<!-- jQuery -->
+<script src="//code.jquery.com/jquery-2.1.4.min.js"></script>
+
+<!-- Bootstrap -->
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+
+<!-- Gallery -->
+<script src="//cdnjs.cloudflare.com/ajax/libs/featherlight/1.3.5/featherlight.min.js" type="text/javascript" charset="utf-8"></script>
+
+<!-- Disqus Comments -->
+
+
+
+</body>
+
+</html>

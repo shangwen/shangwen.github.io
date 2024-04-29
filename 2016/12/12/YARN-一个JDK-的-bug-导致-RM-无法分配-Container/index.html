@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- Head tag -->
+<head>
+
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+    <!--Description-->
+
+    
+
+    
+        <meta name="description" content="最近集群因为NM的OOM，然后决定把ContainerMetric给关闭了，然后采取了批量重启NM的方式，采取的步骤是先批量下线，然后在上线，后来发现集群任务越来越慢，集群的利用率越来越低 
+以下是集群可用内存，一直在增加 
+其中出现的现象是：
+
+1.事件队列队列堆积非常严重，最高500W+
+2.C"/>
+    
+
+    <!--Author-->
+    
+        <meta name="author" content="shangwen_"/>
+    
+
+    <!--Open Graph Title-->
+    
+        <meta property="og:title" content="[YARN] 一个JDK 的 bug 导致 RM 无法分配 Container"/>
+    
+
+    <!--Open Graph Description-->
+    
+        <meta property="og:description" content="最近集群因为NM的OOM，然后决定把ContainerMetric给关闭了，然后采取了批量重启NM的方式，采取的步骤是先批量下线，然后在上线，后来发现集群任务越来越慢，集群的利用率越来越低 
+以下是集群可用内存，一直在增加 
+其中出现的现象是：
+
+1.事件队列队列堆积非常严重，最高500W+
+2.C"/>
+    
+
+    <!--Open Graph Site Name-->
+        <meta property="og:site_name" content="Tang&#39;s Blog"/>
+
+    <!--Type page-->
+    
+        <meta property="og:type" content="article"/>
+    
+
+    <!--Page Cover-->
+    
+    
+        <meta property="og:image" content="http://example.comimg/home-bg.jpg"/>
+    
+
+        <meta name="twitter:card" content="summary_large_image"/>
+
+    
+
+    
+        <meta name="twitter:image" content="http://example.comimg/home-bg.jpg"/>
+    
+
+    <!-- Title -->
+    
+    <title>[YARN] 一个JDK 的 bug 导致 RM 无法分配 Container - Tang&#39;s Blog</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet"/>
+
+    <!-- Custom CSS -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+
+    <!-- Custom Fonts -->
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css"/>
+    <link href="//fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic" rel="stylesheet" type="text/css"/>
+    <link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css"/>
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="//oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="//oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- Gallery -->
+    <link href="//cdnjs.cloudflare.com/ajax/libs/featherlight/1.3.5/featherlight.min.css" type="text/css" rel="stylesheet"/>
+
+    <!-- Google Analytics -->
+    
+
+
+    <!-- favicon -->
+    
+
+<meta name="generator" content="Hexo 7.2.0"></head>
+
+
+<body>
+
+    <!-- Menu -->
+    <!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">Tang's blog</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav navbar-right">
+                
+                    <li>
+                        <a href="/">
+                            
+                                Home
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/archives">
+                            
+                                Archives
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/tags">
+                            
+                                Tags
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/categories">
+                            
+                                Categories
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a target="_blank" rel="noopener" href="https://github.com/klugjo/hexo-theme-clean-blog">
+                            
+                                <i class="fa fa-github fa-stack-2x"></i>
+                            
+                        </a>
+                    </li>
+                
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+
+    <!-- Main Content -->
+    <!-- Page Header -->
+<!-- Set your background image for this header in your post front-matter: cover -->
+
+<header class="intro-header" style="background-image: url('/img/home-bg.jpg')">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <h1>[YARN] 一个JDK 的 bug 导致 RM 无法分配 Container</h1>
+                    
+                    <span class="meta">
+                        <!-- Date and Author -->
+                        
+                        
+                            2016-12-12
+                        
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+            <!-- Tags and categories -->
+           
+                <div class="col-lg-4 col-lg-offset-2 col-md-5 col-md-offset-1 post-tags">
+                    
+                        
+
+
+<a href="/tags/HADOOP/">#HADOOP</a> <a href="/tags/YARN/">#YARN</a>
+
+
+                    
+                </div>
+                <div class="col-lg-4 col-md-5 post-categories">
+                    
+                </div>
+            
+
+            <!-- Gallery -->
+            
+
+            <!-- Post Main Content -->
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <p>最近集群因为NM的OOM，然后决定把ContainerMetric给关闭了，然后采取了批量重启NM的方式，采取的步骤是先批量下线，然后在上线，后来发现集群任务越来越慢，集群的利用率越来越低 <a target="_blank" rel="noopener" href="http://outline-wordpress.stor.sinaapp.com/uploads/2017/01/rm_queue_usage.png"><img src="http://outline-wordpress.stor.sinaapp.com/uploads/2017/01/rm_queue_usage.png" title="rm_queue_usage"></a></p>
+<p>以下是集群可用内存，一直在增加 <a target="_blank" rel="noopener" href="http://outline-wordpress.stor.sinaapp.com/uploads/2017/01/queue_usage.png"><img src="http://outline-wordpress.stor.sinaapp.com/uploads/2017/01/queue_usage.png" title="queue_usage"></a></p>
+<p>其中出现的现象是：</p>
+<ul>
+<li>1.事件队列队列堆积非常严重，最高500W+</li>
+<li>2.Container每秒的分配速率从原来的k级别到变成几十每秒</li>
+<li>3.发现NM注册之后有些节点从NEW-&gt;RUNNING状态需要花费20+s的是状态转化时间，从而导致FINISHED_CONTAINERS_PULLED_BY_AM事件不在状态机的处理范围当中抛出了异常</li>
+</ul>
+<p>然后发现社区也有类似的错误问题<a target="_blank" rel="noopener" href="https://issues.apache.org/jira/browse/YARN-4741">YARN-4741</a>，但是看他们讨论的结果，<strong>并不能解释为什么调度事件下来的时候，NM还是分配不到container</strong></p>
+<p>节点每次进行addNode就不进行分配了</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[2017-01-17T18:29:31.769+08:00] [INFO] resourcemanager.rmnode.RMNodeImpl.handle(RMNodeImpl.java 424) [AsyncDispatcher event handler] : xxx:50086 Node Transitioned from NEW to RUNNING</span><br><span class="line">[2017-01-17T18:29:44.191+08:00] [INFO] scheduler.fair.FairScheduler.addNode(FairScheduler.java 899) [ResourceManager Event Processor] : Added node xxx:50086 cluster capacity: &lt;memory:226007040, vCores:67872&gt;</span><br><span class="line">[2017-01-17T18:31:43.538+08:00] [INFO] hadoop.util.HostsFileReader.readFileToSetWithFileInputStream(HostsFileReader.java 88) [IPC Server handler 0 on 8033] : Adding xxx to the list of included hosts from xxx/hosts/mapred_hosts</span><br></pre></td></tr></table></figure>
+
+<p>而且NodeUpdate的平均时间很低</p>
+<p><a target="_blank" rel="noopener" href="http://outline-wordpress.stor.sinaapp.com/uploads/2017/01/nodeupdate.png"><img src="http://outline-wordpress.stor.sinaapp.com/uploads/2017/01/nodeupdate.png" title="nodeupdate"></a></p>
+<p>然后做出假设，假设NM没分配上</p>
+<ul>
+<li>1.NM因为状态错误，RM认为他满了，资源不满足，所以跳过分配</li>
+<li>2.NM因为被别的应用预留，状态错误，导致没分配</li>
+<li>3.队列状态错误，导致RM认为队列资源满了，所以没分配</li>
+</ul>
+<p>经过反复排查之后，都不能解释上面的问题，后来通过不断上线和下线节点在测试集群重现了改问题</p>
+<p>后来发现了连续调度的操作次数一直没有增加 <a target="_blank" rel="noopener" href="http://outline-wordpress.stor.sinaapp.com/uploads/2017/01/con.png"><img src="http://outline-wordpress.stor.sinaapp.com/uploads/2017/01/con.png" title="con"></a></p>
+<p>然后追踪该节点的日志，FairSchedulerContinuousScheduling线程因为timsort的bug导致线程退出了</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">[2017-01-17T15:52:12.791+08:00] [ERROR] hadoop.yarn.YarnUncaughtExceptionHandler.uncaughtException(YarnUncaughtExceptionHandler.java 68) [FairSchedulerContinuousScheduling] : Thread Thread[FairSchedulerContinuousScheduling,5,main] threw an Exception.</span><br><span class="line">java.lang.IllegalArgumentException: Comparison method violates its general contract!</span><br><span class="line">        at java.util.TimSort.mergeLo(TimSort.java:747)</span><br><span class="line">        at java.util.TimSort.mergeAt(TimSort.java:483)</span><br><span class="line">        at java.util.TimSort.mergeCollapse(TimSort.java:410)</span><br><span class="line">        at java.util.TimSort.sort(TimSort.java:214)</span><br><span class="line">        at java.util.TimSort.sort(TimSort.java:173)</span><br><span class="line">        at java.util.Arrays.sort(Arrays.java:659)</span><br><span class="line">        at java.util.Collections.sort(Collections.java:217)</span><br><span class="line">        at org.apache.hadoop.yarn.server.resourcemanager.scheduler.fair.FairScheduler.continuousSchedulingAttempt(FairScheduler.java:1058)</span><br><span class="line">        at org.apache.hadoop.yarn.server.resourcemanager.scheduler.fair.FairScheduler$ContinuousSchedulingThread.run(FairScheduler.java:292)</span><br></pre></td></tr></table></figure>
+
+<p>原因是我们开启了continuousSchedulingEnabled，当下线的节点重新注册时，completedContainers.isEmpty()肯定是true，新加入的节点无法加入调度，导致集群使用率越来越低</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">if (continuousSchedulingEnabled) &#123;</span><br><span class="line">      if (!completedContainers.isEmpty()) &#123;</span><br><span class="line">        attemptScheduling(node);</span><br><span class="line">      &#125;</span><br><span class="line">    &#125; else &#123;</span><br><span class="line">      attemptScheduling(node);</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p>因为TimSort的compare函数不够严谨，然后引发这个bug，所以为了解决这个问题，可以在启动时加上一下参数</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">-Djava.util.Arrays.useLegacyMergeSort=true</span><br></pre></td></tr></table></figure>
+
+<p>以下是提供的参考资料<a target="_blank" rel="noopener" href="https://www.coder4.com/archives/4092">TimSort in Java 7</a></p>
+<h3 id="总-结"><a href="#总-结" class="headerlink" title="总 结"></a><strong>总 结</strong></h3><ol>
+<li>以后遇到集群慢的时候优先检查队列资源的使用率，如果对比两天的使用有明显差异应该出现了问题</li>
+<li>关注每秒分配container的数据对比是否处于正常值</li>
+<li>平均nodeupdate时间和连续调度的次数</li>
+</ol>
+
+
+                
+            </div>
+
+            <!-- Comments -->
+            
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                    
+
+
+                </div>
+            
+        </div>
+    </div>
+</article>
+
+    <!-- Footer -->
+    <hr />
+
+<!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                    
+
+                    
+
+                    
+                        <li>
+                            <a href="https://github.com/shangwen" target="_blank">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    
+
+                    
+
+                    
+                        <li>
+                            <a href="mailto:kevin.shangwen@gmail.com" target="_blank">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-envelope-o fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    
+
+                    
+                </ul>
+                <p class="copyright text-muted">&copy; 2024 shangwen_<br></p>
+                <p class="copyright text-muted">Original Theme <a target="_blank" href="http://startbootstrap.com/template-overviews/clean-blog/">Clean Blog</a> from <a href="http://startbootstrap.com/" target="_blank">Start Bootstrap</a></p>
+                <p class="copyright text-muted">Adapted for <a target="_blank" href="https://hexo.io/">Hexo</a> by <a href="http://www.codeblocq.com/" target="_blank">Jonathan Klughertz</a></p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+
+    <!-- After footer scripts -->
+    
+<!-- jQuery -->
+<script src="//code.jquery.com/jquery-2.1.4.min.js"></script>
+
+<!-- Bootstrap -->
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+
+<!-- Gallery -->
+<script src="//cdnjs.cloudflare.com/ajax/libs/featherlight/1.3.5/featherlight.min.js" type="text/javascript" charset="utf-8"></script>
+
+<!-- Disqus Comments -->
+
+
+
+</body>
+
+</html>

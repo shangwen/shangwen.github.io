@@ -13,6 +13,10 @@
     
 
     
+        <meta name="description" content="文章来源：opensource 作者：Daniel J Walsh
+Containers do not contain
+我听到和读到很多人把docker假设为一个沙箱的应用程序——这意味着他们可以通过Docker以root用户随机跑一些应用程序在他们的系统，他们相信Dokcer contianer将"/>
+    
 
     <!--Author-->
     
@@ -21,10 +25,14 @@
 
     <!--Open Graph Title-->
     
-        <meta property="og:title" content="Tang&#39;s Blog"/>
+        <meta property="og:title" content="[译]Docker容器真的安全?"/>
     
 
     <!--Open Graph Description-->
+    
+        <meta property="og:description" content="文章来源：opensource 作者：Daniel J Walsh
+Containers do not contain
+我听到和读到很多人把docker假设为一个沙箱的应用程序——这意味着他们可以通过Docker以root用户随机跑一些应用程序在他们的系统，他们相信Dokcer contianer将"/>
     
 
     <!--Open Graph Site Name-->
@@ -32,7 +40,7 @@
 
     <!--Type page-->
     
-        <meta property="og:type" content="website"/>
+        <meta property="og:type" content="article"/>
     
 
     <!--Page Cover-->
@@ -51,7 +59,7 @@
 
     <!-- Title -->
     
-    <title>Tang&#39;s Blog</title>
+    <title>[译]Docker容器真的安全? - Tang&#39;s Blog</title>
 
     <!-- Bootstrap Core CSS -->
     <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet"/>
@@ -156,188 +164,121 @@
 
     <!-- Main Content -->
     <!-- Page Header -->
-<!-- Set your background image for this header in the theme's configuration: index_cover -->
-<header class="intro-header" style="background-image: url('/img/home-bg.jpg')">
+<!-- Set your background image for this header in your post front-matter: cover -->
+
+<header class="intro-header" style="background-image: url('/assets/contact-bg.jpg')">
     <div class="container">
         <div class="row">
             <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
-                <div class="site-heading">
-                    <h1>Tang's Blog</h1>
-                    <hr class="small">
-                    <span class="subheading"></span>
+                <div class="post-heading">
+                    <h1>[译]Docker容器真的安全?</h1>
+                    
+                    <span class="meta">
+                        <!-- Date and Author -->
+                        
+                        
+                            2014-11-09
+                        
+                    </span>
                 </div>
             </div>
         </div>
     </div>
 </header>
 
-<!-- Main Content -->
-<div class="container">
-    <div class="row">
-        <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
-            
-                <div class="post-preview">
-    <a href="/2020/08/28/Flink-Flink-SQL-原理解析-1/">
-        <h2 class="post-title">
-            [Flink] Flink SQL 原理解析 (1)
-        </h2>
-        
-    </a>
-    <p class="post-meta">
-        <!-- Date and Author -->
-        
-        2020-08-28
-    </p>
-</div>
-<hr>
-            
-                <div class="post-preview">
-    <a href="/2020/06/22/HDFS-浅谈-Hadoop-Distcp-工具的-InputFormat/">
-        <h2 class="post-title">
-            [HDFS] 浅谈 Hadoop Distcp 工具的 InputFormat
-        </h2>
-        
-    </a>
-    <p class="post-meta">
-        <!-- Date and Author -->
-        
-        2020-06-22
-    </p>
-</div>
-<hr>
-            
-                <div class="post-preview">
-    <a href="/2020/06/15/HDFS-Standby-NameNode性能问题排查/">
-        <h2 class="post-title">
-            [HDFS] Standby NameNode性能问题排查
-        </h2>
-        
-    </a>
-    <p class="post-meta">
-        <!-- Date and Author -->
-        
-        2020-06-15
-    </p>
-</div>
-<hr>
-            
-                <div class="post-preview">
-    <a href="/2020/06/09/Flink-记-Flink-1-10-0-JDBC-Connectors-重连失效分析/">
-        <h2 class="post-title">
-            [Flink] 记 Flink 1.10.0 JDBC Connectors 重连失效分析
-        </h2>
-        
-    </a>
-    <p class="post-meta">
-        <!-- Date and Author -->
-        
-        2020-06-09
-    </p>
-</div>
-<hr>
-            
-                <div class="post-preview">
-    <a href="/2020/05/20/JVM-如何通过jcmd画火焰图/">
-        <h2 class="post-title">
-            [JVM] 如何通过jcmd画火焰图
-        </h2>
-        
-    </a>
-    <p class="post-meta">
-        <!-- Date and Author -->
-        
-        2020-05-20
-    </p>
-</div>
-<hr>
-            
-                <div class="post-preview">
-    <a href="/2020/05/14/Flink-Flink-时间、窗口和函数等相关原理解析/">
-        <h2 class="post-title">
-            [Flink] Flink 时间、窗口和函数等相关原理解析
-        </h2>
-        
-    </a>
-    <p class="post-meta">
-        <!-- Date and Author -->
-        
-        2020-05-14
-    </p>
-</div>
-<hr>
-            
-                <div class="post-preview">
-    <a href="/2020/05/13/Flink-Flink-Kafka-Connector-实现机制简析/">
-        <h2 class="post-title">
-            [Flink] Flink Kafka Connector 实现机制简析
-        </h2>
-        
-    </a>
-    <p class="post-meta">
-        <!-- Date and Author -->
-        
-        2020-05-13
-    </p>
-</div>
-<hr>
-            
-                <div class="post-preview">
-    <a href="/2020/03/15/JAVA-Failed-to-load-class-“org-slf4j-impl-StaticLoggerBinder”-问题解决/">
-        <h2 class="post-title">
-            [JAVA] Failed to load class “org.slf4j.impl.StaticLoggerBinder” 问题解决
-        </h2>
-        
-    </a>
-    <p class="post-meta">
-        <!-- Date and Author -->
-        
-        2020-03-15
-    </p>
-</div>
-<hr>
-            
-                <div class="post-preview">
-    <a href="/2017/07/16/SPARK-Spark-Streaming-在进行-YARN-kill-的时候无法对-eventlog-的-inprogress-进行-rename/">
-        <h2 class="post-title">
-            [SPARK] Spark Streaming 在进行 YARN kill 的时候无法对 eventlog 的 inprogress 进行 rename
-        </h2>
-        
-    </a>
-    <p class="post-meta">
-        <!-- Date and Author -->
-        
-        2017-07-16
-    </p>
-</div>
-<hr>
-            
-                <div class="post-preview">
-    <a href="/2017/05/30/HDFS-HDFS调优笔记/">
-        <h2 class="post-title">
-            [HDFS] HDFS 调优笔记
-        </h2>
-        
-    </a>
-    <p class="post-meta">
-        <!-- Date and Author -->
-        
-        2017-05-30
-    </p>
-</div>
-<hr>
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+            <!-- Tags and categories -->
+           
+                <div class="col-lg-4 col-lg-offset-2 col-md-5 col-md-offset-1 post-tags">
+                    
+                        
+
+
+<a href="/tags/Docker/">#Docker</a>
+
+
+                    
+                </div>
+                <div class="col-lg-4 col-md-5 post-categories">
+                    
+                </div>
             
 
-            <ul class="pager">
-    
-    
-        <li class="next"><a href="/page/2/">Older Posts  &rarr;</a></li>
-    
+            <!-- Gallery -->
+            
+
+            <!-- Post Main Content -->
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <hr>
+<p>文章来源：opensource 作者：Daniel J Walsh</p>
+<p><strong>Containers do not contain</strong></p>
+<p>我听到和读到很多人把docker假设为一个沙箱的应用程序——这意味着他们可以通过Docker以root用户随机跑一些应用程序在他们的系统，他们相信Dokcer contianer将会真实地保护他们的主机。</p>
+<ul>
+<li>我听到有人说Docker container中运行一些进程和在VMs&#x2F;KVM一样安全。</li>
+<li>我知道有些人随机的下载一些Docker镜像并运行在他们的主机中</li>
+<li>我甚至见过PaaS服务器允许用户上传自己的镜像在一个多租户的系统(multi-tenant system)上运行</li>
+<li>我有一个同事说：“Docker就是从网上下载代码并以root用户运行”</li>
 </ul>
+<p>停止假设Docker和linux kernel会在恶意软件中保护你。</p>
+<p><strong>你关心吗？</strong></p>
+<p>如果你没有运行Docker在一个多租户的系统和你有一个好的安全实践在container里面运行服务，你可能不需要担心。但可以说拥有特权的进程运行在container里面和运行在container外面是没有区别的。</p>
+<p>一些人错误的认为container是一个更好和更快的运行虚拟机的方式，从安全的角度上来说，容器是很弱的，我将会在稍后的文中介绍到。</p>
+<p>如果你相信我，Docker container应该被对待为“容器服务”——意味着对待container运行的Apache服务和在系统中运行Apache服务一样，这意味着你要做到一下几点：</p>
+<ul>
+<li>尽可能快的关闭特权</li>
+<li>尽可能的不用root去运行你的服务</li>
+<li>在容器里面对待root权限和在容器外对待root权限一样</li>
+</ul>
+<p>目前，我们正在告诉人们使用通用的标准处理容器里面的特权进程和就像在容器外处理特权进程一样。</p>
+<p>不要随便的在你的系统中运行一个未知的Docker镜像，在很多方面我看到Docker container的革命就像1999年linux的革命一样，当管理员听到一个新的酷的linux服务，他们会：</p>
+<ul>
+<li>在internet上查找这个包，例如在rpmfind.net或者任意的网站。</li>
+<li>下载这个程序到系统中</li>
+<li>通过RPM或者make install安装</li>
+<li>用特权运行它</li>
+</ul>
+<p><strong>What could go wrong?</strong></p>
+<p>两个星期之后管理员听到了关于zlib的漏洞并要找出它，同时希望和祷告这并不是漏洞，他们的软件是脆弱的。</p>
+<p>所以，只运行可信方的容器，如果你的代码并非来自内部和信任的第三方，别依赖容器技术去保护你的主机。</p>
+<p><strong>So what is the problem? Why don’t containers contain?</strong></p>
+<p>最大的问题是任何东西在linux是没有命名空间的，当前，Docker使用五个namespace去改变系统的进程视图：Process、NetWork、Mount、Hostname、Shared Memory。</p>
+<p>虽然这些给予用户的的安全级别并不是最全面的，像KVM，在KVM环境中进程在虚拟机里面是不会和主机的kernel直接交互的，他们也不会访问任何像&#x2F;sys，和&#x2F;sys&#x2F;fs，&#x2F;proc&#x2F;*，等kernel的文件系统。</p>
+<p>Device node是和VMs的kernel交互而不是主机的kernel，因此为了提升拥有整个VMs的特权，这个进程必须有subvirt在虚拟机的内核中，而且要找到HyperVisor的漏洞，突破SELinux的控制，这些对与VM来说是非常密封的，直到最后才能攻击主机的内核。</p>
+<p>而当你运行一个container的时候，它就已经和你的kernel在交互了。</p>
+<p>没有namespace的主要kernel子系统有：</p>
+<ul>
+<li>SELinux</li>
+<li>Cgroup</li>
+<li>在&#x2F;sys下的文件系统</li>
+<li>&#x2F;proc&#x2F;sys, &#x2F;proc&#x2F;sysrq-trigger, &#x2F;proc&#x2F;irq, &#x2F;proc&#x2F;bus</li>
+</ul>
+<p>没有命名空间的Device有：</p>
+<ul>
+<li>&#x2F;dev&#x2F;mem</li>
+<li>&#x2F;dev&#x2F;sd* 文件系统devices</li>
+<li>kernel Modules</li>
+</ul>
+<p>如果你用一个特权进程去和上面其中一个进行通信或者攻击，你就可以拥有这个系统。</p>
+
+
+                
+            </div>
+
+            <!-- Comments -->
+            
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                    
+
+
+                </div>
+            
         </div>
     </div>
-</div>
-
-
+</article>
 
     <!-- Footer -->
     <hr />

@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- Head tag -->
+<head>
+
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+    <!--Description-->
+
+    
+
+    
+        <meta name="description" content="这篇文章主要介绍如何在已有的Hadoop RPC框架上，自定义新的方法实现和NameNode的交互。
+在此之前，我们需要准备：
+
+hadoop的源码
+protobuf 2.5版本
+JDK
+
+hadoop 2.x版本中采用了Protocol Buffer (简称protobuf)作为序列化和反序列化的"/>
+    
+
+    <!--Author-->
+    
+        <meta name="author" content="shangwen_"/>
+    
+
+    <!--Open Graph Title-->
+    
+        <meta property="og:title" content="[HADOOP] 如何利用 Hadoop RPC 框架实现和 NameNode的交互"/>
+    
+
+    <!--Open Graph Description-->
+    
+        <meta property="og:description" content="这篇文章主要介绍如何在已有的Hadoop RPC框架上，自定义新的方法实现和NameNode的交互。
+在此之前，我们需要准备：
+
+hadoop的源码
+protobuf 2.5版本
+JDK
+
+hadoop 2.x版本中采用了Protocol Buffer (简称protobuf)作为序列化和反序列化的"/>
+    
+
+    <!--Open Graph Site Name-->
+        <meta property="og:site_name" content="Tang&#39;s Blog"/>
+
+    <!--Type page-->
+    
+        <meta property="og:type" content="article"/>
+    
+
+    <!--Page Cover-->
+    
+    
+        <meta property="og:image" content="http://example.comimg/home-bg.jpg"/>
+    
+
+        <meta name="twitter:card" content="summary_large_image"/>
+
+    
+
+    
+        <meta name="twitter:image" content="http://example.comimg/home-bg.jpg"/>
+    
+
+    <!-- Title -->
+    
+    <title>[HADOOP] 如何利用 Hadoop RPC 框架实现和 NameNode的交互 - Tang&#39;s Blog</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet"/>
+
+    <!-- Custom CSS -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+
+    <!-- Custom Fonts -->
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css"/>
+    <link href="//fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic" rel="stylesheet" type="text/css"/>
+    <link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css"/>
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="//oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="//oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- Gallery -->
+    <link href="//cdnjs.cloudflare.com/ajax/libs/featherlight/1.3.5/featherlight.min.css" type="text/css" rel="stylesheet"/>
+
+    <!-- Google Analytics -->
+    
+
+
+    <!-- favicon -->
+    
+
+<meta name="generator" content="Hexo 7.2.0"></head>
+
+
+<body>
+
+    <!-- Menu -->
+    <!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">Tang's blog</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav navbar-right">
+                
+                    <li>
+                        <a href="/">
+                            
+                                Home
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/archives">
+                            
+                                Archives
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/tags">
+                            
+                                Tags
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/categories">
+                            
+                                Categories
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a target="_blank" rel="noopener" href="https://github.com/klugjo/hexo-theme-clean-blog">
+                            
+                                <i class="fa fa-github fa-stack-2x"></i>
+                            
+                        </a>
+                    </li>
+                
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+
+    <!-- Main Content -->
+    <!-- Page Header -->
+<!-- Set your background image for this header in your post front-matter: cover -->
+
+<header class="intro-header" style="background-image: url('/img/home-bg.jpg')">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <h1>[HADOOP] 如何利用 Hadoop RPC 框架实现和 NameNode的交互</h1>
+                    
+                    <span class="meta">
+                        <!-- Date and Author -->
+                        
+                        
+                            2015-03-15
+                        
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+            <!-- Tags and categories -->
+           
+                <div class="col-lg-4 col-lg-offset-2 col-md-5 col-md-offset-1 post-tags">
+                    
+                        
+
+
+<a href="/tags/HADOOP/">#HADOOP</a> <a href="/tags/HDFS/">#HDFS</a>
+
+
+                    
+                </div>
+                <div class="col-lg-4 col-md-5 post-categories">
+                    
+                </div>
+            
+
+            <!-- Gallery -->
+            
+
+            <!-- Post Main Content -->
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <hr>
+<p>这篇文章主要介绍如何在已有的Hadoop RPC框架上，自定义新的方法实现和NameNode的交互。</p>
+<p><strong>在此之前，我们需要准备：</strong></p>
+<ul>
+<li>hadoop的源码</li>
+<li>protobuf 2.5版本</li>
+<li>JDK</li>
+</ul>
+<p>hadoop 2.x版本中采用了Protocol Buffer (简称protobuf)作为序列化和反序列化的工具，所以我们在修改源码时需要按照相应规则编写message来实现数据的传输。</p>
+<p><strong>什么是protobuf？</strong></p>
+<p>protobuf是Google 公司内部的混合语言数据标准，它很适合做数据存储或 RPC 数据交换格式。是一种可用于通讯协议、数据存储等领域，并且和语言无关、平台无关、可扩展的序列化结构数据格式。 简单说来 Protobuf 的主要优点就是：简单，快。</p>
+<p>安装protobuf和编译hadoop的过程网上的资料很多，我就直接跳过了，我们可以通过Idea导入hadoop的Maven项目，方便对源码的修改</p>
+<p><strong>1.修改proto文件，定义message和service</strong></p>
+<p>假设我们现在要实现的是一个检查某个文件或文件夹权限是否符合755，并对客户端返回boolean值。 这是一个属于Client和NameNode交互的一个方法，所以我们在Idea中ctrl+shift+N快速的找到ClientNamenodeProtocol.proto，添加对应的message（结构化数据被称为message）</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">message CheckPermissionRequestProto &#123;</span><br><span class="line">    required string src = 1;</span><br><span class="line">&#125;</span><br><span class="line">message CheckPermissionResponseProto &#123;</span><br><span class="line">    required bool checkPerm = 1;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>我们在这个文件中会看到除了string、bool类型的前面会有三种消息成员的规则，他们的含义分别是：</p>
+<ul>
+<li>required：这个域在消息中必须刚好有1个</li>
+<li>optional：这个域在消息中可以有0或1个</li>
+<li>repeated：这个域在消息中可以有从多个，包括0个</li>
+</ul>
+<p>在文件中找到service，并添加方法checkPermission方法</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">service ClientNamenodeProtocol &#123; </span><br><span class="line"> ...... </span><br><span class="line">rpc checkPermission(CheckPermissionRequestProto) returns(CheckPermissionResponseProto);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>接下来编译，编译之后你可以在ClientNamenodeProtocolProtos类（编译后生成）的接口ClientNamenodeProtocol，看到新增加的方法了。</p>
+<p><strong>2.ClientNamenodeProtocolPB文件</strong></p>
+<p>这个接口是client用来和NameNode进行交互的，它继承了ClientNamenodeProtocol接口，即新生成的接口也在其中，这里不用做修改</p>
+<p><strong>3.ClientNamenodeProtocolTranslatorPB类</strong></p>
+<p>这个类是将对ClientProtocol中方法的调用转化为RPC调用Namenode的服务，并将调用参数转化为PB的类型。 所以，我们需要在ClientProtocol增加checkPermission方法，并在这个类中进行Override</p>
+<p>在ClientProtocol中增加</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">@Idempotent</span><br><span class="line">public boolean checkPermission(String src)</span><br><span class="line">     throws AccessControlException, FileNotFoundException,</span><br><span class="line">     UnresolvedPathException, IOException;</span><br></pre></td></tr></table></figure>
+
+<p>在ClientNamenodeProtocolTranslatorPB类中</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">@Override</span><br><span class="line">public boolean checkPermission(String src) throws AccessControlException,</span><br><span class="line">          FileNotFoundException, UnresolvedPathException, IOException &#123;</span><br><span class="line">   CheckPermissionRequestProto req = CheckPermissionRequestProto.newBuilder()</span><br><span class="line">          .setSrc(src).build();</span><br><span class="line">   try &#123;</span><br><span class="line">       return rpcProxy.checkPermission(null,req).getCheckPerm();</span><br><span class="line">   &#125; catch (ServiceException e) &#123;</span><br><span class="line">       throw ProtobufHelper.getRemoteException(e);</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p> <strong>注意：</strong> 要把CheckPermissionRequestProto进行import，否则编译你懂的。</p>
+<p>相应的我们也需要在NameNodeRpcServer类中Override该方法，因为NamenodeProtocols继承了ClientProtocol，这类负责处理所有到达NN的RPC call，他负责将请求转化为NN的方法的调用，因此也可以看出它们的实现分层是很清晰的。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">@Override // ClientProtocol</span><br><span class="line">public boolean checkPermission(String src)</span><br><span class="line">    throws AccessControlException, FileNotFoundException, UnresolvedPathException, IOException &#123;</span><br><span class="line">    return namesystem.checkPermission(src);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>4.ClientNamenodeProtocolServerSideTranslatorPB类</strong></p>
+<p>该类是server端用来将ClientNamenodeProtocolTranslatorPB生成的PB格式的数据转化为本地调用的数据类型，所以增加改方法</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">@Override</span><br><span class="line">public CheckPermissionResponseProto checkPermission(RpcController controller,</span><br><span class="line">                                                    CheckPermissionRequestProto req)</span><br><span class="line">         throws ServiceException &#123;</span><br><span class="line">    try &#123;</span><br><span class="line">        boolean result = server.checkPermission(req.getSrc());</span><br><span class="line">        return CheckPermissionResponseProto.newBuilder().setCheckPerm(result).build(); //将结果返回</span><br><span class="line">    &#125; catch (IOException e) &#123;</span><br><span class="line">        throw new ServiceException(e);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里的server就是NameNodeRpcServer，相当于调用NameNodeRpcServer的checkPermission方法，并在NameNodeRpcServer中调用FSNamesystem完成最后的逻辑</p>
+<p>Namesystem类增加方法</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">boolean checkPermission(String src) throws IOException &#123;  </span><br><span class="line">    readLock();</span><br><span class="line">    try &#123;</span><br><span class="line">        HdfsFileStatus fileStatus = getFileInfo(src,false); //这个方法我有做过修改，你们可能不一样</span><br><span class="line">        FsPermission fsPermission = new FsPermission((short)0755);</span><br><span class="line">        if(fileStatus != null &amp;&amp; fsPermission.equals(fileStatus.getPermission())) &#123;</span><br><span class="line">            return true;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; finally &#123;</span><br><span class="line">        readUnlock();</span><br><span class="line">    &#125;</span><br><span class="line">    return false;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>接下来我就举个例子怎么调用，这只是部分代码，详细的自己看看源码吧。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">proxyInfo = NameNodeProxies.createProxy(conf, nameNodeUri,</span><br><span class="line">    ClientProtocol.class, nnFallbackToSimpleAuth);</span><br><span class="line">this.namenode = proxyInfo.getProxy();</span><br><span class="line">namenode.checkPermission(src)；</span><br></pre></td></tr></table></figure>
+
+<p><strong>5.最后一步就是编译了</strong></p>
+<p>希望通过这个例子能够加深对hadoop实现的理解</p>
+<p><strong>参考资料</strong></p>
+<p><a target="_blank" rel="noopener" href="http://www.ibm.com/developerworks/cn/linux/l-cn-gpb/">Google Protocol Buffer 的使用和原理</a></p>
+
+
+                
+            </div>
+
+            <!-- Comments -->
+            
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                    
+
+
+                </div>
+            
+        </div>
+    </div>
+</article>
+
+    <!-- Footer -->
+    <hr />
+
+<!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                    
+
+                    
+
+                    
+                        <li>
+                            <a href="https://github.com/shangwen" target="_blank">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    
+
+                    
+
+                    
+                        <li>
+                            <a href="mailto:kevin.shangwen@gmail.com" target="_blank">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-envelope-o fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    
+
+                    
+                </ul>
+                <p class="copyright text-muted">&copy; 2024 shangwen_<br></p>
+                <p class="copyright text-muted">Original Theme <a target="_blank" href="http://startbootstrap.com/template-overviews/clean-blog/">Clean Blog</a> from <a href="http://startbootstrap.com/" target="_blank">Start Bootstrap</a></p>
+                <p class="copyright text-muted">Adapted for <a target="_blank" href="https://hexo.io/">Hexo</a> by <a href="http://www.codeblocq.com/" target="_blank">Jonathan Klughertz</a></p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+
+    <!-- After footer scripts -->
+    
+<!-- jQuery -->
+<script src="//code.jquery.com/jquery-2.1.4.min.js"></script>
+
+<!-- Bootstrap -->
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+
+<!-- Gallery -->
+<script src="//cdnjs.cloudflare.com/ajax/libs/featherlight/1.3.5/featherlight.min.js" type="text/javascript" charset="utf-8"></script>
+
+<!-- Disqus Comments -->
+
+
+
+</body>
+
+</html>

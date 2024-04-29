@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- Head tag -->
+<head>
+
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+    <!--Description-->
+
+    
+
+    
+        <meta name="description" content="火焰图是我们日常的比较好用的一个性能分析工具，通过火焰图我们可以分析进程在哪些方法耗时较长，通过分析热点代码调用，找出可以优化的性能瓶颈
+jcmd能做什么在JDK 1.7的版本之后，新增了一个JVM相关的诊断工具jcmd，它可以用来进行JVM堆、线程信息的导出，进行采样分析，这里只简单的介绍它的功能"/>
+    
+
+    <!--Author-->
+    
+        <meta name="author" content="shangwen_"/>
+    
+
+    <!--Open Graph Title-->
+    
+        <meta property="og:title" content="[JVM] 如何通过jcmd画火焰图"/>
+    
+
+    <!--Open Graph Description-->
+    
+        <meta property="og:description" content="火焰图是我们日常的比较好用的一个性能分析工具，通过火焰图我们可以分析进程在哪些方法耗时较长，通过分析热点代码调用，找出可以优化的性能瓶颈
+jcmd能做什么在JDK 1.7的版本之后，新增了一个JVM相关的诊断工具jcmd，它可以用来进行JVM堆、线程信息的导出，进行采样分析，这里只简单的介绍它的功能"/>
+    
+
+    <!--Open Graph Site Name-->
+        <meta property="og:site_name" content="Tang&#39;s Blog"/>
+
+    <!--Type page-->
+    
+        <meta property="og:type" content="article"/>
+    
+
+    <!--Page Cover-->
+    
+    
+        <meta property="og:image" content="http://example.comimg/home-bg.jpg"/>
+    
+
+        <meta name="twitter:card" content="summary_large_image"/>
+
+    
+
+    
+        <meta name="twitter:image" content="http://example.comimg/home-bg.jpg"/>
+    
+
+    <!-- Title -->
+    
+    <title>[JVM] 如何通过jcmd画火焰图 - Tang&#39;s Blog</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet"/>
+
+    <!-- Custom CSS -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+
+    <!-- Custom Fonts -->
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css"/>
+    <link href="//fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic" rel="stylesheet" type="text/css"/>
+    <link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css"/>
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="//oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="//oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- Gallery -->
+    <link href="//cdnjs.cloudflare.com/ajax/libs/featherlight/1.3.5/featherlight.min.css" type="text/css" rel="stylesheet"/>
+
+    <!-- Google Analytics -->
+    
+
+
+    <!-- favicon -->
+    
+
+<meta name="generator" content="Hexo 7.2.0"></head>
+
+
+<body>
+
+    <!-- Menu -->
+    <!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">Tang's blog</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav navbar-right">
+                
+                    <li>
+                        <a href="/">
+                            
+                                Home
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/archives">
+                            
+                                Archives
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/tags">
+                            
+                                Tags
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/categories">
+                            
+                                Categories
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a target="_blank" rel="noopener" href="https://github.com/klugjo/hexo-theme-clean-blog">
+                            
+                                <i class="fa fa-github fa-stack-2x"></i>
+                            
+                        </a>
+                    </li>
+                
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+
+    <!-- Main Content -->
+    <!-- Page Header -->
+<!-- Set your background image for this header in your post front-matter: cover -->
+
+<header class="intro-header" style="background-image: url('/img/home-bg.jpg')">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <h1>[JVM] 如何通过jcmd画火焰图</h1>
+                    
+                    <span class="meta">
+                        <!-- Date and Author -->
+                        
+                        
+                            2020-05-20
+                        
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+            <!-- Tags and categories -->
+           
+                <div class="col-lg-4 col-lg-offset-2 col-md-5 col-md-offset-1 post-tags">
+                    
+                        
+
+
+<a href="/tags/JVM/">#JVM</a>
+
+
+                    
+                </div>
+                <div class="col-lg-4 col-md-5 post-categories">
+                    
+                </div>
+            
+
+            <!-- Gallery -->
+            
+
+            <!-- Post Main Content -->
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <p>火焰图是我们日常的比较好用的一个性能分析工具，通过火焰图我们可以分析进程在哪些方法耗时较长，通过分析热点代码调用，找出可以优化的性能瓶颈</p>
+<h3 id="jcmd能做什么"><a href="#jcmd能做什么" class="headerlink" title="jcmd能做什么"></a><strong>jcmd能做什么</strong></h3><p>在JDK 1.7的版本之后，新增了一个JVM相关的诊断工具jcmd，它可以用来进行JVM堆、线程信息的导出，进行采样分析，这里只简单的介绍它的功能，具体深入的使用方式可以查看文档</p>
+<p>如何使用,执行jcmd -h</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">PerfCounter.print display the counters exposed by this process</span><br><span class="line">-f  read and execute commands from the file</span><br><span class="line">-l  list JVM processes on the local machine</span><br><span class="line">-h  this help</span><br></pre></td></tr></table></figure>
+
+<p>查看本机的JVM进程jcmd -l</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">54769 org.apache.hadoop.hdfs.server.datanode.DataNode</span><br><span class="line">54870 org.apache.hadoop.hdfs.server.namenode.SecondaryNameNode</span><br><span class="line">54665 org.apache.hadoop.hdfs.server.namenode.NameNode</span><br><span class="line">54987 org.apache.hadoop.yarn.server.resourcemanager.ResourceManager</span><br><span class="line">55325 sun.tools.jcmd.JCmd -l</span><br><span class="line">55070 org.apache.hadoop.yarn.server.nodemanager.NodeManager</span><br></pre></td></tr></table></figure>
+
+<p>查看制定进程的性能统计jcmd 54665 PerfCounter.print</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">54665:</span><br><span class="line">java.ci.totalTime=4754838518</span><br><span class="line">java.cls.loadedClasses=4867</span><br><span class="line">java.cls.sharedLoadedClasses=0</span><br><span class="line">java.cls.sharedUnloadedClasses=0</span><br><span class="line">java.cls.unloadedClasses=0</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<p>列出当前进行可以执行的操作jcmd 54665 help</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">54665:</span><br><span class="line">The following commands are available:</span><br><span class="line">JFR.stop</span><br><span class="line">JFR.start</span><br><span class="line">JFR.dump</span><br><span class="line">JFR.check</span><br><span class="line">VM.native_memory</span><br><span class="line">VM.check_commercial_features</span><br><span class="line">VM.unlock_commercial_features</span><br><span class="line">ManagementAgent.stop</span><br><span class="line">ManagementAgent.start_local</span><br><span class="line">ManagementAgent.start</span><br><span class="line">GC.rotate_log</span><br><span class="line">Thread.print</span><br><span class="line">GC.class_stats</span><br><span class="line">GC.class_histogram</span><br><span class="line">GC.heap_dump</span><br><span class="line">GC.run_finalization</span><br><span class="line">GC.run</span><br><span class="line">VM.uptime</span><br><span class="line">VM.flags</span><br><span class="line">VM.system_properties</span><br><span class="line">VM.command_line</span><br><span class="line">VM.version</span><br><span class="line">help</span><br></pre></td></tr></table></figure>
+
+<p>查看对应的命令怎么使用jcmd 54665 help VM.unlock_commercial_features</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">54665:</span><br><span class="line">VM.unlock_commercial_features</span><br><span class="line">Unlock commercial features</span><br><span class="line"></span><br><span class="line">Impact: Low: No impact</span><br><span class="line"></span><br><span class="line">Permission: java.lang.management.ManagementPermission(control)</span><br><span class="line"></span><br><span class="line">Syntax: VM.unlock_commercial_features</span><br></pre></td></tr></table></figure>
+
+<p>对线程进行dump操作jcmd 54665 Thread.print</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">54665:</span><br><span class="line">2020-06-03 20:45:23</span><br><span class="line">Full thread dump Java HotSpot(TM) 64-Bit Server VM (25.131-b11 mixed mode):</span><br><span class="line"></span><br><span class="line">&quot;Attach Listener&quot; #49 daemon prio=9 os_prio=31 tid=0x00007f9b5673b000 nid=0xa50b waiting on condition [0x0000000000000000]</span><br><span class="line">   java.lang.Thread.State: RUNNABLE</span><br><span class="line"></span><br><span class="line">&quot;CacheReplicationMonitor(1004132509)&quot; #48 prio=5 os_prio=31 tid=0x00007f9b58b7d800 nid=0x8d03 waiting on condition [0x000070000a0de000]</span><br><span class="line">   java.lang.Thread.State: TIMED_WAITING (parking)</span><br><span class="line">    at sun.misc.Unsafe.park(Native Method)</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<h3 id="如何通过jcmd画火焰图"><a href="#如何通过jcmd画火焰图" class="headerlink" title="如何通过jcmd画火焰图"></a><strong>如何通过jcmd画火焰图</strong></h3><p>通过上面的简单的jcmd的介绍，我们已经可以简单的使用jcmd了，那么我们如何通过jcmd工具去生成我们想要分析进程的火焰图呢？</p>
+<p>第一步解锁jdk的商业特性</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">jcmd pid VM.unlock_commercial_features</span><br></pre></td></tr></table></figure>
+
+<p>启动JFR(Java Flight Recorder),收集300s的JVM信息，得到output.jfr文件</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">jcmd pid JFR.start name=test duration=300s settings=profile.jfc filename=output.jfr</span><br></pre></td></tr></table></figure>
+
+<p>下载FlameGraph项目</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git clone https://github.com/brendangregg/FlameGraph.git</span><br></pre></td></tr></table></figure>
+
+<p>下载jfr-flame-graph项目进行构建</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git clone https://github.com/chrishantha/jfr-flame-graph.git</span><br></pre></td></tr></table></figure>
+
+<p>生成火焰图</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">export FLAMEGRAPH_DIR=~/FlameGraph</span><br><span class="line">cd ~/jfr-flame-graph/build/install/jfr-flame-graph/bin</span><br><span class="line">./create_flamegraph.sh -f ~/output.jfr -i &gt; ~/flamegraph.svg</span><br></pre></td></tr></table></figure>
+
+<p>然后用浏览器打开，就可以点击对应的调用栈了</p>
+<p><img src="http://outline-wordpress.stor.sinaapp.com/uploads/2020/06/flame.png"></p>
+<p>除此之外，其实也有软件Java Mission Control可以直接打开output.jfr文件，例如</p>
+<p><img src="http://outline-wordpress.stor.sinaapp.com/uploads/2020/06/1582130971_54.png"></p>
+<p>点击代码，调用树，进行对应的分析</p>
+<p><img src="http://outline-wordpress.stor.sinaapp.com/uploads/2020/06/1582131106_63.png"></p>
+<h3 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a><strong>参考文章</strong></h3><ol>
+<li>JVM性能调优工具之jcmd</li>
+<li>GC日志分析网站：gceasy.io</li>
+</ol>
+
+
+                
+            </div>
+
+            <!-- Comments -->
+            
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                    
+
+
+                </div>
+            
+        </div>
+    </div>
+</article>
+
+    <!-- Footer -->
+    <hr />
+
+<!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                    
+
+                    
+
+                    
+                        <li>
+                            <a href="https://github.com/shangwen" target="_blank">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    
+
+                    
+
+                    
+                        <li>
+                            <a href="mailto:kevin.shangwen@gmail.com" target="_blank">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-envelope-o fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    
+
+                    
+                </ul>
+                <p class="copyright text-muted">&copy; 2024 shangwen_<br></p>
+                <p class="copyright text-muted">Original Theme <a target="_blank" href="http://startbootstrap.com/template-overviews/clean-blog/">Clean Blog</a> from <a href="http://startbootstrap.com/" target="_blank">Start Bootstrap</a></p>
+                <p class="copyright text-muted">Adapted for <a target="_blank" href="https://hexo.io/">Hexo</a> by <a href="http://www.codeblocq.com/" target="_blank">Jonathan Klughertz</a></p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+
+    <!-- After footer scripts -->
+    
+<!-- jQuery -->
+<script src="//code.jquery.com/jquery-2.1.4.min.js"></script>
+
+<!-- Bootstrap -->
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+
+<!-- Gallery -->
+<script src="//cdnjs.cloudflare.com/ajax/libs/featherlight/1.3.5/featherlight.min.js" type="text/javascript" charset="utf-8"></script>
+
+<!-- Disqus Comments -->
+
+
+
+</body>
+
+</html>

@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- Head tag -->
+<head>
+
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+    <!--Description-->
+
+    
+
+    
+        <meta name="description" content="这篇文章从 org.apache.flink.table.examples.java.StreamSQLExample 这个简单的例子分析 Flink SQL 的一个简单的执行流程，也算 Flink SQL 执行流程初步的入门，我们先从整体的执行框架了解一个整体流程，方便之后我们有机会对 Flink"/>
+    
+
+    <!--Author-->
+    
+        <meta name="author" content="shangwen_"/>
+    
+
+    <!--Open Graph Title-->
+    
+        <meta property="og:title" content="[Flink] Flink SQL 原理解析 (1)"/>
+    
+
+    <!--Open Graph Description-->
+    
+        <meta property="og:description" content="这篇文章从 org.apache.flink.table.examples.java.StreamSQLExample 这个简单的例子分析 Flink SQL 的一个简单的执行流程，也算 Flink SQL 执行流程初步的入门，我们先从整体的执行框架了解一个整体流程，方便之后我们有机会对 Flink"/>
+    
+
+    <!--Open Graph Site Name-->
+        <meta property="og:site_name" content="Tang&#39;s Blog"/>
+
+    <!--Type page-->
+    
+        <meta property="og:type" content="article"/>
+    
+
+    <!--Page Cover-->
+    
+    
+        <meta property="og:image" content="http://example.comimg/home-bg.jpg"/>
+    
+
+        <meta name="twitter:card" content="summary_large_image"/>
+
+    
+
+    
+        <meta name="twitter:image" content="http://example.comimg/home-bg.jpg"/>
+    
+
+    <!-- Title -->
+    
+    <title>[Flink] Flink SQL 原理解析 (1) - Tang&#39;s Blog</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet"/>
+
+    <!-- Custom CSS -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+
+    <!-- Custom Fonts -->
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css"/>
+    <link href="//fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic" rel="stylesheet" type="text/css"/>
+    <link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css"/>
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="//oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="//oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- Gallery -->
+    <link href="//cdnjs.cloudflare.com/ajax/libs/featherlight/1.3.5/featherlight.min.css" type="text/css" rel="stylesheet"/>
+
+    <!-- Google Analytics -->
+    
+
+
+    <!-- favicon -->
+    
+
+<meta name="generator" content="Hexo 7.2.0"></head>
+
+
+<body>
+
+    <!-- Menu -->
+    <!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">Tang's blog</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav navbar-right">
+                
+                    <li>
+                        <a href="/">
+                            
+                                Home
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/archives">
+                            
+                                Archives
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/tags">
+                            
+                                Tags
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/categories">
+                            
+                                Categories
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a target="_blank" rel="noopener" href="https://github.com/klugjo/hexo-theme-clean-blog">
+                            
+                                <i class="fa fa-github fa-stack-2x"></i>
+                            
+                        </a>
+                    </li>
+                
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+
+    <!-- Main Content -->
+    <!-- Page Header -->
+<!-- Set your background image for this header in your post front-matter: cover -->
+
+<header class="intro-header" style="background-image: url('/img/home-bg.jpg')">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <h1>[Flink] Flink SQL 原理解析 (1)</h1>
+                    
+                    <span class="meta">
+                        <!-- Date and Author -->
+                        
+                        
+                            2020-08-28
+                        
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+            <!-- Tags and categories -->
+           
+                <div class="col-lg-4 col-lg-offset-2 col-md-5 col-md-offset-1 post-tags">
+                    
+                        
+
+
+<a href="/tags/FLINK/">#FLINK</a>
+
+
+                    
+                </div>
+                <div class="col-lg-4 col-md-5 post-categories">
+                    
+                </div>
+            
+
+            <!-- Gallery -->
+            
+
+            <!-- Post Main Content -->
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <p>这篇文章从 org.apache.flink.table.examples.java.StreamSQLExample 这个简单的例子分析 Flink SQL 的一个简单的执行流程，也算 Flink SQL 执行流程初步的入门，我们先从整体的执行框架了解一个整体流程，方便之后我们有机会对 Flink SQL 进行修改先有一个简单认识</p>
+<h4 id="Apache-Calcite-是什么？"><a href="#Apache-Calcite-是什么？" class="headerlink" title="Apache Calcite 是什么？"></a><strong>Apache Calcite 是什么？</strong></h4><p>说到 Flink SQL 我们就不能不提 <a target="_blank" rel="noopener" href="https://calcite.apache.org/">Apache Calcite</a> 这个项目，它是一个通用的动态数据管理框架，可以以统一的 SQL 查询语言进行数据的管理，目前很多大数据软件例如：Hive，Drill等都基于 Calcite 做 SQL 解析等工作</p>
+<p>和大部分SQL执行流程一样，主要可以分成四个阶段：</p>
+<p><img src="http://outline-wordpress.stor.sinaapp.com/uploads/2020/05/11.png"></p>
+<ul>
+<li>Parse：语法解析阶段，将用户传入的 SQL 语句转化为 SqlNode</li>
+<li>Validate：语法校验阶段，通过类似Catelog等进行元数据的合法验证，此时还是 SqlNode</li>
+<li>Optimize：执行计划优化阶段，将 SqlNode 转化为 RelNode，并利用规则优化器进行等价转化等操作，最后得到优化过后的执行计划</li>
+<li>Execute：将逻辑查询计划，生成可执行的代码，提交运行</li>
+</ul>
+<h4 id="Flink-SQL-的执行过程"><a href="#Flink-SQL-的执行过程" class="headerlink" title="Flink SQL 的执行过程"></a><strong>Flink SQL 的执行过程</strong></h4><p>通过上面，我们可以大致的有个概念，就是 SQL 的解析到最后的执行，可以大致的分为四个阶段，接下来我们这四个阶段是怎么和映射到Flink上面的，我们先看下简单的 StreamSQLExample</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">// union the two tables</span><br><span class="line">Table result = tEnv.sqlQuery(&quot;SELECT * FROM &quot; + tableA + &quot; WHERE amount &gt; 2 UNION ALL &quot; +</span><br><span class="line">                &quot;SELECT * FROM OrderB WHERE amount &lt; 2&quot;);</span><br><span class="line"></span><br><span class="line">tEnv.toAppendStream(result, Order.class).print();</span><br></pre></td></tr></table></figure>
+
+<p>对于 Flink（这篇文章基于1.10.0，BlinkPlanner）来说，目前分为两个 Planner，默认情况如果不显示设置默认使用的是 OldPlanner，如果需要使用BlinkPlanner，需要显示的调用 useBlinkPlanner，BlinkPlanner 里有很多优化的新特性，在将来社区将会把 BlinkPlanner 替换OldPlanner</p>
+<h4 id="语法解析"><a href="#语法解析" class="headerlink" title="语法解析"></a><strong>语法解析</strong></h4><p>上述的 SQL 语句为：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SELECT * FROM UnnamedTable$0 WHERE amount &gt; 2 UNION ALL SELECT * FROM OrderB WHERE amount &lt; 2</span><br></pre></td></tr></table></figure>
+
+<p>我们可以简单的先看下调用栈：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">tEnv.sqlQuery</span><br><span class="line">    -&gt; ParserImpl.parse</span><br><span class="line">         -&gt; CalciteParser.parse(statement)</span><br><span class="line">         -&gt; SqlToOperationConverter.convert(planner, catalogManager, parsed)</span><br></pre></td></tr></table></figure>
+
+<p>通过调用栈可以看出，CalciteParser 对我们输入的 statement 进行了解析，对于 CalciteParser 来说，它主要是 Calcite 的 SqlParser 的一个封装类，并且在创建的时候，指定 Calcite 的 ParserFactory 为 FlinkSqlParserImpl.FACTORY，告诉 Calcite 采用 FlinkSqlParserImpl 实现，而这个类是通过 JavaCC 自动生成，我们可以简单的浏览下 flink-sql-parser 这个模块，这里有实现 Flink 自定义解析的一些文件</p>
+<p><img src="http://outline-wordpress.stor.sinaapp.com/uploads/2020/05/2.jpg"></p>
+<p>我们可以在这里简单的说一下它的一个简单的过程，我们都知道，maven在执行的时候是分阶段的，我只说明下面几个：</p>
+<ol>
+<li>validate： 用于验证项目的有效性和其项目所需要的内容是否具备</li>
+<li>initialize：初始化操作，比如创建一些构建所需要的目录等。</li>
+<li>generate-sources：用于生成一些源代码，这些源代码在compile phase中需要使用到</li>
+<li>process-sources：对源代码进行一些操作，例如过滤一些源代码</li>
+<li>generate-resources：生成资源文件（这些文件将被包含在最后的输入文件中）</li>
+<li>process-resources：对资源文件进行处理</li>
+<li>compile：对源代码进行编译</li>
+<li>等等</li>
+</ol>
+<p>我们可以通过 flink-sql-parser 模块的maven文件，简单的可以总结一下流程：</p>
+<ol>
+<li>unpack-parser-template (Maven initialize 阶段)：对 calcite-core 的jar文件进行解压，拷贝**&#x2F;Parser.jj到</li>
+<li>copy-fmpp-resources (Maven initialize 阶段)：拷贝src&#x2F;main&#x2F;codegen中的文件到target&#x2F;codegen</li>
+<li>generate-fmpp-sources (Maven generate-sources 阶段)：fmpp 插件生成代码</li>
+<li>javacc (Maven generate-sources 阶段)：javacc 对整体代码进行生成，放置到target&#x2F;generated-sources，之后继续打包</li>
+</ol>
+<p>简单的说完它的如何生成之后，其实它最终会调用FlinkSqlParserImpl.parseSqlStmtEof做最终的 SQL 解析，将 SQL 转化为 SqlNode，SqlNode 是所有解析节点的父类，一个 SqlNode 就是一个 SQL 解析树，我们看下一下的类图关系</p>
+<p><img src="http://outline-wordpress.stor.sinaapp.com/uploads/2020/05/sqlnode.png"></p>
+<p>我们通过一个简单里的例子去理解，例如：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select id, cast(score as int), &#x27;hello&#x27; from T where id &lt; ?</span><br></pre></td></tr></table></figure>
+
+<p>在上面的SQL中，id、score、T 等为 SqlIdentifier，cast() 为 SqlCall，int 为SqlDataTypeSpec，’hello’ 为 SqlLiteral，’?’ 为SqlDynamicParam，所有的操作都是一个 SqlCall, 例如查询是一个 SqlSelect、删除是一个 SqlDelete 等等，下面对上述类型做简要的总结：</p>
+<ul>
+<li>SqlIdentifier：SQL中的Id标示符</li>
+<li>SqlCall：是对操作符的调用. 操作符可以用来描述任何语法结构，SQL解析树中的每个非叶节点都是某种类型的SqlCall</li>
+<li>SqlDataTypeSpec：SQL数据类型规范</li>
+<li>SqlLiteral：SQL中的常量, 表示输入的常量</li>
+<li>SqlDynamicParam：SQL语句中的动态参数标记</li>
+<li>SqlKind：SqlNode类型</li>
+<li>SqlOperator：SQL解析的节点类型,包括：函数，操作符(&#x3D;)，语法结构(case)等操作</li>
+</ul>
+<p>了解完上述的基本知识之后，我们可以简单的看下上诉 SQL 转换为 SqlNode 的一个简单结构</p>
+<p><img src="http://outline-wordpress.stor.sinaapp.com/uploads/2020/05/31.png"></p>
+<h4 id="元数据校验"><a href="#元数据校验" class="headerlink" title="元数据校验"></a><strong>元数据校验</strong></h4><p>经过上面的解析分析之后，需要通过catalogManager进行元数据上面的校验，这里通过FlinkCalciteSqlValidator.validate进行语法的合法解析，</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">    public static Optional&lt;Operation&gt; convert(</span><br><span class="line">            FlinkPlannerImpl flinkPlanner,</span><br><span class="line">            CatalogManager catalogManager,</span><br><span class="line">            SqlNode sqlNode) &#123;</span><br><span class="line">        // validate the query</span><br><span class="line">        final SqlNode validated = flinkPlanner.validate(sqlNode);</span><br><span class="line">        SqlToOperationConverter converter = new SqlToOperationConverter(flinkPlanner, catalogManager);</span><br><span class="line">...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>经过合法性验证，补充了相应的元数据</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">SELECT `UnnamedTable$0`.`user`, `UnnamedTable$0`.`product`, `UnnamedTable$0`.`amount`</span><br><span class="line">FROM `default_catalog`.`default_database`.`UnnamedTable$0` AS `UnnamedTable$0`</span><br><span class="line">WHERE `UnnamedTable$0`.`amount` &gt; 2</span><br><span class="line">UNION ALL</span><br><span class="line">SELECT `OrderB`.`user`, `OrderB`.`product`, `OrderB`.`amount`</span><br><span class="line">FROM `default_catalog`.`default_database`.`OrderB` AS `OrderB`</span><br><span class="line">WHERE `OrderB`.`amount` &lt; 2</span><br></pre></td></tr></table></figure>
+
+<p>并调用 FlinkPlannerImpl.rel 将合法的 SqlNode 转变成 RelNode 同时，对于行表达式 (SqlOperator) 将转换为 RexNode</p>
+<p><img src="http://outline-wordpress.stor.sinaapp.com/uploads/2020/05/6.png"></p>
+<p>最后分装成 Operation，在这里是 PlannerQueryOperation 返回， 对于 Operation 来说，它涵盖所有种类的表操作，例如查询(DQL)、修改(DML)、定义(DDL)、或控制动作(DCL)，我们可以简单的看下他的类图结构</p>
+<p><img src="http://outline-wordpress.stor.sinaapp.com/uploads/2020/05/4.png"></p>
+<p>接下来，我们将会看他是怎么优化的一个过程</p>
+<h4 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a><strong>参考文献</strong></h4><ul>
+<li><a target="_blank" rel="noopener" href="https://matt33.com/2019/03/07/apache-calcite-process-flow/">Apache Calcite 处理流程详解</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.shangmayuan.com/a/96dc9fd864a744cfad9abd05.html">Apache Calcite 教程-SQL 解析-Calcite 自定义语法解析</a></li>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/65701467">Apache Calcite 若干概念说明</a></li>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/56180392">Calcite 参与对象简介</a></li>
+</ul>
+
+
+                
+            </div>
+
+            <!-- Comments -->
+            
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                    
+
+
+                </div>
+            
+        </div>
+    </div>
+</article>
+
+    <!-- Footer -->
+    <hr />
+
+<!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                    
+
+                    
+
+                    
+                        <li>
+                            <a href="https://github.com/shangwen" target="_blank">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    
+
+                    
+
+                    
+                        <li>
+                            <a href="mailto:kevin.shangwen@gmail.com" target="_blank">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-envelope-o fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    
+
+                    
+                </ul>
+                <p class="copyright text-muted">&copy; 2024 shangwen_<br></p>
+                <p class="copyright text-muted">Original Theme <a target="_blank" href="http://startbootstrap.com/template-overviews/clean-blog/">Clean Blog</a> from <a href="http://startbootstrap.com/" target="_blank">Start Bootstrap</a></p>
+                <p class="copyright text-muted">Adapted for <a target="_blank" href="https://hexo.io/">Hexo</a> by <a href="http://www.codeblocq.com/" target="_blank">Jonathan Klughertz</a></p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+
+    <!-- After footer scripts -->
+    
+<!-- jQuery -->
+<script src="//code.jquery.com/jquery-2.1.4.min.js"></script>
+
+<!-- Bootstrap -->
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+
+<!-- Gallery -->
+<script src="//cdnjs.cloudflare.com/ajax/libs/featherlight/1.3.5/featherlight.min.js" type="text/javascript" charset="utf-8"></script>
+
+<!-- Disqus Comments -->
+
+
+
+</body>
+
+</html>

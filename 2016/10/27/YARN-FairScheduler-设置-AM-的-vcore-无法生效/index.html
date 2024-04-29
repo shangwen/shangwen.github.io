@@ -13,6 +13,9 @@
     
 
     
+        <meta name="description" content="在集群上了Linux Container之后，如果我们想增加AM在NM上获取时间片的能力，我们可以在配置文件中找到以下参数
+1234&amp;lt;property&amp;gt; &amp;lt;name&amp;gt;yarn.app.mapreduce.am.resource.cpu-vcores&amp;lt;/name&amp;gt; "/>
+    
 
     <!--Author-->
     
@@ -21,10 +24,13 @@
 
     <!--Open Graph Title-->
     
-        <meta property="og:title" content="Tang&#39;s Blog"/>
+        <meta property="og:title" content="[YARN] FairScheduler 设置 AM 的 vcore 无法生效"/>
     
 
     <!--Open Graph Description-->
+    
+        <meta property="og:description" content="在集群上了Linux Container之后，如果我们想增加AM在NM上获取时间片的能力，我们可以在配置文件中找到以下参数
+1234&amp;lt;property&amp;gt; &amp;lt;name&amp;gt;yarn.app.mapreduce.am.resource.cpu-vcores&amp;lt;/name&amp;gt; "/>
     
 
     <!--Open Graph Site Name-->
@@ -32,7 +38,7 @@
 
     <!--Type page-->
     
-        <meta property="og:type" content="website"/>
+        <meta property="og:type" content="article"/>
     
 
     <!--Page Cover-->
@@ -51,7 +57,7 @@
 
     <!-- Title -->
     
-    <title>Tang&#39;s Blog</title>
+    <title>[YARN] FairScheduler 设置 AM 的 vcore 无法生效 - Tang&#39;s Blog</title>
 
     <!-- Bootstrap Core CSS -->
     <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet"/>
@@ -156,188 +162,84 @@
 
     <!-- Main Content -->
     <!-- Page Header -->
-<!-- Set your background image for this header in the theme's configuration: index_cover -->
+<!-- Set your background image for this header in your post front-matter: cover -->
+
 <header class="intro-header" style="background-image: url('/img/home-bg.jpg')">
     <div class="container">
         <div class="row">
             <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
-                <div class="site-heading">
-                    <h1>Tang's Blog</h1>
-                    <hr class="small">
-                    <span class="subheading"></span>
+                <div class="post-heading">
+                    <h1>[YARN] FairScheduler 设置 AM 的 vcore 无法生效</h1>
+                    
+                    <span class="meta">
+                        <!-- Date and Author -->
+                        
+                        
+                            2016-10-27
+                        
+                    </span>
                 </div>
             </div>
         </div>
     </div>
 </header>
 
-<!-- Main Content -->
-<div class="container">
-    <div class="row">
-        <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
-            
-                <div class="post-preview">
-    <a href="/2020/08/28/Flink-Flink-SQL-原理解析-1/">
-        <h2 class="post-title">
-            [Flink] Flink SQL 原理解析 (1)
-        </h2>
-        
-    </a>
-    <p class="post-meta">
-        <!-- Date and Author -->
-        
-        2020-08-28
-    </p>
-</div>
-<hr>
-            
-                <div class="post-preview">
-    <a href="/2020/06/22/HDFS-浅谈-Hadoop-Distcp-工具的-InputFormat/">
-        <h2 class="post-title">
-            [HDFS] 浅谈 Hadoop Distcp 工具的 InputFormat
-        </h2>
-        
-    </a>
-    <p class="post-meta">
-        <!-- Date and Author -->
-        
-        2020-06-22
-    </p>
-</div>
-<hr>
-            
-                <div class="post-preview">
-    <a href="/2020/06/15/HDFS-Standby-NameNode性能问题排查/">
-        <h2 class="post-title">
-            [HDFS] Standby NameNode性能问题排查
-        </h2>
-        
-    </a>
-    <p class="post-meta">
-        <!-- Date and Author -->
-        
-        2020-06-15
-    </p>
-</div>
-<hr>
-            
-                <div class="post-preview">
-    <a href="/2020/06/09/Flink-记-Flink-1-10-0-JDBC-Connectors-重连失效分析/">
-        <h2 class="post-title">
-            [Flink] 记 Flink 1.10.0 JDBC Connectors 重连失效分析
-        </h2>
-        
-    </a>
-    <p class="post-meta">
-        <!-- Date and Author -->
-        
-        2020-06-09
-    </p>
-</div>
-<hr>
-            
-                <div class="post-preview">
-    <a href="/2020/05/20/JVM-如何通过jcmd画火焰图/">
-        <h2 class="post-title">
-            [JVM] 如何通过jcmd画火焰图
-        </h2>
-        
-    </a>
-    <p class="post-meta">
-        <!-- Date and Author -->
-        
-        2020-05-20
-    </p>
-</div>
-<hr>
-            
-                <div class="post-preview">
-    <a href="/2020/05/14/Flink-Flink-时间、窗口和函数等相关原理解析/">
-        <h2 class="post-title">
-            [Flink] Flink 时间、窗口和函数等相关原理解析
-        </h2>
-        
-    </a>
-    <p class="post-meta">
-        <!-- Date and Author -->
-        
-        2020-05-14
-    </p>
-</div>
-<hr>
-            
-                <div class="post-preview">
-    <a href="/2020/05/13/Flink-Flink-Kafka-Connector-实现机制简析/">
-        <h2 class="post-title">
-            [Flink] Flink Kafka Connector 实现机制简析
-        </h2>
-        
-    </a>
-    <p class="post-meta">
-        <!-- Date and Author -->
-        
-        2020-05-13
-    </p>
-</div>
-<hr>
-            
-                <div class="post-preview">
-    <a href="/2020/03/15/JAVA-Failed-to-load-class-“org-slf4j-impl-StaticLoggerBinder”-问题解决/">
-        <h2 class="post-title">
-            [JAVA] Failed to load class “org.slf4j.impl.StaticLoggerBinder” 问题解决
-        </h2>
-        
-    </a>
-    <p class="post-meta">
-        <!-- Date and Author -->
-        
-        2020-03-15
-    </p>
-</div>
-<hr>
-            
-                <div class="post-preview">
-    <a href="/2017/07/16/SPARK-Spark-Streaming-在进行-YARN-kill-的时候无法对-eventlog-的-inprogress-进行-rename/">
-        <h2 class="post-title">
-            [SPARK] Spark Streaming 在进行 YARN kill 的时候无法对 eventlog 的 inprogress 进行 rename
-        </h2>
-        
-    </a>
-    <p class="post-meta">
-        <!-- Date and Author -->
-        
-        2017-07-16
-    </p>
-</div>
-<hr>
-            
-                <div class="post-preview">
-    <a href="/2017/05/30/HDFS-HDFS调优笔记/">
-        <h2 class="post-title">
-            [HDFS] HDFS 调优笔记
-        </h2>
-        
-    </a>
-    <p class="post-meta">
-        <!-- Date and Author -->
-        
-        2017-05-30
-    </p>
-</div>
-<hr>
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+            <!-- Tags and categories -->
+           
+                <div class="col-lg-4 col-lg-offset-2 col-md-5 col-md-offset-1 post-tags">
+                    
+                        
+
+
+<a href="/tags/HADOOP/">#HADOOP</a> <a href="/tags/YARN/">#YARN</a>
+
+
+                    
+                </div>
+                <div class="col-lg-4 col-md-5 post-categories">
+                    
+                </div>
             
 
-            <ul class="pager">
-    
-    
-        <li class="next"><a href="/page/2/">Older Posts  &rarr;</a></li>
-    
-</ul>
+            <!-- Gallery -->
+            
+
+            <!-- Post Main Content -->
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <p>在集群上了Linux Container之后，如果我们想增加AM在NM上获取时间片的能力，我们可以在配置文件中找到以下参数</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&lt;property&gt; </span><br><span class="line">&lt;name&gt;yarn.app.mapreduce.am.resource.cpu-vcores&lt;/name&gt; </span><br><span class="line">&lt;value&gt;15&lt;/value&gt; </span><br><span class="line">&lt;/property&gt;</span><br></pre></td></tr></table></figure>
+
+<p>该参数描述的是给AM多少个虚拟核，但是查看RM日志确发现，不管怎么设置AM的核数量都无法生效</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[2016-10-27T16:36:37.280 08:00] [INFO] resourcemanager.scheduler.SchedulerNode.allocateContainer(SchedulerNode.java 153) [ResourceManager Event Processor] : Assigned container container_1477059529836_336635_01_000001 of capacity &lt;memory:2048, vCores:1&gt;</span><br></pre></td></tr></table></figure>
+
+<p>原因是对于FairScheduler默认的策略说，每次都会对AM的提交请求进行规整，而且只会考虑mem的情况</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SchedulerUtils.normalizeRequest(amReq, scheduler.getResourceCalculator(), scheduler.getClusterResource(), scheduler.getMinimumResourceCapability(), scheduler.getMaximumResourceCapability(), scheduler.getMinimumResourceCapability());</span><br></pre></td></tr></table></figure>
+
+<p>在DefaultResourceCalculator类中，只对内存进行规整，createResource(memory, (memory &gt; 0) ? 1 : 0)，如果内存大于0，则默认变为1</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">@Override</span><br><span class="line">public Resource normalize(Resource r, Resource minimumResource,</span><br><span class="line">    Resource maximumResource, Resource stepFactor) &#123;</span><br><span class="line">  int normalizedMemory = Math.min(</span><br><span class="line">      roundUp(</span><br><span class="line">          Math.max(r.getMemory(), minimumResource.getMemory()),</span><br><span class="line">          stepFactor.getMemory()),</span><br><span class="line">          maximumResource.getMemory());</span><br><span class="line">  return Resources.createResource(normalizedMemory);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>所以在默认的DefaultResourceCalculator当中，当你不管怎么设置AM的核数都无法生效</p>
+
+
+                
+            </div>
+
+            <!-- Comments -->
+            
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                    
+
+
+                </div>
+            
         </div>
     </div>
-</div>
-
-
+</article>
 
     <!-- Footer -->
     <hr />

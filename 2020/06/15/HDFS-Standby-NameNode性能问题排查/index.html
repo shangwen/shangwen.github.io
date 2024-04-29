@@ -13,6 +13,9 @@
     
 
     
+        <meta name="description" content="一、 背景描述在集群重启了之后，运维人员在测试的时候发现集群进程负载很高，有时候进行ls会有缓慢的情况，并且 我们通过top查看到集群的SNN进程cpu消耗100%
+二、 问题定位以及排查方案查询系统占用CPU100%消耗线程很简单，用top -H -p 命令即可看到每条线程的占用，该线程的线程ID"/>
+    
 
     <!--Author-->
     
@@ -21,10 +24,13 @@
 
     <!--Open Graph Title-->
     
-        <meta property="og:title" content="Tang&#39;s Blog"/>
+        <meta property="og:title" content="[HDFS] Standby NameNode性能问题排查"/>
     
 
     <!--Open Graph Description-->
+    
+        <meta property="og:description" content="一、 背景描述在集群重启了之后，运维人员在测试的时候发现集群进程负载很高，有时候进行ls会有缓慢的情况，并且 我们通过top查看到集群的SNN进程cpu消耗100%
+二、 问题定位以及排查方案查询系统占用CPU100%消耗线程很简单，用top -H -p 命令即可看到每条线程的占用，该线程的线程ID"/>
     
 
     <!--Open Graph Site Name-->
@@ -32,7 +38,7 @@
 
     <!--Type page-->
     
-        <meta property="og:type" content="website"/>
+        <meta property="og:type" content="article"/>
     
 
     <!--Page Cover-->
@@ -51,7 +57,7 @@
 
     <!-- Title -->
     
-    <title>Tang&#39;s Blog</title>
+    <title>[HDFS] Standby NameNode性能问题排查 - Tang&#39;s Blog</title>
 
     <!-- Bootstrap Core CSS -->
     <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet"/>
@@ -156,188 +162,86 @@
 
     <!-- Main Content -->
     <!-- Page Header -->
-<!-- Set your background image for this header in the theme's configuration: index_cover -->
+<!-- Set your background image for this header in your post front-matter: cover -->
+
 <header class="intro-header" style="background-image: url('/img/home-bg.jpg')">
     <div class="container">
         <div class="row">
             <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
-                <div class="site-heading">
-                    <h1>Tang's Blog</h1>
-                    <hr class="small">
-                    <span class="subheading"></span>
+                <div class="post-heading">
+                    <h1>[HDFS] Standby NameNode性能问题排查</h1>
+                    
+                    <span class="meta">
+                        <!-- Date and Author -->
+                        
+                        
+                            2020-06-15
+                        
+                    </span>
                 </div>
             </div>
         </div>
     </div>
 </header>
 
-<!-- Main Content -->
-<div class="container">
-    <div class="row">
-        <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
-            
-                <div class="post-preview">
-    <a href="/2020/08/28/Flink-Flink-SQL-原理解析-1/">
-        <h2 class="post-title">
-            [Flink] Flink SQL 原理解析 (1)
-        </h2>
-        
-    </a>
-    <p class="post-meta">
-        <!-- Date and Author -->
-        
-        2020-08-28
-    </p>
-</div>
-<hr>
-            
-                <div class="post-preview">
-    <a href="/2020/06/22/HDFS-浅谈-Hadoop-Distcp-工具的-InputFormat/">
-        <h2 class="post-title">
-            [HDFS] 浅谈 Hadoop Distcp 工具的 InputFormat
-        </h2>
-        
-    </a>
-    <p class="post-meta">
-        <!-- Date and Author -->
-        
-        2020-06-22
-    </p>
-</div>
-<hr>
-            
-                <div class="post-preview">
-    <a href="/2020/06/15/HDFS-Standby-NameNode性能问题排查/">
-        <h2 class="post-title">
-            [HDFS] Standby NameNode性能问题排查
-        </h2>
-        
-    </a>
-    <p class="post-meta">
-        <!-- Date and Author -->
-        
-        2020-06-15
-    </p>
-</div>
-<hr>
-            
-                <div class="post-preview">
-    <a href="/2020/06/09/Flink-记-Flink-1-10-0-JDBC-Connectors-重连失效分析/">
-        <h2 class="post-title">
-            [Flink] 记 Flink 1.10.0 JDBC Connectors 重连失效分析
-        </h2>
-        
-    </a>
-    <p class="post-meta">
-        <!-- Date and Author -->
-        
-        2020-06-09
-    </p>
-</div>
-<hr>
-            
-                <div class="post-preview">
-    <a href="/2020/05/20/JVM-如何通过jcmd画火焰图/">
-        <h2 class="post-title">
-            [JVM] 如何通过jcmd画火焰图
-        </h2>
-        
-    </a>
-    <p class="post-meta">
-        <!-- Date and Author -->
-        
-        2020-05-20
-    </p>
-</div>
-<hr>
-            
-                <div class="post-preview">
-    <a href="/2020/05/14/Flink-Flink-时间、窗口和函数等相关原理解析/">
-        <h2 class="post-title">
-            [Flink] Flink 时间、窗口和函数等相关原理解析
-        </h2>
-        
-    </a>
-    <p class="post-meta">
-        <!-- Date and Author -->
-        
-        2020-05-14
-    </p>
-</div>
-<hr>
-            
-                <div class="post-preview">
-    <a href="/2020/05/13/Flink-Flink-Kafka-Connector-实现机制简析/">
-        <h2 class="post-title">
-            [Flink] Flink Kafka Connector 实现机制简析
-        </h2>
-        
-    </a>
-    <p class="post-meta">
-        <!-- Date and Author -->
-        
-        2020-05-13
-    </p>
-</div>
-<hr>
-            
-                <div class="post-preview">
-    <a href="/2020/03/15/JAVA-Failed-to-load-class-“org-slf4j-impl-StaticLoggerBinder”-问题解决/">
-        <h2 class="post-title">
-            [JAVA] Failed to load class “org.slf4j.impl.StaticLoggerBinder” 问题解决
-        </h2>
-        
-    </a>
-    <p class="post-meta">
-        <!-- Date and Author -->
-        
-        2020-03-15
-    </p>
-</div>
-<hr>
-            
-                <div class="post-preview">
-    <a href="/2017/07/16/SPARK-Spark-Streaming-在进行-YARN-kill-的时候无法对-eventlog-的-inprogress-进行-rename/">
-        <h2 class="post-title">
-            [SPARK] Spark Streaming 在进行 YARN kill 的时候无法对 eventlog 的 inprogress 进行 rename
-        </h2>
-        
-    </a>
-    <p class="post-meta">
-        <!-- Date and Author -->
-        
-        2017-07-16
-    </p>
-</div>
-<hr>
-            
-                <div class="post-preview">
-    <a href="/2017/05/30/HDFS-HDFS调优笔记/">
-        <h2 class="post-title">
-            [HDFS] HDFS 调优笔记
-        </h2>
-        
-    </a>
-    <p class="post-meta">
-        <!-- Date and Author -->
-        
-        2017-05-30
-    </p>
-</div>
-<hr>
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+            <!-- Tags and categories -->
+           
+                <div class="col-lg-4 col-lg-offset-2 col-md-5 col-md-offset-1 post-tags">
+                    
+                        
+
+
+<a href="/tags/HADOOP/">#HADOOP</a> <a href="/tags/HDFS/">#HDFS</a>
+
+
+                    
+                </div>
+                <div class="col-lg-4 col-md-5 post-categories">
+                    
+                </div>
             
 
-            <ul class="pager">
-    
-    
-        <li class="next"><a href="/page/2/">Older Posts  &rarr;</a></li>
-    
-</ul>
+            <!-- Gallery -->
+            
+
+            <!-- Post Main Content -->
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <h3 id="一、-背景描述"><a href="#一、-背景描述" class="headerlink" title="一、 背景描述"></a><strong>一、 背景描述</strong></h3><p>在集群重启了之后，运维人员在测试的时候发现集群进程负载很高，有时候进行ls会有缓慢的情况，并且 我们通过top查看到集群的SNN进程cpu消耗100%</p>
+<h3 id="二、-问题定位以及排查方案"><a href="#二、-问题定位以及排查方案" class="headerlink" title="二、 问题定位以及排查方案"></a><strong>二、 问题定位以及排查方案</strong></h3><p>查询系统占用CPU100%消耗线程很简单，用top -H -p 命令即可看到每条线程的占用，该线程的线程ID是十进制的</p>
+<p><img src="http://outline-wordpress.stor.sinaapp.com/uploads/2020/06/01.png"></p>
+<p>我们通过jstack对SNN的线程栈进行定位，将46274转化为十六进制得到b4c2的线程号，得到当时线程的栈调用，发现当时调用的线程信息，发现这个耗时主要发生在Edit log tailer线程中</p>
+<p><img src="http://outline-wordpress.stor.sinaapp.com/uploads/2020/06/02.png"></p>
+<p>然后我们查看源码，我们每次进行loadEdits的时候，都会进行countforQuota的统计，那么我们知道，NN会定时去加载Edits，那么是多久的时间呢？</p>
+<p><img src="http://outline-wordpress.stor.sinaapp.com/uploads/2020/06/03.png"></p>
+<p>我们查看EditLogTailerThread线程，查看他的时间间隔，知道我们60s执行一次EditlogTailer, 然后做一次updateCountForQuota的操作，会耗费很多时间，那么调优的时候，要么增加一定的时间间隔，降低CPU的消耗，但是会影响loadEdis的及时性，要么优化代码结构，加速计算，那么我们查找下方案</p>
+<p><img src="http://outline-wordpress.stor.sinaapp.com/uploads/2020/06/04.png"></p>
+<p>所以经过查找，社区上也有人遇到类似问题，并且有一些相关的patch，这里有一些文章</p>
+<p><img src="http://outline-wordpress.stor.sinaapp.com/uploads/2020/06/05.png"></p>
+<p>除了Patch之外，还有HDFS-8865也讨论了类似的问题，HDFS-6763其实是基于HDFS-8865的一个改进版，其核心通过构造InitQuotaTask来加速计算的过程，从而达到优化的效果，详细的学习建议参考ISSUE上面的详细讨论和方案的设计。</p>
+<h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a><strong>参考</strong></h3><p><a target="_blank" rel="noopener" href="https://issues.apache.org/jira/browse/HDFS-8865">https://issues.apache.org/jira/browse/HDFS-8865</a></p>
+<p><a target="_blank" rel="noopener" href="https://issues.apache.org/jira/browse/HDFS-6763">https://issues.apache.org/jira/browse/HDFS-6763</a></p>
+<p><a target="_blank" rel="noopener" href="https://tech.meituan.com/namenode_restart_optimization.html">https://tech.meituan.com/namenode_restart_optimization.html</a></p>
+
+
+                
+            </div>
+
+            <!-- Comments -->
+            
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                    
+
+
+                </div>
+            
         </div>
     </div>
-</div>
-
-
+</article>
 
     <!-- Footer -->
     <hr />

@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- Head tag -->
+<head>
+
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+    <!--Description-->
+
+    
+
+    
+        <meta name="description" content="背景为了检验Flink版本的可靠性，我们需要对一些常见的异常进行模拟，例如模拟常见的异常：网络链接被重置的情况，这次我们模拟PG的写入可靠场景
+场景模拟我们通过JPS命令找到对应的进程号，然后通过
+1netstat -anp | grep &amp;lt;pid&amp;gt;
+
+找到对应client的端口，然后进"/>
+    
+
+    <!--Author-->
+    
+        <meta name="author" content="shangwen_"/>
+    
+
+    <!--Open Graph Title-->
+    
+        <meta property="og:title" content="[Flink] 记 Flink 1.10.0 JDBC Connectors 重连失效分析"/>
+    
+
+    <!--Open Graph Description-->
+    
+        <meta property="og:description" content="背景为了检验Flink版本的可靠性，我们需要对一些常见的异常进行模拟，例如模拟常见的异常：网络链接被重置的情况，这次我们模拟PG的写入可靠场景
+场景模拟我们通过JPS命令找到对应的进程号，然后通过
+1netstat -anp | grep &amp;lt;pid&amp;gt;
+
+找到对应client的端口，然后进"/>
+    
+
+    <!--Open Graph Site Name-->
+        <meta property="og:site_name" content="Tang&#39;s Blog"/>
+
+    <!--Type page-->
+    
+        <meta property="og:type" content="article"/>
+    
+
+    <!--Page Cover-->
+    
+    
+        <meta property="og:image" content="http://example.comimg/home-bg.jpg"/>
+    
+
+        <meta name="twitter:card" content="summary_large_image"/>
+
+    
+
+    
+        <meta name="twitter:image" content="http://example.comimg/home-bg.jpg"/>
+    
+
+    <!-- Title -->
+    
+    <title>[Flink] 记 Flink 1.10.0 JDBC Connectors 重连失效分析 - Tang&#39;s Blog</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet"/>
+
+    <!-- Custom CSS -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+
+    <!-- Custom Fonts -->
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css"/>
+    <link href="//fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic" rel="stylesheet" type="text/css"/>
+    <link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css"/>
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="//oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="//oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- Gallery -->
+    <link href="//cdnjs.cloudflare.com/ajax/libs/featherlight/1.3.5/featherlight.min.css" type="text/css" rel="stylesheet"/>
+
+    <!-- Google Analytics -->
+    
+
+
+    <!-- favicon -->
+    
+
+<meta name="generator" content="Hexo 7.2.0"></head>
+
+
+<body>
+
+    <!-- Menu -->
+    <!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">Tang's blog</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav navbar-right">
+                
+                    <li>
+                        <a href="/">
+                            
+                                Home
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/archives">
+                            
+                                Archives
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/tags">
+                            
+                                Tags
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/categories">
+                            
+                                Categories
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a target="_blank" rel="noopener" href="https://github.com/klugjo/hexo-theme-clean-blog">
+                            
+                                <i class="fa fa-github fa-stack-2x"></i>
+                            
+                        </a>
+                    </li>
+                
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+
+    <!-- Main Content -->
+    <!-- Page Header -->
+<!-- Set your background image for this header in your post front-matter: cover -->
+
+<header class="intro-header" style="background-image: url('/img/home-bg.jpg')">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <h1>[Flink] 记 Flink 1.10.0 JDBC Connectors 重连失效分析</h1>
+                    
+                    <span class="meta">
+                        <!-- Date and Author -->
+                        
+                        
+                            2020-06-09
+                        
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+            <!-- Tags and categories -->
+           
+                <div class="col-lg-4 col-lg-offset-2 col-md-5 col-md-offset-1 post-tags">
+                    
+                        
+
+
+<a href="/tags/FLINK/">#FLINK</a>
+
+
+                    
+                </div>
+                <div class="col-lg-4 col-md-5 post-categories">
+                    
+                </div>
+            
+
+            <!-- Gallery -->
+            
+
+            <!-- Post Main Content -->
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <h3 id="背景"><a href="#背景" class="headerlink" title="背景"></a><strong>背景</strong></h3><p>为了检验Flink版本的可靠性，我们需要对一些常见的异常进行模拟，例如模拟常见的异常：网络链接被重置的情况，这次我们模拟PG的写入可靠场景</p>
+<h3 id="场景模拟"><a href="#场景模拟" class="headerlink" title="场景模拟"></a><strong>场景模拟</strong></h3><p>我们通过JPS命令找到对应的进程号，然后通过</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">netstat -anp | grep &lt;pid&gt;</span><br></pre></td></tr></table></figure>
+
+<p>找到对应client的端口，然后进行tcpkill</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tcpkill -1 -i eth0 port 47296</span><br></pre></td></tr></table></figure>
+
+<p>我们观察到，taskmanager上面的日志一直在重试一段日志</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">2020-03-20 21:16:18.246 [jdbc-upsert-output-format-thread-1] ERROR org.apache.flink.api.java.io.jdbc.JDBCUpsertOutputFormat  - JDBC executeBatch error, retry times = 1</span><br><span class="line">org.postgresql.util.PSQLException: This connection has been closed.</span><br><span class="line">    at org.postgresql.jdbc.PgConnection.checkClosed(PgConnection.java:857)</span><br><span class="line">    at org.postgresql.jdbc.PgConnection.getAutoCommit(PgConnection.java:817)</span><br><span class="line">    at org.postgresql.jdbc.PgStatement.internalExecuteBatch(PgStatement.java:813)</span><br><span class="line">    at org.postgresql.jdbc.PgStatement.executeBatch(PgStatement.java:873)</span><br><span class="line">    at org.postgresql.jdbc.PgPreparedStatement.executeBatch(PgPreparedStatement.java:1569)</span><br><span class="line">    at org.apache.flink.api.java.io.jdbc.writer.AppendOnlyWriter.executeBatch(AppendOnlyWriter.java:62)</span><br><span class="line">    at org.apache.flink.api.java.io.jdbc.JDBCUpsertOutputFormat.flush(JDBCUpsertOutputFormat.java:159)</span><br><span class="line">    at org.apache.flink.api.java.io.jdbc.JDBCUpsertOutputFormat.lambda$open$0(JDBCUpsertOutputFormat.java:124)</span><br><span class="line">    at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511)</span><br><span class="line">    at java.util.concurrent.FutureTask.runAndReset(FutureTask.java:308)</span><br><span class="line">    at java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.access$301(ScheduledThreadPoolExecutor.java:180)</span><br><span class="line">    at java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:294)</span><br><span class="line">    at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)</span><br><span class="line">    at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)</span><br><span class="line">    at java.lang.Thread.run(Thread.java:748)</span><br><span class="line">2020-03-20 21:16:21.247 [jdbc-upsert-output-format-thread-1] ERROR org.apache.flink.api.java.io.jdbc.JDBCUpsertOutputFormat  - JDBC executeBatch error, retry times = 1</span><br><span class="line">org.postgresql.util.PSQLException: This connection has been closed.</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<h3 id="问题分析"><a href="#问题分析" class="headerlink" title="问题分析"></a><strong>问题分析</strong></h3><p>从日志看来，jdbc-upsert-output-format-thread-1线程在重试一次之后执行成功了，但是数据库却没有看到更新的数据，我们通过查看源码可以看出，JDBC的Connectors为了提升性能，会将数据一批的写入到数据库, 即定期的执行flush方法，我们可以详细的看下重试的逻辑</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">public synchronized void flush() throws Exception &#123;</span><br><span class="line">    checkFlushException();</span><br><span class="line"></span><br><span class="line">    for (int i = 1; i &lt;= maxRetryTimes; i++) &#123;</span><br><span class="line">        try &#123;</span><br><span class="line">            jdbcWriter.executeBatch();</span><br><span class="line">            batchCount = 0;</span><br><span class="line">            break;</span><br><span class="line">        &#125; catch (SQLException e) &#123;</span><br><span class="line">            LOG.error(&quot;JDBC executeBatch error, retry times = &#123;&#125;&quot;, i, e);</span><br><span class="line">            if (i &gt;= maxRetryTimes) &#123;</span><br><span class="line">                throw e;</span><br><span class="line">            &#125;</span><br><span class="line">            Thread.sleep(1000 * i);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>从代码看，好像没什么问题，那么为什么重试的成功会导致数据没有写入数据库呢？因为可以重现，这个就好定位，我们可以通过remote debug抓取调用栈的信息，然后进行调试，这里就不详细介绍了，我们可以发现他的执行流程是这样的, 当链接发生重置，在executeBatch在执行之前并没有感知到链接已经被关闭的问题，从而在执行链接检查是否关闭之前对batchStatements进行了clear，然后异常抛出来之后，在上层执行重试，这时候Statements已经被清空，导致被认为执行了一个空的语句，被认为执行成功，而上层flink也认为执行成功，<strong>导致数据被丢弃</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">PgPreparedStatement.executeBatch</span><br><span class="line">    -&gt; PgStatement.executeBatch()</span><br><span class="line">      -&gt; internalExecuteBatch()</span><br><span class="line">         -&gt; batchStatements.clear();</span><br><span class="line">            -&gt; connection.getAutoCommit()</span><br><span class="line">           -&gt; PgConnection.checkClosed</span><br><span class="line">                    throw new PSQLException(GT.tr(&quot;This connection has been closed.&quot;)</span><br></pre></td></tr></table></figure>
+
+<h3 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a><strong>解决方案</strong></h3><p>这里 <a target="_blank" rel="noopener" href="https://issues.apache.org/jira/browse/FLINK-16281">FLINK-16281</a> 解决问题的思路是上层增加一个CacheRows的数据结构，当执行executeBatch成功时，才对CacheRows进行清除，否则再次重试的时候，需要将CacheRows上的数据更新到数据库中，但这个issue不能解决链接被关闭的问题，所以，在发生异常的时候，可以在catch异常的时候对链接的情况进行判断，如果链接被关闭，则尝试重连, 从而增加Flink在网络异常的可靠性，可以参考这里 <a target="_blank" rel="noopener" href="https://issues.apache.org/jira/browse/FLINK-16708">FLINK-16708</a></p>
+<p>注意：在Flink 1.10.1中对这个模块进行了重构，代码的实现可能和这里有较大差异，但是总的来说，测试规则是一样的，这个 issue 会更新为最新版本，如果在新版本上重连机制还是不生效，最后，祝大家玩的开心～</p>
+
+
+                
+            </div>
+
+            <!-- Comments -->
+            
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                    
+
+
+                </div>
+            
+        </div>
+    </div>
+</article>
+
+    <!-- Footer -->
+    <hr />
+
+<!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                    
+
+                    
+
+                    
+                        <li>
+                            <a href="https://github.com/shangwen" target="_blank">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    
+
+                    
+
+                    
+                        <li>
+                            <a href="mailto:kevin.shangwen@gmail.com" target="_blank">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-envelope-o fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    
+
+                    
+                </ul>
+                <p class="copyright text-muted">&copy; 2024 shangwen_<br></p>
+                <p class="copyright text-muted">Original Theme <a target="_blank" href="http://startbootstrap.com/template-overviews/clean-blog/">Clean Blog</a> from <a href="http://startbootstrap.com/" target="_blank">Start Bootstrap</a></p>
+                <p class="copyright text-muted">Adapted for <a target="_blank" href="https://hexo.io/">Hexo</a> by <a href="http://www.codeblocq.com/" target="_blank">Jonathan Klughertz</a></p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+
+    <!-- After footer scripts -->
+    
+<!-- jQuery -->
+<script src="//code.jquery.com/jquery-2.1.4.min.js"></script>
+
+<!-- Bootstrap -->
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+
+<!-- Gallery -->
+<script src="//cdnjs.cloudflare.com/ajax/libs/featherlight/1.3.5/featherlight.min.js" type="text/javascript" charset="utf-8"></script>
+
+<!-- Disqus Comments -->
+
+
+
+</body>
+
+</html>

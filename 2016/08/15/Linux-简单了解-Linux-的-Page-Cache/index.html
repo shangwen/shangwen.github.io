@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- Head tag -->
+<head>
+
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+    <!--Description-->
+
+    
+
+    
+        <meta name="description" content="在Linux下，Page Cache可以加速访问磁盘上的文件，这是因为，当它第一次读或写数据到类似硬盘一样的存储介质时，Linux会存储这些数据到闲置的内存区域，它充当于一个缓存的角色，如果以后读取数据，他就可以迅速的在缓存中读取，这篇文章将会简单的让你了解有关Page Cache的一些信息。
+内存"/>
+    
+
+    <!--Author-->
+    
+        <meta name="author" content="shangwen_"/>
+    
+
+    <!--Open Graph Title-->
+    
+        <meta property="og:title" content="[Linux] 简单了解 Linux 的 Page Cache"/>
+    
+
+    <!--Open Graph Description-->
+    
+        <meta property="og:description" content="在Linux下，Page Cache可以加速访问磁盘上的文件，这是因为，当它第一次读或写数据到类似硬盘一样的存储介质时，Linux会存储这些数据到闲置的内存区域，它充当于一个缓存的角色，如果以后读取数据，他就可以迅速的在缓存中读取，这篇文章将会简单的让你了解有关Page Cache的一些信息。
+内存"/>
+    
+
+    <!--Open Graph Site Name-->
+        <meta property="og:site_name" content="Tang&#39;s Blog"/>
+
+    <!--Type page-->
+    
+        <meta property="og:type" content="article"/>
+    
+
+    <!--Page Cover-->
+    
+    
+        <meta property="og:image" content="http://example.comimg/home-bg.jpg"/>
+    
+
+        <meta name="twitter:card" content="summary_large_image"/>
+
+    
+
+    
+        <meta name="twitter:image" content="http://example.comimg/home-bg.jpg"/>
+    
+
+    <!-- Title -->
+    
+    <title>[Linux] 简单了解 Linux 的 Page Cache - Tang&#39;s Blog</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet"/>
+
+    <!-- Custom CSS -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+
+    <!-- Custom Fonts -->
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css"/>
+    <link href="//fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic" rel="stylesheet" type="text/css"/>
+    <link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css"/>
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="//oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="//oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- Gallery -->
+    <link href="//cdnjs.cloudflare.com/ajax/libs/featherlight/1.3.5/featherlight.min.css" type="text/css" rel="stylesheet"/>
+
+    <!-- Google Analytics -->
+    
+
+
+    <!-- favicon -->
+    
+
+<meta name="generator" content="Hexo 7.2.0"></head>
+
+
+<body>
+
+    <!-- Menu -->
+    <!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">Tang's blog</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav navbar-right">
+                
+                    <li>
+                        <a href="/">
+                            
+                                Home
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/archives">
+                            
+                                Archives
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/tags">
+                            
+                                Tags
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/categories">
+                            
+                                Categories
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a target="_blank" rel="noopener" href="https://github.com/klugjo/hexo-theme-clean-blog">
+                            
+                                <i class="fa fa-github fa-stack-2x"></i>
+                            
+                        </a>
+                    </li>
+                
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+
+    <!-- Main Content -->
+    <!-- Page Header -->
+<!-- Set your background image for this header in your post front-matter: cover -->
+
+<header class="intro-header" style="background-image: url('/img/home-bg.jpg')">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <h1>[Linux] 简单了解 Linux 的 Page Cache</h1>
+                    
+                    <span class="meta">
+                        <!-- Date and Author -->
+                        
+                        
+                            2016-08-15
+                        
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+            <!-- Tags and categories -->
+           
+                <div class="col-lg-4 col-lg-offset-2 col-md-5 col-md-offset-1 post-tags">
+                    
+                        
+
+
+<a href="/tags/Linux/">#Linux</a>
+
+
+                    
+                </div>
+                <div class="col-lg-4 col-md-5 post-categories">
+                    
+                </div>
+            
+
+            <!-- Gallery -->
+            
+
+            <!-- Post Main Content -->
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <p>在Linux下，Page Cache可以加速访问磁盘上的文件，这是因为，当它第一次读或写数据到类似硬盘一样的存储介质时，Linux会存储这些数据到闲置的内存区域，它充当于一个缓存的角色，如果以后读取数据，他就可以迅速的在缓存中读取，这篇文章将会简单的让你了解有关Page Cache的一些信息。</p>
+<h3 id="内存使用"><a href="#内存使用" class="headerlink" title="内存使用"></a>内存使用</h3><p>在Linux下，有多少内存被Page Cache使用，可以用free -m查看<strong>Cached</strong>那一列，例如：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">➜  free -m</span><br><span class="line">             total       used       free     shared    buffers     cached</span><br><span class="line">Mem:          7684       7437        246        230        322        734</span><br><span class="line">-/+ buffers/cache:       6380       1303</span><br><span class="line">Swap:          255        255          0</span><br></pre></td></tr></table></figure>
+
+<h3 id="数据写入"><a href="#数据写入" class="headerlink" title="数据写入"></a>数据写入</h3><p>如果数据被写入，他首先会写到Page Cache，并把其作为一个脏页(dirty page)进行管理，“dirty”意味着数据存储在Page Cache中，但需要先写入到底层的存储设备，这些脏页的内容会被周期性的转移（系统调用sync或fsync）到底层的存储设备上。</p>
+<p>下面的例子将会展示创建10M的文件，它首先将会写入到Page Cache中，相应的脏页将会增加，直到他把数据写到磁盘上，在这种情况下我们将会使用sync命令</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">➜  ~ cat /proc/meminfo | grep Dirty</span><br><span class="line">Dirty:               160 kB</span><br><span class="line">➜  ~ dd if=/dev/zero of=testfile.txt bs=1M count=10</span><br><span class="line">记录了10+0 的读入</span><br><span class="line">记录了10+0 的写出</span><br><span class="line">10485760字节(10 MB)已复制，0.0157552 秒，666 MB/秒</span><br><span class="line">➜  ~ cat /proc/meminfo | grep Dirty              </span><br><span class="line">Dirty:             10480 kB</span><br><span class="line">➜  ~ sync                                        </span><br><span class="line">➜  ~ cat /proc/meminfo | grep Dirty</span><br><span class="line">Dirty:               124 kB</span><br></pre></td></tr></table></figure>
+
+<h3 id="数据读取"><a href="#数据读取" class="headerlink" title="数据读取"></a>数据读取</h3><p>文件的写入操作不仅仅只有写入，也有读的操作，例如，当你读取同一个40M的文件两次，第二次读取将会变快，因为文件的block直接来自Page Cache的内存而不会去读取磁盘</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">➜  dumpdir free -m</span><br><span class="line">             total       used       free     shared    buffers     cached</span><br><span class="line">Mem:          7684       7491        192        243        328        667</span><br><span class="line">-/+ buffers/cache:       6495       1188</span><br><span class="line">Swap:          255        255          0</span><br><span class="line">➜  dumpdir vim dump.dat</span><br><span class="line">➜  dumpdir free -m</span><br><span class="line">             total       used       free     shared    buffers     cached</span><br><span class="line">Mem:          7684       7515        168        243        271        691</span><br><span class="line">-/+ buffers/cache:       6552       1132</span><br><span class="line">Swap:          255        255          0</span><br></pre></td></tr></table></figure>
+
+<p>如果Linux的application使用的可用内存不能够满足，长时间未被使用的Page Cache将会被删除</p>
+
+
+                
+            </div>
+
+            <!-- Comments -->
+            
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                    
+
+
+                </div>
+            
+        </div>
+    </div>
+</article>
+
+    <!-- Footer -->
+    <hr />
+
+<!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                    
+
+                    
+
+                    
+                        <li>
+                            <a href="https://github.com/shangwen" target="_blank">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    
+
+                    
+
+                    
+                        <li>
+                            <a href="mailto:kevin.shangwen@gmail.com" target="_blank">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-envelope-o fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    
+
+                    
+                </ul>
+                <p class="copyright text-muted">&copy; 2024 shangwen_<br></p>
+                <p class="copyright text-muted">Original Theme <a target="_blank" href="http://startbootstrap.com/template-overviews/clean-blog/">Clean Blog</a> from <a href="http://startbootstrap.com/" target="_blank">Start Bootstrap</a></p>
+                <p class="copyright text-muted">Adapted for <a target="_blank" href="https://hexo.io/">Hexo</a> by <a href="http://www.codeblocq.com/" target="_blank">Jonathan Klughertz</a></p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+
+    <!-- After footer scripts -->
+    
+<!-- jQuery -->
+<script src="//code.jquery.com/jquery-2.1.4.min.js"></script>
+
+<!-- Bootstrap -->
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+
+<!-- Gallery -->
+<script src="//cdnjs.cloudflare.com/ajax/libs/featherlight/1.3.5/featherlight.min.js" type="text/javascript" charset="utf-8"></script>
+
+<!-- Disqus Comments -->
+
+
+
+</body>
+
+</html>

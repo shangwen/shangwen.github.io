@@ -13,6 +13,10 @@
     
 
     
+        <meta name="description" content="现象描述之前hadoop2.7.1的集群，经常运行一段时间后会触发OOM，导致上面的map需要重跑，能想到的一种方案是调整GC参数，利用GC回收器对内存进行回收，另外一种情况则感觉代码可能处理有问题。
+关键日志：
+12342016-07-05 09:35:40,907 WARN org.apache"/>
+    
 
     <!--Author-->
     
@@ -21,10 +25,14 @@
 
     <!--Open Graph Title-->
     
-        <meta property="og:title" content="Tang&#39;s Blog"/>
+        <meta property="og:title" content="[YARN] NodeManager 因为 ContainerMetric 导致 OOM"/>
     
 
     <!--Open Graph Description-->
+    
+        <meta property="og:description" content="现象描述之前hadoop2.7.1的集群，经常运行一段时间后会触发OOM，导致上面的map需要重跑，能想到的一种方案是调整GC参数，利用GC回收器对内存进行回收，另外一种情况则感觉代码可能处理有问题。
+关键日志：
+12342016-07-05 09:35:40,907 WARN org.apache"/>
     
 
     <!--Open Graph Site Name-->
@@ -32,7 +40,7 @@
 
     <!--Type page-->
     
-        <meta property="og:type" content="website"/>
+        <meta property="og:type" content="article"/>
     
 
     <!--Page Cover-->
@@ -51,7 +59,7 @@
 
     <!-- Title -->
     
-    <title>Tang&#39;s Blog</title>
+    <title>[YARN] NodeManager 因为 ContainerMetric 导致 OOM - Tang&#39;s Blog</title>
 
     <!-- Bootstrap Core CSS -->
     <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet"/>
@@ -156,188 +164,88 @@
 
     <!-- Main Content -->
     <!-- Page Header -->
-<!-- Set your background image for this header in the theme's configuration: index_cover -->
+<!-- Set your background image for this header in your post front-matter: cover -->
+
 <header class="intro-header" style="background-image: url('/img/home-bg.jpg')">
     <div class="container">
         <div class="row">
             <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
-                <div class="site-heading">
-                    <h1>Tang's Blog</h1>
-                    <hr class="small">
-                    <span class="subheading"></span>
+                <div class="post-heading">
+                    <h1>[YARN] NodeManager 因为 ContainerMetric 导致 OOM</h1>
+                    
+                    <span class="meta">
+                        <!-- Date and Author -->
+                        
+                        
+                            2016-08-24
+                        
+                    </span>
                 </div>
             </div>
         </div>
     </div>
 </header>
 
-<!-- Main Content -->
-<div class="container">
-    <div class="row">
-        <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
-            
-                <div class="post-preview">
-    <a href="/2020/08/28/Flink-Flink-SQL-原理解析-1/">
-        <h2 class="post-title">
-            [Flink] Flink SQL 原理解析 (1)
-        </h2>
-        
-    </a>
-    <p class="post-meta">
-        <!-- Date and Author -->
-        
-        2020-08-28
-    </p>
-</div>
-<hr>
-            
-                <div class="post-preview">
-    <a href="/2020/06/22/HDFS-浅谈-Hadoop-Distcp-工具的-InputFormat/">
-        <h2 class="post-title">
-            [HDFS] 浅谈 Hadoop Distcp 工具的 InputFormat
-        </h2>
-        
-    </a>
-    <p class="post-meta">
-        <!-- Date and Author -->
-        
-        2020-06-22
-    </p>
-</div>
-<hr>
-            
-                <div class="post-preview">
-    <a href="/2020/06/15/HDFS-Standby-NameNode性能问题排查/">
-        <h2 class="post-title">
-            [HDFS] Standby NameNode性能问题排查
-        </h2>
-        
-    </a>
-    <p class="post-meta">
-        <!-- Date and Author -->
-        
-        2020-06-15
-    </p>
-</div>
-<hr>
-            
-                <div class="post-preview">
-    <a href="/2020/06/09/Flink-记-Flink-1-10-0-JDBC-Connectors-重连失效分析/">
-        <h2 class="post-title">
-            [Flink] 记 Flink 1.10.0 JDBC Connectors 重连失效分析
-        </h2>
-        
-    </a>
-    <p class="post-meta">
-        <!-- Date and Author -->
-        
-        2020-06-09
-    </p>
-</div>
-<hr>
-            
-                <div class="post-preview">
-    <a href="/2020/05/20/JVM-如何通过jcmd画火焰图/">
-        <h2 class="post-title">
-            [JVM] 如何通过jcmd画火焰图
-        </h2>
-        
-    </a>
-    <p class="post-meta">
-        <!-- Date and Author -->
-        
-        2020-05-20
-    </p>
-</div>
-<hr>
-            
-                <div class="post-preview">
-    <a href="/2020/05/14/Flink-Flink-时间、窗口和函数等相关原理解析/">
-        <h2 class="post-title">
-            [Flink] Flink 时间、窗口和函数等相关原理解析
-        </h2>
-        
-    </a>
-    <p class="post-meta">
-        <!-- Date and Author -->
-        
-        2020-05-14
-    </p>
-</div>
-<hr>
-            
-                <div class="post-preview">
-    <a href="/2020/05/13/Flink-Flink-Kafka-Connector-实现机制简析/">
-        <h2 class="post-title">
-            [Flink] Flink Kafka Connector 实现机制简析
-        </h2>
-        
-    </a>
-    <p class="post-meta">
-        <!-- Date and Author -->
-        
-        2020-05-13
-    </p>
-</div>
-<hr>
-            
-                <div class="post-preview">
-    <a href="/2020/03/15/JAVA-Failed-to-load-class-“org-slf4j-impl-StaticLoggerBinder”-问题解决/">
-        <h2 class="post-title">
-            [JAVA] Failed to load class “org.slf4j.impl.StaticLoggerBinder” 问题解决
-        </h2>
-        
-    </a>
-    <p class="post-meta">
-        <!-- Date and Author -->
-        
-        2020-03-15
-    </p>
-</div>
-<hr>
-            
-                <div class="post-preview">
-    <a href="/2017/07/16/SPARK-Spark-Streaming-在进行-YARN-kill-的时候无法对-eventlog-的-inprogress-进行-rename/">
-        <h2 class="post-title">
-            [SPARK] Spark Streaming 在进行 YARN kill 的时候无法对 eventlog 的 inprogress 进行 rename
-        </h2>
-        
-    </a>
-    <p class="post-meta">
-        <!-- Date and Author -->
-        
-        2017-07-16
-    </p>
-</div>
-<hr>
-            
-                <div class="post-preview">
-    <a href="/2017/05/30/HDFS-HDFS调优笔记/">
-        <h2 class="post-title">
-            [HDFS] HDFS 调优笔记
-        </h2>
-        
-    </a>
-    <p class="post-meta">
-        <!-- Date and Author -->
-        
-        2017-05-30
-    </p>
-</div>
-<hr>
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+            <!-- Tags and categories -->
+           
+                <div class="col-lg-4 col-lg-offset-2 col-md-5 col-md-offset-1 post-tags">
+                    
+                        
+
+
+<a href="/tags/HADOOP/">#HADOOP</a> <a href="/tags/JVM/">#JVM</a> <a href="/tags/YARN/">#YARN</a>
+
+
+                    
+                </div>
+                <div class="col-lg-4 col-md-5 post-categories">
+                    
+                </div>
             
 
-            <ul class="pager">
-    
-    
-        <li class="next"><a href="/page/2/">Older Posts  &rarr;</a></li>
-    
+            <!-- Gallery -->
+            
+
+            <!-- Post Main Content -->
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <h3 id="现象描述"><a href="#现象描述" class="headerlink" title="现象描述"></a>现象描述</h3><p>之前hadoop2.7.1的集群，经常运行一段时间后会触发OOM，导致上面的map需要重跑，能想到的一种方案是调整GC参数，利用GC回收器对内存进行回收，另外一种情况则感觉代码可能处理有问题。</p>
+<p>关键日志：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">2016-07-05 09:35:40,907 WARN org.apache.hadoop.ipc.Client: Unexpected error reading responses on connection Thread[IPC Client (2069725879) connection to rmhost:8031 from yarn,5,main]</span><br><span class="line">java.lang.OutOfMemoryError: Java heap space</span><br><span class="line">        at sun.nio.ch.EPollArrayWrapper.&lt;init&gt;(EPollArrayWrapper.java:120)</span><br><span class="line">        at sun.nio.ch.EPollSelectorImpl.&lt;init&gt;(EPollSelectorImpl.java:68)</span><br></pre></td></tr></table></figure>
+
+<p>后来调整GC参数，追踪到底哪里出了问题，以下是参数参考</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">YARN_NODEMANAGER_OPTS=&quot;-Xmx2g -Xms2g -Xmn1g -XX:PermSize=128M -XX:MaxPermSize=128M -XX:+DisableExplicitGC -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/data1/yarn-logs/nm_dump.log -Dcom.sun.management.jmxremote -Xloggc:/data1/yarn-logs/nm_gc.log -verbose:gc -XX:+PrintGCDetails -XX:+PrintGCDateStamps -XX:+PrintGCApplicationStoppedTime -XX:+PrintGCApplicationConcurrentTime -XX:+PrintTenuringDistribution -XX:ErrorFile=/data1/yarn-logs/nm_err_pid&quot;</span><br></pre></td></tr></table></figure>
+
+<p>后来经过分析，确实是代码处理有问题</p>
+<p> <a target="_blank" rel="noopener" href="http://outline-wordpress.stor.sinaapp.com/uploads/2016/08/oom1.png"><img src="http://outline-wordpress.stor.sinaapp.com/uploads/2016/08/oom1-300x132.png" alt="img" title="oom1"></a></p>
+<p>containerMetric占用了大部分内存</p>
+<p> <a target="_blank" rel="noopener" href="http://outline-wordpress.stor.sinaapp.com/uploads/2016/08/oom2.png"><img src="http://outline-wordpress.stor.sinaapp.com/uploads/2016/08/oom2-300x124.png" alt="img" title="oom2"></a></p>
+<p>后来社区有patch可以修复<a target="_blank" rel="noopener" href="https://issues.apache.org/jira/browse/HADOOP-13362">HADOOP-13362</a></p>
+<h3 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h3><ul>
+<li>1.关掉ContainerMetric，默认是开启的(yarn.nodemanager.container-metrics.enable默认true<br>改为false)</li>
+<li>2.打patch</li>
 </ul>
+<h3 id="参考工具"><a href="#参考工具" class="headerlink" title="参考工具"></a>参考工具</h3><p><a target="_blank" rel="noopener" href="https://github.com/shangwen/learn/blob/master/tools/ha456.jar">IBM分析工具</a></p>
+
+
+                
+            </div>
+
+            <!-- Comments -->
+            
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                    
+
+
+                </div>
+            
         </div>
     </div>
-</div>
-
-
+</article>
 
     <!-- Footer -->
     <hr />

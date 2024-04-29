@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- Head tag -->
+<head>
+
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+    <!--Description-->
+
+    
+
+    
+        <meta name="description" content="目标：
+
+提供一种可靠的机制在特定的节点运行应用程序。
+为队列提供一种可靠的机制在特定的节点上进行资源的调度
+提供一种机制解决队列和application所定义节点在哪运行
+
+定义
+
+Node Label – 描述一个节点的标签，每个节点可以拥有多个标签
+Label expression – 逻辑上"/>
+    
+
+    <!--Author-->
+    
+        <meta name="author" content="shangwen_"/>
+    
+
+    <!--Open Graph Title-->
+    
+        <meta property="og:title" content="[YARN] Label Based Scheduling"/>
+    
+
+    <!--Open Graph Description-->
+    
+        <meta property="og:description" content="目标：
+
+提供一种可靠的机制在特定的节点运行应用程序。
+为队列提供一种可靠的机制在特定的节点上进行资源的调度
+提供一种机制解决队列和application所定义节点在哪运行
+
+定义
+
+Node Label – 描述一个节点的标签，每个节点可以拥有多个标签
+Label expression – 逻辑上"/>
+    
+
+    <!--Open Graph Site Name-->
+        <meta property="og:site_name" content="Tang&#39;s Blog"/>
+
+    <!--Type page-->
+    
+        <meta property="og:type" content="article"/>
+    
+
+    <!--Page Cover-->
+    
+    
+        <meta property="og:image" content="http://example.comimg/home-bg.jpg"/>
+    
+
+        <meta name="twitter:card" content="summary_large_image"/>
+
+    
+
+    
+        <meta name="twitter:image" content="http://example.comimg/home-bg.jpg"/>
+    
+
+    <!-- Title -->
+    
+    <title>[YARN] Label Based Scheduling - Tang&#39;s Blog</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet"/>
+
+    <!-- Custom CSS -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+
+    <!-- Custom Fonts -->
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css"/>
+    <link href="//fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic" rel="stylesheet" type="text/css"/>
+    <link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css"/>
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="//oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="//oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- Gallery -->
+    <link href="//cdnjs.cloudflare.com/ajax/libs/featherlight/1.3.5/featherlight.min.css" type="text/css" rel="stylesheet"/>
+
+    <!-- Google Analytics -->
+    
+
+
+    <!-- favicon -->
+    
+
+<meta name="generator" content="Hexo 7.2.0"></head>
+
+
+<body>
+
+    <!-- Menu -->
+    <!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">Tang's blog</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav navbar-right">
+                
+                    <li>
+                        <a href="/">
+                            
+                                Home
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/archives">
+                            
+                                Archives
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/tags">
+                            
+                                Tags
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/categories">
+                            
+                                Categories
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a target="_blank" rel="noopener" href="https://github.com/klugjo/hexo-theme-clean-blog">
+                            
+                                <i class="fa fa-github fa-stack-2x"></i>
+                            
+                        </a>
+                    </li>
+                
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+
+    <!-- Main Content -->
+    <!-- Page Header -->
+<!-- Set your background image for this header in your post front-matter: cover -->
+
+<header class="intro-header" style="background-image: url('/img/home-bg.jpg')">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <h1>[YARN] Label Based Scheduling</h1>
+                    
+                    <span class="meta">
+                        <!-- Date and Author -->
+                        
+                        
+                            2015-04-21
+                        
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+            <!-- Tags and categories -->
+           
+                <div class="col-lg-4 col-lg-offset-2 col-md-5 col-md-offset-1 post-tags">
+                    
+                        
+
+
+<a href="/tags/HADOOP/">#HADOOP</a> <a href="/tags/YARN/">#YARN</a>
+
+
+                    
+                </div>
+                <div class="col-lg-4 col-md-5 post-categories">
+                    
+                </div>
+            
+
+            <!-- Gallery -->
+            
+
+            <!-- Post Main Content -->
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <hr>
+<p><strong>目标：</strong></p>
+<ol>
+<li>提供一种可靠的机制在特定的节点运行应用程序。</li>
+<li>为队列提供一种可靠的机制在特定的节点上进行资源的调度</li>
+<li>提供一种机制解决队列和application所定义节点在哪运行</li>
+</ol>
+<p><strong>定义</strong></p>
+<ul>
+<li><strong>Node Label</strong> – 描述一个节点的标签，每个节点可以拥有多个标签</li>
+<li><strong>Label expression</strong> – 逻辑上的标签组合（使用 &amp;&amp; 或 and，|| 或 or，！或 not）</li>
+<li><strong>Queue label</strong> – Label expression 决定哪些节点属于这个队列</li>
+<li><strong>Application Label</strong> – Label expression 决定应用程序容器在哪些节点运行</li>
+<li><strong>Queue Label Policy</strong> – Label Policy 配置在Queue中，其定义规则解决application label和queue label之间的冲突</li>
+</ul>
+<p><strong>使用案例</strong></p>
+<p>cluster A使用Fair Scheduler去调度application在他的节点上。 cluster 管理员定义多个队列包括嵌套队列去划分资源给不同的组织，所以每个组织都可以共享资源去使用。 除此之外，集群还在不同方面存在异构：</p>
+<ul>
+<li>拥有不同类型的硬件（一些节点拥有大内存，多CPU，有些则网络带宽占优势）</li>
+<li>数据在DFS中切分到分配到不同的节点&#x2F;机架上</li>
+<li>其他的不同等等</li>
+</ul>
+<p>cluster管理员根据差异用标签标记所有的节点：</p>
+<ul>
+<li>大内存使用red标记</li>
+<li>高CPU的使用blue标记</li>
+<li>高网络带宽的使用green标记</li>
+<li>节点在机架A标记为-rackA</li>
+<li>节点在机架B标记未-rackB</li>
+</ul>
+<p>因为被标记为red的节点可以在rackA和rackB cluster管理员可以分配多个标签给它：</p>
+<table>
+<thead>
+<tr>
+<th>Node Regex</th>
+<th>Label1</th>
+<th>Label2</th>
+<th>…</th>
+<th>LabelN</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>rackA_red</td>
+<td>red</td>
+<td>rackA</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>rackA_blue</td>
+<td>blue</td>
+<td>rackA</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>rackB_red</td>
+<td>red</td>
+<td>rackB</td>
+<td></td>
+<td></td>
+</tr>
+</tbody></table>
+<p>如果我们希望所有的应用提交到Queue1即运行在“rackA_red”或“rackA_blue”节点上，cluster管理员可以调整label expression即配置Queue1为（red || blue）&amp;&amp; rackA</p>
+<p>另外cluster管理员配置Queue Policy去定义调度器的行为，假设提交的application也拥有自己的label expression</p>
+<ul>
+<li>Queue Lable Expression优先</li>
+<li>Application Label Expression优先</li>
+<li>取它们的交集</li>
+<li>取它们的或集</li>
+</ul>
+<p>现在，用户B提交一个app到Queue1，但是这个app属于计算密集型的，他希望运行在高cpu的节点上，所以，这个app的lable expression可以为 “blue &amp;&amp; rackA”</p>
+<p>幸运的是集群管理员设置Queue Policy为“AND”，所以application将会被调度在“rackA_blue”的节点上运行。 假设集群管理员设置Queue Policy为“OR”，结果将会变为：“((red || blue) &amp;&amp; rackA) || (blue &amp;&amp; rackA)” ，即”(red || blue) &amp;&amp; rackA”</p>
+<p><strong>设计</strong></p>
+<p><strong>Node Labels, Label Expressions, Policies</strong></p>
+<p><strong>Node Labels</strong></p>
+<p>最初的JIRA建议每个节点指定他们自己拥有的标签，并提供这些信息给ResourceManager. 我们建议集中式的把节点的标签存储到DFS上，所有的YARN daemons都可以访问，修改也不需要同步到整个集群或者客户端</p>
+<p><strong>标签可以被指定为下列的格式：</strong></p>
+<p>perfnode.* big, fast, physical, scale.* virtual, “slow”, perfnode30 ‘bad’</p>
+<p><strong>Label Expressions, Policies</strong></p>
+<p>Label expression 是一种逻辑表达式，它可以包含多个标签 (例如:big || virtual &amp;&amp; !bad). Application Label expression 可以定义应用想要运行在哪些节点的集合 Queue Label expression 可以定义该队列“希望”应用运行在哪些节点。</p>
+<p><strong>Queue Label Policy</strong></p>
+<p>每个队列可以配置label expression和application Label Expression相互作用，通过配置Queue Label Policy可以解决Queue label和application label之间的冲突，决定应用在哪些类型节点上运行。</p>
+<p><strong>Label Manager</strong></p>
+<p>Label Manager是RM的一个新的服务 这个服务的主要作用为：</p>
+<ul>
+<li>从DFS加载节点的标签和维护内部节点和节点标签的map</li>
+<li>检查文件的变化，并更新内部节点和标签的映射关系</li>
+<li>基于 Application Label Expression, Queue Label Expression和Queue Label Policy结合构造新的逻辑表达式</li>
+</ul>
+<p>英文不太好，望多多指正</p>
+<p><strong>参考资料：</strong> <a target="_blank" rel="noopener" href="https://issues.apache.org/jira/browse/YARN-796">YARN-796</a></p>
+
+
+                
+            </div>
+
+            <!-- Comments -->
+            
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                    
+
+
+                </div>
+            
+        </div>
+    </div>
+</article>
+
+    <!-- Footer -->
+    <hr />
+
+<!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                    
+
+                    
+
+                    
+                        <li>
+                            <a href="https://github.com/shangwen" target="_blank">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    
+
+                    
+
+                    
+                        <li>
+                            <a href="mailto:kevin.shangwen@gmail.com" target="_blank">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-envelope-o fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    
+
+                    
+                </ul>
+                <p class="copyright text-muted">&copy; 2024 shangwen_<br></p>
+                <p class="copyright text-muted">Original Theme <a target="_blank" href="http://startbootstrap.com/template-overviews/clean-blog/">Clean Blog</a> from <a href="http://startbootstrap.com/" target="_blank">Start Bootstrap</a></p>
+                <p class="copyright text-muted">Adapted for <a target="_blank" href="https://hexo.io/">Hexo</a> by <a href="http://www.codeblocq.com/" target="_blank">Jonathan Klughertz</a></p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+
+    <!-- After footer scripts -->
+    
+<!-- jQuery -->
+<script src="//code.jquery.com/jquery-2.1.4.min.js"></script>
+
+<!-- Bootstrap -->
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+
+<!-- Gallery -->
+<script src="//cdnjs.cloudflare.com/ajax/libs/featherlight/1.3.5/featherlight.min.js" type="text/javascript" charset="utf-8"></script>
+
+<!-- Disqus Comments -->
+
+
+
+</body>
+
+</html>

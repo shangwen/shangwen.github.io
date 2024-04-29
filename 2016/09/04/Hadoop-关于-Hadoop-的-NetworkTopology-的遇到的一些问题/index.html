@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- Head tag -->
+<head>
+
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+    <!--Description-->
+
+    
+
+    
+        <meta name="description" content="背景问题问题是周末，其他团队HBase推数据变慢了，我也跟着一起找问题，现象是新加的节点的网络流量非常大，后来帮哥发现是原来没有配机架的集群，新机器配了机架，既然加了机架导致这个问题，那我们把机架变为没变机架的时候，是否就可以解决这个问题？后来发现已经加的节点无法从已经加入的机架去除，这就要找根本的"/>
+    
+
+    <!--Author-->
+    
+        <meta name="author" content="shangwen_"/>
+    
+
+    <!--Open Graph Title-->
+    
+        <meta property="og:title" content="[Hadoop] 关于 Hadoop 的 NetworkTopology 的遇到的一些问题"/>
+    
+
+    <!--Open Graph Description-->
+    
+        <meta property="og:description" content="背景问题问题是周末，其他团队HBase推数据变慢了，我也跟着一起找问题，现象是新加的节点的网络流量非常大，后来帮哥发现是原来没有配机架的集群，新机器配了机架，既然加了机架导致这个问题，那我们把机架变为没变机架的时候，是否就可以解决这个问题？后来发现已经加的节点无法从已经加入的机架去除，这就要找根本的"/>
+    
+
+    <!--Open Graph Site Name-->
+        <meta property="og:site_name" content="Tang&#39;s Blog"/>
+
+    <!--Type page-->
+    
+        <meta property="og:type" content="article"/>
+    
+
+    <!--Page Cover-->
+    
+    
+        <meta property="og:image" content="http://example.comimg/home-bg.jpg"/>
+    
+
+        <meta name="twitter:card" content="summary_large_image"/>
+
+    
+
+    
+        <meta name="twitter:image" content="http://example.comimg/home-bg.jpg"/>
+    
+
+    <!-- Title -->
+    
+    <title>[Hadoop] 关于 Hadoop 的 NetworkTopology 的遇到的一些问题 - Tang&#39;s Blog</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet"/>
+
+    <!-- Custom CSS -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+
+    <!-- Custom Fonts -->
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css"/>
+    <link href="//fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic" rel="stylesheet" type="text/css"/>
+    <link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css"/>
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="//oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="//oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- Gallery -->
+    <link href="//cdnjs.cloudflare.com/ajax/libs/featherlight/1.3.5/featherlight.min.css" type="text/css" rel="stylesheet"/>
+
+    <!-- Google Analytics -->
+    
+
+
+    <!-- favicon -->
+    
+
+<meta name="generator" content="Hexo 7.2.0"></head>
+
+
+<body>
+
+    <!-- Menu -->
+    <!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">Tang's blog</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav navbar-right">
+                
+                    <li>
+                        <a href="/">
+                            
+                                Home
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/archives">
+                            
+                                Archives
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/tags">
+                            
+                                Tags
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/categories">
+                            
+                                Categories
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a target="_blank" rel="noopener" href="https://github.com/klugjo/hexo-theme-clean-blog">
+                            
+                                <i class="fa fa-github fa-stack-2x"></i>
+                            
+                        </a>
+                    </li>
+                
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+
+    <!-- Main Content -->
+    <!-- Page Header -->
+<!-- Set your background image for this header in your post front-matter: cover -->
+
+<header class="intro-header" style="background-image: url('/img/home-bg.jpg')">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <h1>[Hadoop] 关于 Hadoop 的 NetworkTopology 的遇到的一些问题</h1>
+                    
+                    <span class="meta">
+                        <!-- Date and Author -->
+                        
+                        
+                            2016-09-04
+                        
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+            <!-- Tags and categories -->
+           
+                <div class="col-lg-4 col-lg-offset-2 col-md-5 col-md-offset-1 post-tags">
+                    
+                        
+
+
+<a href="/tags/HADOOP/">#HADOOP</a> <a href="/tags/HDFS/">#HDFS</a>
+
+
+                    
+                </div>
+                <div class="col-lg-4 col-md-5 post-categories">
+                    
+                </div>
+            
+
+            <!-- Gallery -->
+            
+
+            <!-- Post Main Content -->
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <h3 id="背景问题"><a href="#背景问题" class="headerlink" title="背景问题"></a><strong>背景问题</strong></h3><p>问题是周末，其他团队HBase推数据变慢了，我也跟着一起找问题，现象是新加的节点的网络流量非常大，后来帮哥发现是原来没有配机架的集群，新机器配了机架，既然加了机架导致这个问题，那我们把机架变为没变机架的时候，是否就可以解决这个问题？后来发现已经加的节点无法从已经加入的机架去除，这就要找根本的问题了。</p>
+<p><strong>问题：为什么我更新原有DN的机架信息不生效？</strong></p>
+<h3 id="关于机架"><a href="#关于机架" class="headerlink" title="关于机架"></a><strong>关于机架</strong></h3><p>我们都知道，Hdfs会根据你配的机架，适当的分配block的分布，AM的也需要相应的机架信息去申请资源，机架信息在DN注册的会执行我们配置的机架感知的脚本，把DN对应到相应的机架当中</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line"> * Resolve network locations for specified hosts</span><br><span class="line"> *</span><br><span class="line"> * @param names</span><br><span class="line"> * @return Network locations if available, Else returns null</span><br><span class="line"> */</span><br><span class="line">public List&lt;String&gt; resolveNetworkLocation(List&lt;String&gt; names) &#123;</span><br><span class="line">  // resolve its network location</span><br><span class="line">  List&lt;String&gt; rName = dnsToSwitchMapping.resolve(names);</span><br><span class="line">  return rName;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>其中，代码中的resolve方法就是调用了ScriptBasedMapping的resolve中的方法，而ScriptBasedMapping是CachedDNSToSwitchMapping的子类，在调用ScriptBasedMapping的resolve方法之前</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">  @Override</span><br><span class="line">  public List&lt;String&gt; resolve(List&lt;String&gt; names) &#123;</span><br><span class="line">    // normalize all input names to be in the form of IP addresses</span><br><span class="line">    names = NetUtils.normalizeHostNames(names);</span><br><span class="line"></span><br><span class="line">    List &lt;String&gt; result = new ArrayList&lt;String&gt;(names.size());</span><br><span class="line">    if (names.isEmpty()) &#123;</span><br><span class="line">      return result;</span><br><span class="line">    &#125;</span><br><span class="line">//这里就是关键所在</span><br><span class="line">    List&lt;String&gt; uncachedHosts = getUncachedHosts(names);</span><br><span class="line"></span><br><span class="line">    // Resolve the uncached hosts</span><br><span class="line">    List&lt;String&gt; resolvedHosts = rawMapping.resolve(uncachedHosts);</span><br><span class="line">    //cache them</span><br><span class="line">    cacheResolvedHosts(uncachedHosts, resolvedHosts);</span><br><span class="line">    //now look up the entire list in the cache</span><br><span class="line">    return getCachedHosts(names);</span><br><span class="line"></span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+
+<p>他会检查这个节点是否曾经在Cache中，如果在即使你的机架信息改变了，还是会从Cache中拿第一次的机架信息，所以更改机架信息对已经注册的DN是不生效的。 对于来说，其实它也是有刷新Cache的方法的，但是他只有抛InvalidTopologyException时才会进行重新刷新</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">@Override</span><br><span class="line">public void reloadCachedMappings() &#123;</span><br><span class="line">  cache.clear();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>DatanodeManager类里面的reloadCachedMappings</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">catch (InvalidTopologyException e) &#123;</span><br><span class="line">      // If the network location is invalid, clear the cached mappings</span><br><span class="line">      // so that we have a chance to re-add this DataNode with the</span><br><span class="line">      // correct network location later.</span><br><span class="line">      List&lt;String&gt; invalidNodeNames = new ArrayList&lt;String&gt;(3);</span><br><span class="line">      // clear cache for nodes in IP or Hostname</span><br><span class="line">      invalidNodeNames.add(nodeReg.getIpAddr());</span><br><span class="line">      invalidNodeNames.add(nodeReg.getHostName());</span><br><span class="line">      invalidNodeNames.add(nodeReg.getPeerHostName());</span><br><span class="line">      dnsToSwitchMapping.reloadCachedMappings(invalidNodeNames);</span><br><span class="line">      throw e;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p>但对于NetworkTopology来说，当你移除这个机架的最后一个节点的时候，他会相应的把这个机架从NetworkTopology中移除</p>
+<h3 id="解决方案和结论"><a href="#解决方案和结论" class="headerlink" title="解决方案和结论"></a><strong>解决方案和结论</strong></h3><p>结论是机架信息对于新的注册的DN有效，如果你是变更了原有DN的机架信息是不生效的，只会用第一次注册的机架信息</p>
+<p><strong>解决方案：</strong></p>
+<p>如果要实现机架变更后，DN重新注册刷新机架信息也是可以的，只要自己实现DNSToSwitchMapping不加Cache就行了</p>
+
+
+                
+            </div>
+
+            <!-- Comments -->
+            
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                    
+
+
+                </div>
+            
+        </div>
+    </div>
+</article>
+
+    <!-- Footer -->
+    <hr />
+
+<!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                    
+
+                    
+
+                    
+                        <li>
+                            <a href="https://github.com/shangwen" target="_blank">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    
+
+                    
+
+                    
+                        <li>
+                            <a href="mailto:kevin.shangwen@gmail.com" target="_blank">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-envelope-o fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    
+
+                    
+                </ul>
+                <p class="copyright text-muted">&copy; 2024 shangwen_<br></p>
+                <p class="copyright text-muted">Original Theme <a target="_blank" href="http://startbootstrap.com/template-overviews/clean-blog/">Clean Blog</a> from <a href="http://startbootstrap.com/" target="_blank">Start Bootstrap</a></p>
+                <p class="copyright text-muted">Adapted for <a target="_blank" href="https://hexo.io/">Hexo</a> by <a href="http://www.codeblocq.com/" target="_blank">Jonathan Klughertz</a></p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+
+    <!-- After footer scripts -->
+    
+<!-- jQuery -->
+<script src="//code.jquery.com/jquery-2.1.4.min.js"></script>
+
+<!-- Bootstrap -->
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+
+<!-- Gallery -->
+<script src="//cdnjs.cloudflare.com/ajax/libs/featherlight/1.3.5/featherlight.min.js" type="text/javascript" charset="utf-8"></script>
+
+<!-- Disqus Comments -->
+
+
+
+</body>
+
+</html>

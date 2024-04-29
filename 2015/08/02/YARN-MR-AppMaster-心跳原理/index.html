@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- Head tag -->
+<head>
+
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+    <!--Description-->
+
+    
+
+    
+        <meta name="description" content="最近集群遇到一个问题,就是集群在跑任务的时候，AM会超时10min而被KILL，但任务重跑则成功，问题是随机的出现的， 所以初步怀疑是因为AM心跳汇报出现问题或则RM因为繁忙hang住，AM因为某些机制导致等待10min不汇报心跳 ，所以我们还是先了解，AM是如何向RM汇报心跳的。
+在MRAppMa"/>
+    
+
+    <!--Author-->
+    
+        <meta name="author" content="shangwen_"/>
+    
+
+    <!--Open Graph Title-->
+    
+        <meta property="og:title" content="[YARN] MR AppMaster 心跳原理"/>
+    
+
+    <!--Open Graph Description-->
+    
+        <meta property="og:description" content="最近集群遇到一个问题,就是集群在跑任务的时候，AM会超时10min而被KILL，但任务重跑则成功，问题是随机的出现的， 所以初步怀疑是因为AM心跳汇报出现问题或则RM因为繁忙hang住，AM因为某些机制导致等待10min不汇报心跳 ，所以我们还是先了解，AM是如何向RM汇报心跳的。
+在MRAppMa"/>
+    
+
+    <!--Open Graph Site Name-->
+        <meta property="og:site_name" content="Tang&#39;s Blog"/>
+
+    <!--Type page-->
+    
+        <meta property="og:type" content="article"/>
+    
+
+    <!--Page Cover-->
+    
+    
+        <meta property="og:image" content="http://example.comimg/home-bg.jpg"/>
+    
+
+        <meta name="twitter:card" content="summary_large_image"/>
+
+    
+
+    
+        <meta name="twitter:image" content="http://example.comimg/home-bg.jpg"/>
+    
+
+    <!-- Title -->
+    
+    <title>[YARN] MR AppMaster 心跳原理 - Tang&#39;s Blog</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet"/>
+
+    <!-- Custom CSS -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+
+    <!-- Custom Fonts -->
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css"/>
+    <link href="//fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic" rel="stylesheet" type="text/css"/>
+    <link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css"/>
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="//oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="//oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- Gallery -->
+    <link href="//cdnjs.cloudflare.com/ajax/libs/featherlight/1.3.5/featherlight.min.css" type="text/css" rel="stylesheet"/>
+
+    <!-- Google Analytics -->
+    
+
+
+    <!-- favicon -->
+    
+
+<meta name="generator" content="Hexo 7.2.0"></head>
+
+
+<body>
+
+    <!-- Menu -->
+    <!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">Tang's blog</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav navbar-right">
+                
+                    <li>
+                        <a href="/">
+                            
+                                Home
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/archives">
+                            
+                                Archives
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/tags">
+                            
+                                Tags
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/categories">
+                            
+                                Categories
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a target="_blank" rel="noopener" href="https://github.com/klugjo/hexo-theme-clean-blog">
+                            
+                                <i class="fa fa-github fa-stack-2x"></i>
+                            
+                        </a>
+                    </li>
+                
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+
+    <!-- Main Content -->
+    <!-- Page Header -->
+<!-- Set your background image for this header in your post front-matter: cover -->
+
+<header class="intro-header" style="background-image: url('/img/home-bg.jpg')">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <h1>[YARN] MR AppMaster 心跳原理</h1>
+                    
+                    <span class="meta">
+                        <!-- Date and Author -->
+                        
+                        
+                            2015-08-02
+                        
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+            <!-- Tags and categories -->
+           
+                <div class="col-lg-4 col-lg-offset-2 col-md-5 col-md-offset-1 post-tags">
+                    
+                        
+
+
+<a href="/tags/HADOOP/">#HADOOP</a> <a href="/tags/YARN/">#YARN</a> <a href="/tags/MAPREDUCE/">#MAPREDUCE</a>
+
+
+                    
+                </div>
+                <div class="col-lg-4 col-md-5 post-categories">
+                    
+                </div>
+            
+
+            <!-- Gallery -->
+            
+
+            <!-- Post Main Content -->
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <hr>
+<p>最近集群遇到一个问题,就是集群在跑任务的时候，AM会超时10min而被KILL，但任务重跑则成功，问题是随机的出现的， <strong>所以初步怀疑是因为AM心跳汇报出现问题或则RM因为繁忙hang住，AM因为某些机制导致等待10min不汇报心跳</strong> ，所以我们还是先了解，AM是如何向RM汇报心跳的。</p>
+<p>在MRAppMaster中，ContainerAllocatorRouter负责向RM申请资源（发送心跳）</p>
+<p><img src="http://outline.vipsinaapp.com//image/RMAM1.png" alt="RMAM"></p>
+<p>RMContainerAllocator其最终父类是RMCommunicator，它实现了RMHeartbeatHandler接口</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">public interface RMHeartbeatHandler &#123;</span><br><span class="line">  long getLastHeartbeatTime(); // 获取上一次心跳的时间</span><br><span class="line">  void runOnNextHeartbeat(Runnable callback); // 回调注册到callback队列的callback函数</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>每一次心跳回来，都会执行一次注册在heartbeatCallbacks中的回调函数：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">allocatorThread = new Thread(new Runnable() &#123;</span><br><span class="line">      @Override</span><br><span class="line">      public void run() &#123;</span><br><span class="line">        while (!stopped.get() &amp;&amp; !Thread.currentThread().isInterrupted()) &#123;</span><br><span class="line">              ......</span><br><span class="line">              heartbeat();          </span><br><span class="line">              lastHeartbeatTime = context.getClock().getTime();// 记录上一次心跳时间</span><br><span class="line">              executeHeartbeatCallbacks(); // 执行回调函数</span><br><span class="line">              ....</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<p>RMCommunicator类中：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">private void executeHeartbeatCallbacks() &#123;</span><br><span class="line">    Runnable callback = null;</span><br><span class="line">    while ((callback = heartbeatCallbacks.poll()) != null) &#123;</span><br><span class="line">      callback.run();</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+
+<p>在RMCommunicator启动时， <strong>首先会向RM注册</strong> ，把自己的host和port告诉RM，然后在启动一条线程（startAllocatorThread）定期的调用 <strong>RMContainerAllocator中实现的heartbeat方法</strong> （向RM申请资源，定期汇报信息，告诉RM自己还活着）。</p>
+<p>AM初始化同时也会初始化RMCommunicator：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">protected void serviceStart() throws Exception &#123;</span><br><span class="line">  scheduler= createSchedulerProxy(); // 获取RM的代理</span><br><span class="line">  register(); // 注册</span><br><span class="line">  startAllocatorThread(); // 心跳线程</span><br><span class="line">....</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>AM的ContainerAllocatorRouter事件处理流程如下图：</p>
+<p><img src="http://hackershell.cn/image/RMALLO.png" alt="RMALLO"></p>
+<p><strong>注册流程：</strong></p>
+<p>调用RMCommunicator远程调用ApplicationMasterService的registerApplicationMaster方法，设置维护responseId，然后把它加入AMLivelinessMonitor中，并使用map记录时间，用来监控AM是否因为长时间没有心跳而超时，如果AM长时间没有心跳信息更新，RM就会通知NodeManager把AM移除。</p>
+<p><strong>心跳线程：</strong></p>
+<p>在发送心跳的过程中，即也是获取资源的过程</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">@Override</span><br><span class="line">  protected synchronized void heartbeat() throws Exception &#123;</span><br><span class="line">    scheduleStats.updateAndLogIfChanged(&quot;Before Scheduling: &quot;);</span><br><span class="line">    List&lt;Container&gt; allocatedContainers = getResources();// 重要的方法</span><br><span class="line">    if (allocatedContainers.size() &gt; 0) &#123;</span><br><span class="line">      scheduledRequests.assign(allocatedContainers);</span><br><span class="line">    &#125;</span><br><span class="line">   ......</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+
+<p>获取资源的过程：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">private List&lt;Container&gt; getResources() throws Exception &#123;</span><br><span class="line">     ...</span><br><span class="line">     response = makeRemoteRequest(); // 和RM进行交互</span><br><span class="line">     ...</span><br><span class="line">     // 优先处理RM发送过来的命令</span><br><span class="line">     if (response.getAMCommand() != null) &#123;</span><br><span class="line">         switch(response.getAMCommand()) &#123;</span><br><span class="line">                case AM_RESYNC:</span><br><span class="line">                case AM_SHUTDOWN:</span><br><span class="line">                     eventHandler.handle(new JobEvent(this.getJob().getID(),</span><br><span class="line">                                     JobEventType.JOB_AM_REBOOT));</span><br><span class="line">                     throw new YarnRuntimeException(&quot;Resource Manager doesn&#x27;t recognize AttemptId: &quot; +</span><br><span class="line">                             this.getContext().getApplicationID());</span><br><span class="line">                default:</span><br><span class="line">                     ....</span><br><span class="line">      &#125;</span><br><span class="line">     // 等等一系列处理</span><br><span class="line">&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>构建请求：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">protected AllocateResponse makeRemoteRequest() throws IOException &#123;</span><br><span class="line">    AllocateRequest allocateRequest =</span><br><span class="line">        AllocateRequest.newInstance(lastResponseID,</span><br><span class="line">          super.getApplicationProgress(), new ArrayList&lt;ResourceRequest&gt;(ask),</span><br><span class="line">          new ArrayList&lt;ContainerId&gt;(release), blacklistRequest);</span><br><span class="line">    AllocateResponse allocateResponse;</span><br><span class="line">    allocateResponse = scheduler.allocate(allocateRequest); // RPC调用ApplicationMasterService的allocate方法</span><br><span class="line">    .....</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>每一次心跳的调用都会刷新AMLivelinessMonitor的时间，代表AM还活着</p>
+<p>而且我们通过代码可以看出，资源请求被封装为一个ask，即一个ResourceRequest的ArrayList的资源列表 例如：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">priority:20 host:host9 capability:&lt;memory:2048, vCores:1&gt;</span><br><span class="line">priority:20 host:host2 capability:&lt;memory:2048, vCores:1&gt;</span><br><span class="line">priority:20 host:host10 capability:&lt;memory:2048, vCores:1&gt;</span><br><span class="line">priority:20 host:/rack/rack3203 capability:&lt;memory:2048, vCores:1&gt;</span><br><span class="line">priority:20 host:/rack/rack3202 capability:&lt;memory:2048, vCores:1&gt;</span><br><span class="line">priority:20 host:* capability:&lt;memory:2048, vCores:1&gt;</span><br></pre></td></tr></table></figure>
+
+<p><strong>然而，ask是如何被构造的呢？</strong></p>
+<p>RMContainerAllocator中的addMap,addReduce,assign方法中对ask的数据内容进行了修改</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">addContainerReq --&gt; addResourceRequest --&gt; addResourceRequestToAsk;</span><br></pre></td></tr></table></figure>
+
+<p>通过在代码自己添加日志可以看出，资源会被分为local，rack，和any级别去申请资源</p>
+<p>最终变为一个ask list发送到RM上：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">ask Capability:&lt;memory:2048, vCores:1&gt; ResourceName:* NumContainers:384 Priority:20 RelaxLocality:true</span><br><span class="line">ask Capability:&lt;memory:2048, vCores:1&gt; ResourceName:/rack/rack3201 NumContainers:227 Priority:20 RelaxLocality:true</span><br><span class="line">ask Capability:&lt;memory:2048, vCores:1&gt; ResourceName:/rack/rack3202 NumContainers:231 Priority:20 RelaxLocality:true</span><br><span class="line">ask Capability:&lt;memory:2048, vCores:1&gt; ResourceName:/rack/rack3203 NumContainers:152 Priority:20 RelaxLocality:true</span><br><span class="line">ask Capability:&lt;memory:2048, vCores:1&gt; ResourceName:/rack/rack3204 NumContainers:158 Priority:20 RelaxLocality:true</span><br><span class="line">ask Capability:&lt;memory:2048, vCores:1&gt; ResourceName:host1 NumContainers:46 Priority:20 RelaxLocality:true</span><br><span class="line">ask Capability:&lt;memory:2048, vCores:1&gt; ResourceName:host5 NumContainers:52 Priority:20 RelaxLocality:true</span><br><span class="line">ask Capability:&lt;memory:2048, vCores:1&gt; ResourceName:host6 NumContainers:38 Priority:20 RelaxLocality:true</span><br></pre></td></tr></table></figure>
+
+<p>类似日志为：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">getResources() for application_1438330253091_0004: ask=29 release= 0 newContainers=0 finishedContainers=0 resourcelimit=&lt;memory:0, vCores:0&gt; knownNMs=24</span><br></pre></td></tr></table></figure>
+
+<p><strong>总结：</strong></p>
+<p>除了了解心跳之外，还学习了许多Map和Reduce的分配机制，收获良多。</p>
+
+
+                
+            </div>
+
+            <!-- Comments -->
+            
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                    
+
+
+                </div>
+            
+        </div>
+    </div>
+</article>
+
+    <!-- Footer -->
+    <hr />
+
+<!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                    
+
+                    
+
+                    
+                        <li>
+                            <a href="https://github.com/shangwen" target="_blank">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    
+
+                    
+
+                    
+                        <li>
+                            <a href="mailto:kevin.shangwen@gmail.com" target="_blank">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-envelope-o fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    
+
+                    
+                </ul>
+                <p class="copyright text-muted">&copy; 2024 shangwen_<br></p>
+                <p class="copyright text-muted">Original Theme <a target="_blank" href="http://startbootstrap.com/template-overviews/clean-blog/">Clean Blog</a> from <a href="http://startbootstrap.com/" target="_blank">Start Bootstrap</a></p>
+                <p class="copyright text-muted">Adapted for <a target="_blank" href="https://hexo.io/">Hexo</a> by <a href="http://www.codeblocq.com/" target="_blank">Jonathan Klughertz</a></p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+
+    <!-- After footer scripts -->
+    
+<!-- jQuery -->
+<script src="//code.jquery.com/jquery-2.1.4.min.js"></script>
+
+<!-- Bootstrap -->
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+
+<!-- Gallery -->
+<script src="//cdnjs.cloudflare.com/ajax/libs/featherlight/1.3.5/featherlight.min.js" type="text/javascript" charset="utf-8"></script>
+
+<!-- Disqus Comments -->
+
+
+
+</body>
+
+</html>

@@ -13,6 +13,15 @@
     
 
     
+        <meta name="description" content="Active NameNode出现异常处理方案
+注意：仅供参考一般来说Active NameNode出现异常可以分为两种：
+
+Active NameNode出现异常宕机,导致无法正常切换
+Active NameNode因为切换导致被killed
+
+
+情景一：Active NameNode出现异常宕机"/>
+    
 
     <!--Author-->
     
@@ -21,10 +30,19 @@
 
     <!--Open Graph Title-->
     
-        <meta property="og:title" content="Tang&#39;s Blog"/>
+        <meta property="og:title" content="[HDFS] Active NameNode 出现异常处理方案"/>
     
 
     <!--Open Graph Description-->
+    
+        <meta property="og:description" content="Active NameNode出现异常处理方案
+注意：仅供参考一般来说Active NameNode出现异常可以分为两种：
+
+Active NameNode出现异常宕机,导致无法正常切换
+Active NameNode因为切换导致被killed
+
+
+情景一：Active NameNode出现异常宕机"/>
     
 
     <!--Open Graph Site Name-->
@@ -32,7 +50,7 @@
 
     <!--Type page-->
     
-        <meta property="og:type" content="website"/>
+        <meta property="og:type" content="article"/>
     
 
     <!--Page Cover-->
@@ -51,7 +69,7 @@
 
     <!-- Title -->
     
-    <title>Tang&#39;s Blog</title>
+    <title>[HDFS] Active NameNode 出现异常处理方案 - Tang&#39;s Blog</title>
 
     <!-- Bootstrap Core CSS -->
     <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet"/>
@@ -156,188 +174,103 @@
 
     <!-- Main Content -->
     <!-- Page Header -->
-<!-- Set your background image for this header in the theme's configuration: index_cover -->
+<!-- Set your background image for this header in your post front-matter: cover -->
+
 <header class="intro-header" style="background-image: url('/img/home-bg.jpg')">
     <div class="container">
         <div class="row">
             <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
-                <div class="site-heading">
-                    <h1>Tang's Blog</h1>
-                    <hr class="small">
-                    <span class="subheading"></span>
+                <div class="post-heading">
+                    <h1>[HDFS] Active NameNode 出现异常处理方案</h1>
+                    
+                    <span class="meta">
+                        <!-- Date and Author -->
+                        
+                        
+                            2016-09-03
+                        
+                    </span>
                 </div>
             </div>
         </div>
     </div>
 </header>
 
-<!-- Main Content -->
-<div class="container">
-    <div class="row">
-        <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
-            
-                <div class="post-preview">
-    <a href="/2020/08/28/Flink-Flink-SQL-原理解析-1/">
-        <h2 class="post-title">
-            [Flink] Flink SQL 原理解析 (1)
-        </h2>
-        
-    </a>
-    <p class="post-meta">
-        <!-- Date and Author -->
-        
-        2020-08-28
-    </p>
-</div>
-<hr>
-            
-                <div class="post-preview">
-    <a href="/2020/06/22/HDFS-浅谈-Hadoop-Distcp-工具的-InputFormat/">
-        <h2 class="post-title">
-            [HDFS] 浅谈 Hadoop Distcp 工具的 InputFormat
-        </h2>
-        
-    </a>
-    <p class="post-meta">
-        <!-- Date and Author -->
-        
-        2020-06-22
-    </p>
-</div>
-<hr>
-            
-                <div class="post-preview">
-    <a href="/2020/06/15/HDFS-Standby-NameNode性能问题排查/">
-        <h2 class="post-title">
-            [HDFS] Standby NameNode性能问题排查
-        </h2>
-        
-    </a>
-    <p class="post-meta">
-        <!-- Date and Author -->
-        
-        2020-06-15
-    </p>
-</div>
-<hr>
-            
-                <div class="post-preview">
-    <a href="/2020/06/09/Flink-记-Flink-1-10-0-JDBC-Connectors-重连失效分析/">
-        <h2 class="post-title">
-            [Flink] 记 Flink 1.10.0 JDBC Connectors 重连失效分析
-        </h2>
-        
-    </a>
-    <p class="post-meta">
-        <!-- Date and Author -->
-        
-        2020-06-09
-    </p>
-</div>
-<hr>
-            
-                <div class="post-preview">
-    <a href="/2020/05/20/JVM-如何通过jcmd画火焰图/">
-        <h2 class="post-title">
-            [JVM] 如何通过jcmd画火焰图
-        </h2>
-        
-    </a>
-    <p class="post-meta">
-        <!-- Date and Author -->
-        
-        2020-05-20
-    </p>
-</div>
-<hr>
-            
-                <div class="post-preview">
-    <a href="/2020/05/14/Flink-Flink-时间、窗口和函数等相关原理解析/">
-        <h2 class="post-title">
-            [Flink] Flink 时间、窗口和函数等相关原理解析
-        </h2>
-        
-    </a>
-    <p class="post-meta">
-        <!-- Date and Author -->
-        
-        2020-05-14
-    </p>
-</div>
-<hr>
-            
-                <div class="post-preview">
-    <a href="/2020/05/13/Flink-Flink-Kafka-Connector-实现机制简析/">
-        <h2 class="post-title">
-            [Flink] Flink Kafka Connector 实现机制简析
-        </h2>
-        
-    </a>
-    <p class="post-meta">
-        <!-- Date and Author -->
-        
-        2020-05-13
-    </p>
-</div>
-<hr>
-            
-                <div class="post-preview">
-    <a href="/2020/03/15/JAVA-Failed-to-load-class-“org-slf4j-impl-StaticLoggerBinder”-问题解决/">
-        <h2 class="post-title">
-            [JAVA] Failed to load class “org.slf4j.impl.StaticLoggerBinder” 问题解决
-        </h2>
-        
-    </a>
-    <p class="post-meta">
-        <!-- Date and Author -->
-        
-        2020-03-15
-    </p>
-</div>
-<hr>
-            
-                <div class="post-preview">
-    <a href="/2017/07/16/SPARK-Spark-Streaming-在进行-YARN-kill-的时候无法对-eventlog-的-inprogress-进行-rename/">
-        <h2 class="post-title">
-            [SPARK] Spark Streaming 在进行 YARN kill 的时候无法对 eventlog 的 inprogress 进行 rename
-        </h2>
-        
-    </a>
-    <p class="post-meta">
-        <!-- Date and Author -->
-        
-        2017-07-16
-    </p>
-</div>
-<hr>
-            
-                <div class="post-preview">
-    <a href="/2017/05/30/HDFS-HDFS调优笔记/">
-        <h2 class="post-title">
-            [HDFS] HDFS 调优笔记
-        </h2>
-        
-    </a>
-    <p class="post-meta">
-        <!-- Date and Author -->
-        
-        2017-05-30
-    </p>
-</div>
-<hr>
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+            <!-- Tags and categories -->
+           
+                <div class="col-lg-4 col-lg-offset-2 col-md-5 col-md-offset-1 post-tags">
+                    
+                        
+
+
+<a href="/tags/HADOOP/">#HADOOP</a> <a href="/tags/HDFS/">#HDFS</a>
+
+
+                    
+                </div>
+                <div class="col-lg-4 col-md-5 post-categories">
+                    
+                </div>
             
 
-            <ul class="pager">
-    
-    
-        <li class="next"><a href="/page/2/">Older Posts  &rarr;</a></li>
-    
+            <!-- Gallery -->
+            
+
+            <!-- Post Main Content -->
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <p><strong>Active NameNode出现异常处理方案</strong></p>
+<h3 id="注意：仅供参考"><a href="#注意：仅供参考" class="headerlink" title="注意：仅供参考"></a><em>注意：仅供参考</em></h3><p>一般来说Active NameNode出现异常可以分为两种：</p>
+<ul>
+<li>Active NameNode出现异常宕机,导致无法正常切换</li>
+<li>Active NameNode因为切换导致被killed</li>
 </ul>
+<hr>
+<p><strong>情景一：Active NameNode出现异常宕机</strong></p>
+<p><strong>状态描述：</strong></p>
+<p>ANN断电、网络异常、负载过高或者机器出现异常无法连接，SNN无法转化为Active，使得HA集群无法对外服务。</p>
+<p><strong>解决方案：</strong></p>
+<p>确认原ANN已经关机或确保原ANN进程已经挂了,才能使用该命令</p>
+<p><strong>操作步骤：</strong></p>
+<ul>
+<li>1.对Active NN关机</li>
+<li>2.确保关机完成，在SNN上执行  <strong>hdfs zkfc -formatZK</strong> ，如果提示输入<strong>Y</strong>或者N，则输入<strong>Y</strong></li>
+<li>3.直到原SNN页面确保变为Active</li>
+<li>4.启动原ANN的机器</li>
+<li>5.启动原ANN上的NameNode和zkfc进程</li>
+</ul>
+<hr>
+<p><strong>情景二：Active NameNode因为切换导致被killed</strong></p>
+<p><strong>状态描述：</strong></p>
+<p>ANN因为网络或异常任务导致无响应，切换过程中导致其中一台NN被fence</p>
+<p><strong>解决方案</strong></p>
+<p>根据经验，当SNN在启动的时候和块汇报在一起会引起DN丢节点异常，所以为了避免以上问题，采取下列操作</p>
+<p><strong>操作步骤：</strong></p>
+<ul>
+<li>先停止该节点的zkfc</li>
+<li>把挂掉的NN用防火墙关闭8021(DN汇报端口)，禁止DN进行汇报，启动NN,让NN只做合并操作(集群小可以忽略)</li>
+<li>等待SNN合并完，并到等待块汇报时，打开8021端口,让DN进行块汇报</li>
+</ul>
+
+
+                
+            </div>
+
+            <!-- Comments -->
+            
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                    
+
+
+                </div>
+            
         </div>
     </div>
-</div>
-
-
+</article>
 
     <!-- Footer -->
     <hr />

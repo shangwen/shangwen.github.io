@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- Head tag -->
+<head>
+
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+    <!--Description-->
+
+    
+
+    
+        <meta name="description" content="YARN采用了基于事件驱动的并发模型,该模型能极大的提高应用程序并发性,在RM中,几乎所有的事件都通过AsyncDispatcher进行事件的派发.
+其基本架构图如下:
+
+从基本的架构图可以简单的看出,该模型还需要几个基本的要素,那就是 事件(Event) , 事件类型(EventType) 和处理"/>
+    
+
+    <!--Author-->
+    
+        <meta name="author" content="shangwen_"/>
+    
+
+    <!--Open Graph Title-->
+    
+        <meta property="og:title" content="[YARN] YARN 的 Async Dispatcher 原理"/>
+    
+
+    <!--Open Graph Description-->
+    
+        <meta property="og:description" content="YARN采用了基于事件驱动的并发模型,该模型能极大的提高应用程序并发性,在RM中,几乎所有的事件都通过AsyncDispatcher进行事件的派发.
+其基本架构图如下:
+
+从基本的架构图可以简单的看出,该模型还需要几个基本的要素,那就是 事件(Event) , 事件类型(EventType) 和处理"/>
+    
+
+    <!--Open Graph Site Name-->
+        <meta property="og:site_name" content="Tang&#39;s Blog"/>
+
+    <!--Type page-->
+    
+        <meta property="og:type" content="article"/>
+    
+
+    <!--Page Cover-->
+    
+    
+        <meta property="og:image" content="http://example.comimg/home-bg.jpg"/>
+    
+
+        <meta name="twitter:card" content="summary_large_image"/>
+
+    
+
+    
+        <meta name="twitter:image" content="http://example.comimg/home-bg.jpg"/>
+    
+
+    <!-- Title -->
+    
+    <title>[YARN] YARN 的 Async Dispatcher 原理 - Tang&#39;s Blog</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet"/>
+
+    <!-- Custom CSS -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+
+    <!-- Custom Fonts -->
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css"/>
+    <link href="//fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic" rel="stylesheet" type="text/css"/>
+    <link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css"/>
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="//oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="//oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- Gallery -->
+    <link href="//cdnjs.cloudflare.com/ajax/libs/featherlight/1.3.5/featherlight.min.css" type="text/css" rel="stylesheet"/>
+
+    <!-- Google Analytics -->
+    
+
+
+    <!-- favicon -->
+    
+
+<meta name="generator" content="Hexo 7.2.0"></head>
+
+
+<body>
+
+    <!-- Menu -->
+    <!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">Tang's blog</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav navbar-right">
+                
+                    <li>
+                        <a href="/">
+                            
+                                Home
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/archives">
+                            
+                                Archives
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/tags">
+                            
+                                Tags
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/categories">
+                            
+                                Categories
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a target="_blank" rel="noopener" href="https://github.com/klugjo/hexo-theme-clean-blog">
+                            
+                                <i class="fa fa-github fa-stack-2x"></i>
+                            
+                        </a>
+                    </li>
+                
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+
+    <!-- Main Content -->
+    <!-- Page Header -->
+<!-- Set your background image for this header in your post front-matter: cover -->
+
+<header class="intro-header" style="background-image: url('/img/home-bg.jpg')">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <h1>[YARN] YARN 的 Async Dispatcher 原理</h1>
+                    
+                    <span class="meta">
+                        <!-- Date and Author -->
+                        
+                        
+                            2015-07-06
+                        
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+            <!-- Tags and categories -->
+           
+                <div class="col-lg-4 col-lg-offset-2 col-md-5 col-md-offset-1 post-tags">
+                    
+                        
+
+
+<a href="/tags/HADOOP/">#HADOOP</a> <a href="/tags/YARN/">#YARN</a>
+
+
+                    
+                </div>
+                <div class="col-lg-4 col-md-5 post-categories">
+                    
+                </div>
+            
+
+            <!-- Gallery -->
+            
+
+            <!-- Post Main Content -->
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <p>YARN采用了基于事件驱动的并发模型,该模型能极大的提高应用程序并发性,在RM中,几乎所有的事件都通过AsyncDispatcher进行事件的派发.</p>
+<p><strong>其基本架构图如下:</strong></p>
+<p><img src="http://outline.vipsinaapp.com//image/AsyncDispatcher.png" alt="AsyncDispatcher"></p>
+<p>从基本的架构图可以简单的看出,该模型还需要几个基本的要素,那就是 <strong>事件(Event)</strong> , <strong>事件类型(EventType)</strong> 和处理事件对应的 <strong>处理器(Handler)</strong> .</p>
+<p>在HADOOP中,事件被定义如下:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">public interface Event&lt;TYPE extends Enum&lt;TYPE&gt;&gt; &#123;</span><br><span class="line"></span><br><span class="line">  TYPE getType();</span><br><span class="line">  long getTimestamp();</span><br><span class="line">  String toString();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>事件类型(EventType)则是简单的枚举类</p>
+<p> <strong>主要功能定义事件有哪几种类型</strong> :</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">public enum NodesListManagerEventType &#123;</span><br><span class="line">  NODE_USABLE,</span><br><span class="line">  NODE_UNUSABLE</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>处理事件的接口</p>
+<p><strong>主要功能处理相应的事件</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">public interface EventHandler&lt;T extends Event&gt; &#123;</span><br><span class="line">  void handle(T event);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>Dispatcher通过 <strong>不同的事件类型(EventType)找到相应的handler对事件(event)进行处理</strong> .</p>
+<p>对于AsyncDispatcher来说,它实现了Dispatcher接口:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">public interface Dispatcher &#123;</span><br><span class="line">  EventHandler getEventHandler();</span><br><span class="line">  void register(Class&lt;? extends Enum&gt; eventType, EventHandler handler);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>其中有两个基本的方法,<strong>register</strong>和<strong>getEventHandler</strong></p>
+<p>register在AsyncDispatcher使用之前就需要先注册eventType和对应的EventHandler,而getEventHandler方法主要则是把事件(event)放入eventQueue中.</p>
+<p><strong>接下来在ResourceManager举个简单的例子:</strong></p>
+<p>在RM初始化自身基本服务的时候,会把相应的事件类型(EventType)和事件处理器(EventHandler),先注册在AsyncDispatcher上,以便于派发器在事件(event)到来时做出相应的处理.</p>
+<p>RM的部分代码:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">// Register event handler for RmNodes</span><br><span class="line">this.rmDispatcher.register(RMNodeEventType.class,</span><br><span class="line">    new NodeEventDispatcher(this.rmContext)); </span><br></pre></td></tr></table></figure>
+
+<p>其实注册也就是把相应的类型和处理器放到一个<strong>HashMap</strong>中</p>
+<p>因为是资源管理方面的服务,所以我们进入ResourceTrackerService类中,找到nodesListManager这个实例,通过代码可以知道nodesListManager是用来管理节点是否可用,并作出相应的处理</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">// 2. Check if it&#x27;s a valid (i.e. not excluded) node</span><br><span class="line">    if (!this.nodesListManager.isValidNode(rmNode.getHostName())) &#123;</span><br><span class="line">      String message =</span><br><span class="line">          &quot;Disallowed NodeManager nodeId: &quot; + nodeId + &quot; hostname: &quot;</span><br><span class="line">              + rmNode.getNodeAddress();</span><br><span class="line">      LOG.info(message);</span><br><span class="line">      shutDown.setDiagnosticsMessage(message);</span><br><span class="line">      this.rmContext.getDispatcher().getEventHandler().handle(</span><br><span class="line">          new RMNodeEvent(nodeId, RMNodeEventType.DECOMMISSION));</span><br><span class="line">      return shutDown;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p>从代码可以看出,如果节点是非法的,则从Dispatcher获取Handler,并构造一个RMNodeEventType.DECOMMISSION类型的事件,这个RMNodeEvent将会被放到eventQueue中</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">class GenericEventHandler implements EventHandler&lt;Event&gt; &#123;</span><br><span class="line">    public void handle(Event event) &#123;</span><br><span class="line">      try &#123;</span><br><span class="line">        eventQueue.put(event);</span><br><span class="line">      &#125; catch (InterruptedException e) &#123;</span><br><span class="line"></span><br><span class="line">      &#125;</span><br><span class="line">    &#125;;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+
+<p>最后由dispatch进行通过传入的RMNodeEventType找到相应的NodeEventDispatcher(即EventHandler),并调用handle进行处理.</p>
+<p>总结:<br>通过了解AsyncDispatcher可以提升自己理解Yarn的工作流程,加深对Yarn的设计实现的了解.</p>
+
+
+                
+            </div>
+
+            <!-- Comments -->
+            
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                    
+
+
+                </div>
+            
+        </div>
+    </div>
+</article>
+
+    <!-- Footer -->
+    <hr />
+
+<!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                    
+
+                    
+
+                    
+                        <li>
+                            <a href="https://github.com/shangwen" target="_blank">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    
+
+                    
+
+                    
+                        <li>
+                            <a href="mailto:kevin.shangwen@gmail.com" target="_blank">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-envelope-o fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    
+
+                    
+                </ul>
+                <p class="copyright text-muted">&copy; 2024 shangwen_<br></p>
+                <p class="copyright text-muted">Original Theme <a target="_blank" href="http://startbootstrap.com/template-overviews/clean-blog/">Clean Blog</a> from <a href="http://startbootstrap.com/" target="_blank">Start Bootstrap</a></p>
+                <p class="copyright text-muted">Adapted for <a target="_blank" href="https://hexo.io/">Hexo</a> by <a href="http://www.codeblocq.com/" target="_blank">Jonathan Klughertz</a></p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+
+    <!-- After footer scripts -->
+    
+<!-- jQuery -->
+<script src="//code.jquery.com/jquery-2.1.4.min.js"></script>
+
+<!-- Bootstrap -->
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+
+<!-- Gallery -->
+<script src="//cdnjs.cloudflare.com/ajax/libs/featherlight/1.3.5/featherlight.min.js" type="text/javascript" charset="utf-8"></script>
+
+<!-- Disqus Comments -->
+
+
+
+</body>
+
+</html>

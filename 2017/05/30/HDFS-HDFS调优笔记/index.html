@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- Head tag -->
+<head>
+
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+    <!--Description-->
+
+    
+
+    
+        <meta name="description" content="描述这篇文章主要从一些配置设置相关方面去调优Hadoop集群的笔记，内容来自网上或一些实践经验
+1.HDFS审计日志HDFS审计日志是一个和进程分离的日志文件，默认是没有开启的，开启之后，用户的每个请求都会记录到审计日志当中，通过审计日志可以发现哪些ip，哪些用户对哪些目录做了哪些操作，比如：那些数"/>
+    
+
+    <!--Author-->
+    
+        <meta name="author" content="shangwen_"/>
+    
+
+    <!--Open Graph Title-->
+    
+        <meta property="og:title" content="[HDFS] HDFS 调优笔记"/>
+    
+
+    <!--Open Graph Description-->
+    
+        <meta property="og:description" content="描述这篇文章主要从一些配置设置相关方面去调优Hadoop集群的笔记，内容来自网上或一些实践经验
+1.HDFS审计日志HDFS审计日志是一个和进程分离的日志文件，默认是没有开启的，开启之后，用户的每个请求都会记录到审计日志当中，通过审计日志可以发现哪些ip，哪些用户对哪些目录做了哪些操作，比如：那些数"/>
+    
+
+    <!--Open Graph Site Name-->
+        <meta property="og:site_name" content="Tang&#39;s Blog"/>
+
+    <!--Type page-->
+    
+        <meta property="og:type" content="article"/>
+    
+
+    <!--Page Cover-->
+    
+    
+        <meta property="og:image" content="http://example.comimg/home-bg.jpg"/>
+    
+
+        <meta name="twitter:card" content="summary_large_image"/>
+
+    
+
+    
+        <meta name="twitter:image" content="http://example.comimg/home-bg.jpg"/>
+    
+
+    <!-- Title -->
+    
+    <title>[HDFS] HDFS 调优笔记 - Tang&#39;s Blog</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet"/>
+
+    <!-- Custom CSS -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+
+    <!-- Custom Fonts -->
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css"/>
+    <link href="//fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic" rel="stylesheet" type="text/css"/>
+    <link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css"/>
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="//oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="//oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- Gallery -->
+    <link href="//cdnjs.cloudflare.com/ajax/libs/featherlight/1.3.5/featherlight.min.css" type="text/css" rel="stylesheet"/>
+
+    <!-- Google Analytics -->
+    
+
+
+    <!-- favicon -->
+    
+
+<meta name="generator" content="Hexo 7.2.0"></head>
+
+
+<body>
+
+    <!-- Menu -->
+    <!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">Tang's blog</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav navbar-right">
+                
+                    <li>
+                        <a href="/">
+                            
+                                Home
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/archives">
+                            
+                                Archives
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/tags">
+                            
+                                Tags
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/categories">
+                            
+                                Categories
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a target="_blank" rel="noopener" href="https://github.com/klugjo/hexo-theme-clean-blog">
+                            
+                                <i class="fa fa-github fa-stack-2x"></i>
+                            
+                        </a>
+                    </li>
+                
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+
+    <!-- Main Content -->
+    <!-- Page Header -->
+<!-- Set your background image for this header in your post front-matter: cover -->
+
+<header class="intro-header" style="background-image: url('/img/home-bg.jpg')">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <h1>[HDFS] HDFS 调优笔记</h1>
+                    
+                    <span class="meta">
+                        <!-- Date and Author -->
+                        
+                        
+                            2017-05-30
+                        
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+            <!-- Tags and categories -->
+           
+                <div class="col-lg-4 col-lg-offset-2 col-md-5 col-md-offset-1 post-tags">
+                    
+                        
+
+
+<a href="/tags/HADOOP/">#HADOOP</a> <a href="/tags/HDFS/">#HDFS</a>
+
+
+                    
+                </div>
+                <div class="col-lg-4 col-md-5 post-categories">
+                    
+                </div>
+            
+
+            <!-- Gallery -->
+            
+
+            <!-- Post Main Content -->
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <h3 id="描述"><a href="#描述" class="headerlink" title="描述"></a><strong>描述</strong></h3><p>这篇文章主要从一些配置设置相关方面去调优Hadoop集群的笔记，内容来自网上或一些实践经验</p>
+<h3 id="1-HDFS审计日志"><a href="#1-HDFS审计日志" class="headerlink" title="1.HDFS审计日志"></a><strong>1.HDFS审计日志</strong></h3><p>HDFS审计日志是一个和进程分离的日志文件，默认是没有开启的，开启之后，用户的每个请求都会记录到审计日志当中，通过审计日志可以发现哪些ip，哪些用户对哪些目录做了哪些操作，比如：那些数据在哪些在什么时候删除，和分析哪些Job在密集的对NameNode进行访问，我们自己的版本中对访问记录了job的Id,在新版的HDFS中，新增加了callcontext的功能，也做了类似操作：<a target="_blank" rel="noopener" href="https://issues.apache.org/jira/browse/HDFS-9184">HDFS-9184 Logging HDFS operation’s caller context into audit logs</a>.</p>
+<p>如何开启，修改Hadoop-env.sh</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">-Dhdfs.audit.logger=$&#123;HDFS_AUDIT_LOGGER:-INFO,NullAppender&#125;</span><br></pre></td></tr></table></figure>
+
+<p>改为</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">-Dhdfs.audit.logger=$&#123;HDFS_AUDIT_LOGGER:-INFO,RFAAUDIT&#125;</span><br></pre></td></tr></table></figure>
+
+<p>对应的log4j.properties可以新增保存个数</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">#</span><br><span class="line"># hdfs audit logging</span><br><span class="line">#</span><br><span class="line">hdfs.audit.logger=INFO,NullAppender</span><br><span class="line">hdfs.audit.log.maxfilesize=2560MB</span><br><span class="line">hdfs.audit.log.maxbackupindex=30</span><br><span class="line">log4j.logger.org.apache.hadoop.hdfs.server.namenode.FSNamesystem.audit=$&#123;hdfs.audit.logger&#125;</span><br><span class="line">log4j.additivity.org.apache.hadoop.hdfs.server.namenode.FSNamesystem.audit=false</span><br><span class="line">log4j.appender.RFAAUDIT=org.apache.log4j.RollingFileAppender</span><br><span class="line">log4j.appender.RFAAUDIT.File=/data1/hadoop-audit-logs/hdfs-audit.log</span><br><span class="line">log4j.appender.RFAAUDIT.layout=org.apache.log4j.PatternLayout</span><br><span class="line">log4j.appender.RFAAUDIT.layout.ConversionPattern=[%d&#123;yyyy-MM-dd&#x27;T&#x27;HH:mm:ss.SSSXXX&#125;] [%p] %c&#123;3&#125;.%M(%F %L) [%t] : %m%n</span><br><span class="line">log4j.appender.RFAAUDIT.MaxFileSize=$&#123;hdfs.audit.log.maxfilesize&#125;</span><br><span class="line">log4j.appender.RFAAUDIT.MaxBackupIndex=$&#123;hdfs.audit.log.maxbackupindex&#125;</span><br></pre></td></tr></table></figure>
+
+<p>开启异步的审计日志</p>
+<p>使用异步的log4j appender可以提升NameNode的性能，尤其是请求量在10000 requests&#x2F;second,可以设置hdfs-site.xml</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&lt;property&gt;</span><br><span class="line">    &lt;name&gt;dfs.namenode.audit.log.async&lt;/name&gt;</span><br><span class="line">    &lt;value&gt;true&lt;/value&gt;</span><br><span class="line">  &lt;/property&gt;</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-开启Service-RPC端口"><a href="#2-开启Service-RPC端口" class="headerlink" title="2.开启Service RPC端口"></a><strong>2.开启Service RPC端口</strong></h3><p>在默认情况下，service RPC端口是没有使用的，client和DataNode汇报，zkfc的健康检查都会公用RPC Server，当client的请求量比较大或者DataNode的汇报量很大，会导致他们之间相互影响，导致访问非常缓慢，开启之后，DN的汇报和健康检查请求都会走Service RPC端口，避免了因为client的大量访问影响，影响服务之间的请求，在HA集群中，可以在hdfs-site.xml中设置</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">&lt;property&gt;</span><br><span class="line">    &lt;name&gt;dfs.namenode.servicerpc-address.mycluster.nn1&lt;/name&gt;</span><br><span class="line">    &lt;value&gt;mynamenode1.example.com:8021&lt;/value&gt;</span><br><span class="line">  &lt;/property&gt;</span><br><span class="line"></span><br><span class="line">  &lt;property&gt;</span><br><span class="line">    &lt;name&gt;dfs.namenode.servicerpc-address.mycluster.nn2&lt;/name&gt;</span><br><span class="line">    &lt;value&gt;mynamenode2.example.com:8021&lt;/value&gt;</span><br><span class="line">  &lt;/property&gt;</span><br></pre></td></tr></table></figure>
+
+<p>开启之后，需要重置zkfc</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hdfs zkfc –formatZK</span><br></pre></td></tr></table></figure>
+
+<p><em>注意：</em></p>
+<p>修改这个端口需要重启集群，请自行评估带来的影响</p>
+<h3 id="3-关闭多余的日志"><a href="#3-关闭多余的日志" class="headerlink" title="3.关闭多余的日志"></a><strong>3.关闭多余的日志</strong></h3><p>有时候，NameNode上日志打印会严重影响NN的性能，出问题时也会造成没必要的干扰，所以可以修改log4j的文件，对没必要的日志进行日志级别的调整，例如</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">log4j.logger.BlockStateChange=WARN</span><br><span class="line">log4j.logger.org.apache.hadoop.ipc.Server=WARN</span><br></pre></td></tr></table></figure>
+
+<p>社区上也有很多日志的优化方案</p>
+<ul>
+<li>HDFS-9434</li>
+<li>HADOOP-12903</li>
+<li>HDFS-9941</li>
+<li>HDFS-9906</li>
+</ul>
+<h3 id="4-RPC-FairCallQueue"><a href="#4-RPC-FairCallQueue" class="headerlink" title="4.RPC FairCallQueue"></a><strong>4.RPC FairCallQueue</strong></h3><p>这个是基于上面第二点<strong>开启Service RPC</strong>继续说的,这是较新版本的Hadoop的新特性，RPC FairCallQueue替换了之前的单一的RPC queue的模式，RPC Server会维护并按照请求的用户进行分组，Handler会按照队列的优先级去消费queue里面的RPC Call,这个功能它可以防止因为某个用户的cleint的大量请求导致NN无法响应，整个集群瘫痪的状态，开启了之后，请求多的用户请求会被降级，这样不会造成多租户下，影响他用户的访问，后续会有文章介绍，相关的JIRA <a target="_blank" rel="noopener" href="https://issues.apache.org/jira/browse/HADOOP-10282">HDFS-10282</a></p>
+<p>如果开启，需要修改core-site.xml</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">  &lt;property&gt;</span><br><span class="line">    &lt;name&gt;ipc.8020.callqueue.impl&lt;/name&gt;</span><br><span class="line">    &lt;value&gt;org.apache.hadoop.ipc.FairCallQueue&lt;/value&gt;</span><br><span class="line">  &lt;/property&gt;</span><br><span class="line">&lt;property&gt;</span><br><span class="line">  &lt;name&gt;ipc.8020.faircallqueue.decay-scheduler.period-ms&lt;/name&gt;</span><br><span class="line">  &lt;value&gt;60000&lt;/value&gt;</span><br><span class="line">&lt;/property&gt;</span><br></pre></td></tr></table></figure>
+
+<p><em>注意</em></p>
+<p><em>不能对DataNode和NN通信的端口进行开启</em></p>
+<h3 id="5-磁盘吞吐量"><a href="#5-磁盘吞吐量" class="headerlink" title="5.磁盘吞吐量"></a><strong>5.磁盘吞吐量</strong></h3><p>对于NameNode来说，HDFS NameNode性能也依赖于flush edit logs到磁盘的速度，任何延迟将会导致将会影响RPC的处理线程，并对Hadoop集群造成连锁的性能影响。</p>
+<p>你应该使用专用的硬盘时存储edit logs，如果hdfs-site.xml中没有配置，将等于dfs.name.name.dir的值</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&lt;property&gt;</span><br><span class="line">   &lt;name&gt;dfs.namenode.name.dir&lt;/name&gt;</span><br><span class="line">   &lt;value&gt;/mnt/disk1,/mnt/disk2&lt;/value&gt;</span><br><span class="line"> &lt;/property&gt;</span><br></pre></td></tr></table></figure>
+
+<p>对于DN来说，默认的Du，会产生大量的du -sk的操作，会造成集群严重的IO Wait增加，从而导致任务会变得缓慢 <a target="_blank" rel="noopener" href="http://outline-wordpress.stor.sinaapp.com/uploads/2017/05/GetImage.jpg"><img src="http://outline-wordpress.stor.sinaapp.com/uploads/2017/05/GetImage.jpg" title="GetImage"></a></p>
+<p>负载图 <a target="_blank" rel="noopener" href="http://outline-wordpress.stor.sinaapp.com/uploads/2017/05/GetImage.png"><img src="http://outline-wordpress.stor.sinaapp.com/uploads/2017/05/GetImage.png" title="GetImage"></a></p>
+<p>产生大量的DU操作 <a target="_blank" rel="noopener" href="http://outline-wordpress.stor.sinaapp.com/uploads/2017/05/du_b.png"><img src="http://outline-wordpress.stor.sinaapp.com/uploads/2017/05/du_b.png" title="du_b"></a></p>
+<p>解决方案是</p>
+<p>将同时产生的du操作，加个随机数，随机到集群的不同时间段，并且每天只du一次，这样虽然可能会造成hdfs上显示的使用率会有延时，但基本可以满足要求<a target="_blank" rel="noopener" href="https://issues.apache.org/jira/browse/HADOOP-9884">HADOOP-9884</a></p>
+<p>打patch之后，修改hdfs-site.xml</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">&lt;property&gt;</span><br><span class="line">  &lt;name&gt;fs.getspaceused.jitterMillis&lt;/name&gt;</span><br><span class="line">  &lt;value&gt;3600000&lt;/value&gt;</span><br><span class="line">&lt;/property&gt;</span><br><span class="line">&lt;property&gt;</span><br><span class="line">  &lt;name&gt;fs.du.interval&lt;/name&gt;</span><br><span class="line">  &lt;value&gt;86400000&lt;/value&gt;</span><br><span class="line">&lt;/property&gt;</span><br><span class="line">&lt;property&gt;</span><br><span class="line">  &lt;name&gt;dfs.datanode.cached-dfsused.check.interval.ms&lt;/name&gt;</span><br><span class="line">  &lt;value&gt;14400000&lt;/value&gt;</span><br><span class="line">&lt;/property&gt;</span><br></pre></td></tr></table></figure>
+
+<h3 id="6-避免读取stale-DataNodes"><a href="#6-避免读取stale-DataNodes" class="headerlink" title="6.避免读取stale DataNodes"></a><strong>6.避免读取stale DataNodes</strong></h3><p>修改hdfs-site.xml</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">dfs.namenode.avoid.read.stale.datanode=true</span><br><span class="line">dfs.namenode.avoid.write.stale.datanode=true</span><br></pre></td></tr></table></figure>
+
+<h3 id="7-开启short-circuit-reads"><a href="#7-开启short-circuit-reads" class="headerlink" title="7.开启short circuit reads"></a><strong>7.开启short circuit reads</strong></h3><p>开启短路读之后，当client读取数据时，如果在改节点，会直接通过文件描述符去读取文件，而不用通过tcp socket的方式</p>
+<p>修改hdfs-site.xml</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">dfs.client.read.shortcircuit=true</span><br><span class="line">dfs.domain.socket.path=/var/lib/hadoop-hdfs/dn_socket</span><br></pre></td></tr></table></figure>
+
+<h3 id="8-关闭操作系统的Transparent-Huge-Pages-THP"><a href="#8-关闭操作系统的Transparent-Huge-Pages-THP" class="headerlink" title="8.关闭操作系统的Transparent Huge Pages (THP)"></a><strong>8.关闭操作系统的Transparent Huge Pages (THP)</strong></h3><p>操作系统默认开启THP，会导致整个Hadoop集群cpu sys态变高,详细步骤可以<a target="_blank" rel="noopener" href="https://www.cloudera.com/documentation/enterprise/5-3-x/topics/cdh_admin_performance.html#xd_583c10bfdbd326ba-7dae4aa6-147c30d0933--7fd5__section_hw3_sdf_jq">参考</a></p>
+<h3 id="9-设置系统的vm-swappiness"><a href="#9-设置系统的vm-swappiness" class="headerlink" title="9.设置系统的vm.swappiness"></a><strong>9.设置系统的vm.swappiness</strong></h3><p>避免使用交换区</p>
+<p>添加vm.swappiness&#x3D;0到&#x2F;etc&#x2F;sysctl.conf重启生效，或者sysctl -w vm.swappiness&#x3D;0</p>
+<h3 id="10-设置系统CPU为performance"><a href="#10-设置系统CPU为performance" class="headerlink" title="10.设置系统CPU为performance"></a><strong>10.设置系统CPU为performance</strong></h3><p>设置cpu的scaling governors为performance模式,你可以运行cpufreq-set -r -g performance或者修改&#x2F;sys&#x2F;devices&#x2F;system&#x2F;cpu&#x2F;cpu*&#x2F;cpufreq&#x2F;scaling_governor文件，并设置为performance</p>
+<h3 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a><strong>参考文章</strong></h3><p><a target="_blank" rel="noopener" href="https://community.hortonworks.com/articles/43838/scaling-the-hdfs-namenode-part-1.html">Scaling the HDFS NameNode</a></p>
+<p><a target="_blank" rel="noopener" href="https://community.hortonworks.com/content/kbentry/55637/operating-system-os-optimizations-for-better-clust.html">OS Configurations for Better Hadoop Performance</a></p>
+<p><a target="_blank" rel="noopener" href="https://wiki.apache.org/hadoop/DiskSetup">hadoop DiskSetup</a></p>
+
+
+                
+            </div>
+
+            <!-- Comments -->
+            
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                    
+
+
+                </div>
+            
+        </div>
+    </div>
+</article>
+
+    <!-- Footer -->
+    <hr />
+
+<!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                    
+
+                    
+
+                    
+                        <li>
+                            <a href="https://github.com/shangwen" target="_blank">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    
+
+                    
+
+                    
+                        <li>
+                            <a href="mailto:kevin.shangwen@gmail.com" target="_blank">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-envelope-o fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    
+
+                    
+                </ul>
+                <p class="copyright text-muted">&copy; 2024 shangwen_<br></p>
+                <p class="copyright text-muted">Original Theme <a target="_blank" href="http://startbootstrap.com/template-overviews/clean-blog/">Clean Blog</a> from <a href="http://startbootstrap.com/" target="_blank">Start Bootstrap</a></p>
+                <p class="copyright text-muted">Adapted for <a target="_blank" href="https://hexo.io/">Hexo</a> by <a href="http://www.codeblocq.com/" target="_blank">Jonathan Klughertz</a></p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+
+    <!-- After footer scripts -->
+    
+<!-- jQuery -->
+<script src="//code.jquery.com/jquery-2.1.4.min.js"></script>
+
+<!-- Bootstrap -->
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+
+<!-- Gallery -->
+<script src="//cdnjs.cloudflare.com/ajax/libs/featherlight/1.3.5/featherlight.min.js" type="text/javascript" charset="utf-8"></script>
+
+<!-- Disqus Comments -->
+
+
+
+</body>
+
+</html>

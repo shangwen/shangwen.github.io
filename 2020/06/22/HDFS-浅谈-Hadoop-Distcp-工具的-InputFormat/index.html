@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- Head tag -->
+<head>
+
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+    <!--Description-->
+
+    
+
+    
+        <meta name="description" content="在集群迁移或者数据跨集群同步的过程中，必要少不了数据拷贝的动作，在同一个集群内，跨NameSpace的数据拷贝，你可以使用distcp，你也可以自己实现类似facebook提供的fastcopy的拷贝(社区好像没提供)，那么在使用distcp工具的过程中，其中的一些参数到底影响了什么，他是一个怎样的"/>
+    
+
+    <!--Author-->
+    
+        <meta name="author" content="shangwen_"/>
+    
+
+    <!--Open Graph Title-->
+    
+        <meta property="og:title" content="[HDFS] 浅谈 Hadoop Distcp 工具的 InputFormat"/>
+    
+
+    <!--Open Graph Description-->
+    
+        <meta property="og:description" content="在集群迁移或者数据跨集群同步的过程中，必要少不了数据拷贝的动作，在同一个集群内，跨NameSpace的数据拷贝，你可以使用distcp，你也可以自己实现类似facebook提供的fastcopy的拷贝(社区好像没提供)，那么在使用distcp工具的过程中，其中的一些参数到底影响了什么，他是一个怎样的"/>
+    
+
+    <!--Open Graph Site Name-->
+        <meta property="og:site_name" content="Tang&#39;s Blog"/>
+
+    <!--Type page-->
+    
+        <meta property="og:type" content="article"/>
+    
+
+    <!--Page Cover-->
+    
+    
+        <meta property="og:image" content="http://example.comimg/home-bg.jpg"/>
+    
+
+        <meta name="twitter:card" content="summary_large_image"/>
+
+    
+
+    
+        <meta name="twitter:image" content="http://example.comimg/home-bg.jpg"/>
+    
+
+    <!-- Title -->
+    
+    <title>[HDFS] 浅谈 Hadoop Distcp 工具的 InputFormat - Tang&#39;s Blog</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet"/>
+
+    <!-- Custom CSS -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+
+    <!-- Custom Fonts -->
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css"/>
+    <link href="//fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic" rel="stylesheet" type="text/css"/>
+    <link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css"/>
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="//oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="//oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- Gallery -->
+    <link href="//cdnjs.cloudflare.com/ajax/libs/featherlight/1.3.5/featherlight.min.css" type="text/css" rel="stylesheet"/>
+
+    <!-- Google Analytics -->
+    
+
+
+    <!-- favicon -->
+    
+
+<meta name="generator" content="Hexo 7.2.0"></head>
+
+
+<body>
+
+    <!-- Menu -->
+    <!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">Tang's blog</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav navbar-right">
+                
+                    <li>
+                        <a href="/">
+                            
+                                Home
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/archives">
+                            
+                                Archives
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/tags">
+                            
+                                Tags
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/categories">
+                            
+                                Categories
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a target="_blank" rel="noopener" href="https://github.com/klugjo/hexo-theme-clean-blog">
+                            
+                                <i class="fa fa-github fa-stack-2x"></i>
+                            
+                        </a>
+                    </li>
+                
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+
+    <!-- Main Content -->
+    <!-- Page Header -->
+<!-- Set your background image for this header in your post front-matter: cover -->
+
+<header class="intro-header" style="background-image: url('/img/home-bg.jpg')">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <h1>[HDFS] 浅谈 Hadoop Distcp 工具的 InputFormat</h1>
+                    
+                    <span class="meta">
+                        <!-- Date and Author -->
+                        
+                        
+                            2020-06-22
+                        
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+            <!-- Tags and categories -->
+           
+                <div class="col-lg-4 col-lg-offset-2 col-md-5 col-md-offset-1 post-tags">
+                    
+                        
+
+
+<a href="/tags/HADOOP/">#HADOOP</a> <a href="/tags/HDFS/">#HDFS</a>
+
+
+                    
+                </div>
+                <div class="col-lg-4 col-md-5 post-categories">
+                    
+                </div>
+            
+
+            <!-- Gallery -->
+            
+
+            <!-- Post Main Content -->
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <p>在集群迁移或者数据跨集群同步的过程中，必要少不了数据拷贝的动作，在同一个集群内，跨NameSpace的数据拷贝，你可以使用distcp，你也可以自己实现类似facebook提供的fastcopy的拷贝(社区好像没提供)，那么在使用distcp工具的过程中，其中的一些参数到底影响了什么，他是一个怎样的原理，今天就和大家简单的分享下。</p>
+<p>我们在命令行执行hadoop distcp命令回车，就会看到他所支持的很多参数，其中在命令行拷贝策略(-strategy)选项中，有两个参数可选参数：dynamic，uniformsize。在默认情况下使用的是uniformsize，含义是distcp的每个map会相对均衡去复制数据量大小的文件。</p>
+<p>我们通过查看源码容易可以看出，除了命令行选项之外，distcp还能默认的去加载distcp-default.xml，我们可以放置到$HADOOP_CONF_DIR下，我们可以配置相对常用的参数到这个文件中。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">public DistCp(Configuration configuration, DistCpOptions inputOptions) throws Exception &#123;</span><br><span class="line">  Configuration config = new Configuration(configuration);</span><br><span class="line">  config.addResource(DISTCP_DEFAULT_XML);</span><br><span class="line">  setConf(config);</span><br><span class="line">  this.inputOptions = inputOptions;</span><br><span class="line">  this.metaFolder   = createMetaFolderPath();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>除此之外，我们还从默认的配置当中，看到了两个参数：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">&lt;property&gt;</span><br><span class="line">&lt;name&gt;distcp.dynamic.strategy.impl&lt;/name&gt;</span><br><span class="line">&lt;value&gt;org.apache.hadoop.tools.mapred.lib.DynamicInputFormat&lt;/value&gt;</span><br><span class="line">&lt;description&gt;Implementation of dynamic input format&lt;/description&gt;</span><br><span class="line">&lt;/property&gt;</span><br><span class="line"></span><br><span class="line">&lt;property&gt;</span><br><span class="line">&lt;name&gt;distcp.static.strategy.impl&lt;/name&gt;</span><br><span class="line">&lt;value&gt;org.apache.hadoop.tools.mapred.UniformSizeInputFormat&lt;/value&gt;</span><br><span class="line">&lt;description&gt;Implementation of static input format&lt;/description&gt;</span><br><span class="line">&lt;/property&gt;</span><br></pre></td></tr></table></figure>
+
+<p>这个就是上述说的两种命令行策略的参数模式。通过命名可以很容易可以看出，其实这就是两个InputFormat的实现类，distcp任务(其实也就是MR任务)，通过配置命令行或者参数指定使用不同的inputFormat生成不同的splits，从而实现不同的拷贝文件的逻辑。</p>
+<p>然而，既然有两个选项，那他们的区别在哪呢？我们可以简单的看看下图的一个整体结构</p>
+<p><img src="http://outline-wordpress.stor.sinaapp.com/uploads/2020/06/1526211665_85_w791_h391.png"></p>
+<h4 id="DynamicInputFormat"><a href="#DynamicInputFormat" class="headerlink" title="DynamicInputFormat"></a>DynamicInputFormat</h4><p>对于DynamicInputFormat来说，有几个重要的相关的类：DynamicRecordReader，DynamicInputChunk，DynamicInputChunkContext。</p>
+<p>对于distcp任务，会先生成一个copy-listing文件，该文件包含复制文件的列表等信息，DynamicInputFormat的getSplits方法就是将这些切分为不同chunk，然后分配到不同的task中。</p>
+<p>在切分copy-listing文件到不同的chunk当中，其中有几个变量，numMaps和numRecords得到splitRatio的比例，也就是算出平均每个map处理多少个chunk，然后通过总的records数量，算出每个chunk中有多少条records</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">static int getSplitRatio(int nMaps, int nRecords, Configuration conf) &#123;</span><br><span class="line">int maxChunksIdeal = getMaxChunksIdeal(conf);</span><br><span class="line">int minRecordsPerChunk = getMinRecordsPerChunk(conf);</span><br><span class="line">int splitRatio = getSplitRatio(conf);</span><br><span class="line"></span><br><span class="line">if (nMaps == 1) &#123;</span><br><span class="line">LOG.warn(&quot;nMaps == 1. Why use DynamicInputFormat?&quot;);</span><br><span class="line">return 1;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">if (nMaps &gt; maxChunksIdeal)</span><br><span class="line">return splitRatio;</span><br><span class="line"></span><br><span class="line">int nPickups = (int)Math.ceil((float)maxChunksIdeal/nMaps);</span><br><span class="line">int nRecordsPerChunk = (int)Math.ceil((float)nRecords/(nMaps*nPickups));</span><br><span class="line"></span><br><span class="line">return nRecordsPerChunk &lt; minRecordsPerChunk ?</span><br><span class="line">splitRatio : nPickups;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>最终会将所有的record放到不同的chunk中，在hdfs上会在对应目录行程对应的文件类似fileList.seq.chunk.0000x：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">drwx------ - hadoop supergroup 0 2018-05-13 17:50 /emr/hadoop-yarn/staging/hadoop/.staging/_distcp1061656248</span><br><span class="line">drwx------ - hadoop supergroup 0 2018-05-13 17:50 /emr/hadoop-yarn/staging/hadoop/.staging/_distcp1061656248/chunkDir</span><br><span class="line">-rw-r--r-- 1 hadoop supergroup 1504 2018-05-13 17:50 /emr/hadoop-yarn/staging/hadoop/.staging/_distcp1061656248/chunkDir/fileList.seq.chunk.00002</span><br><span class="line">-rw-r--r-- 1 hadoop supergroup 1486 2018-05-13 17:50 /emr/hadoop-yarn/staging/hadoop/.staging/_distcp1061656248/chunkDir/fileList.seq.chunk.00003</span><br><span class="line">-rw-r--r-- 1 hadoop supergroup 1646 2018-05-13 17:50 /emr/hadoop-yarn/staging/hadoop/.staging/_distcp1061656248/chunkDir/task_1526024399954_0017_m_000000</span><br><span class="line">-rw-r--r-- 1 hadoop supergroup 1524 2018-05-13 17:50 /emr/hadoop-yarn/staging/hadoop/.staging/_distcp1061656248/chunkDir/task_1526024399954_0017_m_000001</span><br><span class="line">-rw-r--r-- 1 hadoop supergroup 6686 2018-05-13 17:50 /emr/hadoop-yarn/staging/hadoop/.staging/_distcp1061656248/fileList.seq</span><br><span class="line">-rw-r--r-- 1 hadoop supergroup 5906 2018-05-13 17:50 /emr/hadoop-yarn/staging/hadoop/.staging/_distcp1061656248/fileList.seq_sorted</span><br></pre></td></tr></table></figure>
+
+<p>然后map通过DynamicRecordReader去读取数据的时候就会将对应的chunk文件修改为task(task_1526024399954_0017_m_000000)名字，所以通过上面的文件夹输入可以看出，这时有两个map正在对数据进行拷贝，执行速度快的map会继续读取未被领取的chunk进行拷贝，这就让速度快的map可以对更多的数据进行拷贝。</p>
+<h4 id="UniformSizeInputFormat"><a href="#UniformSizeInputFormat" class="headerlink" title="UniformSizeInputFormat"></a>UniformSizeInputFormat</h4><p>对于默认的UniformSizeInputFormat，他的实现方式比DynamicInputFormat简单，原理其实就是得到总的totalSizeBytes，然后除以map数量得到平均每个map处理多少数据，然后当文件的大小加起来大于nBytesPerSplit的时候，就形成一个split，这样是希望每个map处理的数据差距不会太大。</p>
+<p>带宽控制</p>
+<p>带宽控制主要实现在ThrottledInputStream当中，他在hadoop除了在distcp之外，也用在了NameNode之间的FSImage传输等场景上的使用，原理就是，他继承了原有的InputStream并在每次读取的时候进行每秒获取字节的速率检查(throttle)，如果超过，则进行sleep：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line"> * Read bytes starting from the specified position. This requires rawStream is</span><br><span class="line"> * an instance of &#123;@link PositionedReadable&#125;.</span><br><span class="line"> */</span><br><span class="line">public int read(long position, byte[] buffer, int offset, int length)</span><br><span class="line">    throws IOException &#123;</span><br><span class="line">  if (!(rawStream instanceof PositionedReadable)) &#123;</span><br><span class="line">    throw new UnsupportedOperationException(</span><br><span class="line">        &quot;positioned read is not supported by the internal stream&quot;);</span><br><span class="line">  &#125;</span><br><span class="line">  throttle();</span><br><span class="line">  int readLen = ((PositionedReadable) rawStream).read(position, buffer,</span><br><span class="line">      offset, length);</span><br><span class="line">  if (readLen != -1) &#123;</span><br><span class="line">    bytesRead += readLen;</span><br><span class="line">  &#125;</span><br><span class="line">  return readLen;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">private void throttle() throws IOException &#123;</span><br><span class="line">  while (getBytesPerSec() &gt; maxBytesPerSec) &#123;</span><br><span class="line">    try &#123;</span><br><span class="line">      Thread.sleep(SLEEP_DURATION_MS);</span><br><span class="line">      totalSleepTime += SLEEP_DURATION_MS;</span><br><span class="line">    &#125; catch (InterruptedException e) &#123;</span><br><span class="line">      throw new IOException(&quot;Thread aborted&quot;, e);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">/**</span><br><span class="line"> * Getter for the read-rate from this stream, since creation.</span><br><span class="line"> * Calculated as bytesRead/elapsedTimeSinceStart.</span><br><span class="line"> * @return Read rate, in bytes/sec.</span><br><span class="line"> */</span><br><span class="line">public long getBytesPerSec() &#123;</span><br><span class="line">  long elapsed = (System.currentTimeMillis() - startTime) / 1000;</span><br><span class="line">  if (elapsed == 0) &#123;</span><br><span class="line">    return bytesRead;</span><br><span class="line">  &#125; else &#123;</span><br><span class="line">    return bytesRead / elapsed;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="总结："><a href="#总结：" class="headerlink" title="总结："></a>总结：</h4><p>除了本文说的参数之外，我们平时在数据拷贝的过程中，我们还可以综合的通过控制map的数量，控制带宽阈值去减少这个过程对线上系统的影响，其中还有update参数等等，我们可以按照自身的业务需求去调整自身的参数，从而达到一个相对最优的数据拷贝效果。</p>
+
+
+                
+            </div>
+
+            <!-- Comments -->
+            
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                    
+
+
+                </div>
+            
+        </div>
+    </div>
+</article>
+
+    <!-- Footer -->
+    <hr />
+
+<!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                    
+
+                    
+
+                    
+                        <li>
+                            <a href="https://github.com/shangwen" target="_blank">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    
+
+                    
+
+                    
+                        <li>
+                            <a href="mailto:kevin.shangwen@gmail.com" target="_blank">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-envelope-o fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    
+
+                    
+                </ul>
+                <p class="copyright text-muted">&copy; 2024 shangwen_<br></p>
+                <p class="copyright text-muted">Original Theme <a target="_blank" href="http://startbootstrap.com/template-overviews/clean-blog/">Clean Blog</a> from <a href="http://startbootstrap.com/" target="_blank">Start Bootstrap</a></p>
+                <p class="copyright text-muted">Adapted for <a target="_blank" href="https://hexo.io/">Hexo</a> by <a href="http://www.codeblocq.com/" target="_blank">Jonathan Klughertz</a></p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+
+    <!-- After footer scripts -->
+    
+<!-- jQuery -->
+<script src="//code.jquery.com/jquery-2.1.4.min.js"></script>
+
+<!-- Bootstrap -->
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+
+<!-- Gallery -->
+<script src="//cdnjs.cloudflare.com/ajax/libs/featherlight/1.3.5/featherlight.min.js" type="text/javascript" charset="utf-8"></script>
+
+<!-- Disqus Comments -->
+
+
+
+</body>
+
+</html>

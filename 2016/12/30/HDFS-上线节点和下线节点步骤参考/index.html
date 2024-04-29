@@ -13,6 +13,10 @@
     
 
     
+        <meta name="description" content="一、上线节点1、将新增节点追加到&amp;#x2F;etc&amp;#x2F;hosts中，同步到集群所有节点
+2、将新节点生成新的机架信息更新到rack.data中，并同步到集群所有节点
+3、将新的节点加入到$HADOOP_CONF_DIR&amp;#x2F;slaves，$HADOOP_CONF_DIR&amp;#x2F;ho"/>
+    
 
     <!--Author-->
     
@@ -21,10 +25,14 @@
 
     <!--Open Graph Title-->
     
-        <meta property="og:title" content="Tang&#39;s Blog"/>
+        <meta property="og:title" content="[HDFS] 上线节点和下线节点步骤参考"/>
     
 
     <!--Open Graph Description-->
+    
+        <meta property="og:description" content="一、上线节点1、将新增节点追加到&amp;#x2F;etc&amp;#x2F;hosts中，同步到集群所有节点
+2、将新节点生成新的机架信息更新到rack.data中，并同步到集群所有节点
+3、将新的节点加入到$HADOOP_CONF_DIR&amp;#x2F;slaves，$HADOOP_CONF_DIR&amp;#x2F;ho"/>
     
 
     <!--Open Graph Site Name-->
@@ -32,7 +40,7 @@
 
     <!--Type page-->
     
-        <meta property="og:type" content="website"/>
+        <meta property="og:type" content="article"/>
     
 
     <!--Page Cover-->
@@ -51,7 +59,7 @@
 
     <!-- Title -->
     
-    <title>Tang&#39;s Blog</title>
+    <title>[HDFS] 上线节点和下线节点步骤参考 - Tang&#39;s Blog</title>
 
     <!-- Bootstrap Core CSS -->
     <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet"/>
@@ -156,188 +164,98 @@
 
     <!-- Main Content -->
     <!-- Page Header -->
-<!-- Set your background image for this header in the theme's configuration: index_cover -->
+<!-- Set your background image for this header in your post front-matter: cover -->
+
 <header class="intro-header" style="background-image: url('/img/home-bg.jpg')">
     <div class="container">
         <div class="row">
             <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
-                <div class="site-heading">
-                    <h1>Tang's Blog</h1>
-                    <hr class="small">
-                    <span class="subheading"></span>
+                <div class="post-heading">
+                    <h1>[HDFS] 上线节点和下线节点步骤参考</h1>
+                    
+                    <span class="meta">
+                        <!-- Date and Author -->
+                        
+                        
+                            2016-12-30
+                        
+                    </span>
                 </div>
             </div>
         </div>
     </div>
 </header>
 
-<!-- Main Content -->
-<div class="container">
-    <div class="row">
-        <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
-            
-                <div class="post-preview">
-    <a href="/2020/08/28/Flink-Flink-SQL-原理解析-1/">
-        <h2 class="post-title">
-            [Flink] Flink SQL 原理解析 (1)
-        </h2>
-        
-    </a>
-    <p class="post-meta">
-        <!-- Date and Author -->
-        
-        2020-08-28
-    </p>
-</div>
-<hr>
-            
-                <div class="post-preview">
-    <a href="/2020/06/22/HDFS-浅谈-Hadoop-Distcp-工具的-InputFormat/">
-        <h2 class="post-title">
-            [HDFS] 浅谈 Hadoop Distcp 工具的 InputFormat
-        </h2>
-        
-    </a>
-    <p class="post-meta">
-        <!-- Date and Author -->
-        
-        2020-06-22
-    </p>
-</div>
-<hr>
-            
-                <div class="post-preview">
-    <a href="/2020/06/15/HDFS-Standby-NameNode性能问题排查/">
-        <h2 class="post-title">
-            [HDFS] Standby NameNode性能问题排查
-        </h2>
-        
-    </a>
-    <p class="post-meta">
-        <!-- Date and Author -->
-        
-        2020-06-15
-    </p>
-</div>
-<hr>
-            
-                <div class="post-preview">
-    <a href="/2020/06/09/Flink-记-Flink-1-10-0-JDBC-Connectors-重连失效分析/">
-        <h2 class="post-title">
-            [Flink] 记 Flink 1.10.0 JDBC Connectors 重连失效分析
-        </h2>
-        
-    </a>
-    <p class="post-meta">
-        <!-- Date and Author -->
-        
-        2020-06-09
-    </p>
-</div>
-<hr>
-            
-                <div class="post-preview">
-    <a href="/2020/05/20/JVM-如何通过jcmd画火焰图/">
-        <h2 class="post-title">
-            [JVM] 如何通过jcmd画火焰图
-        </h2>
-        
-    </a>
-    <p class="post-meta">
-        <!-- Date and Author -->
-        
-        2020-05-20
-    </p>
-</div>
-<hr>
-            
-                <div class="post-preview">
-    <a href="/2020/05/14/Flink-Flink-时间、窗口和函数等相关原理解析/">
-        <h2 class="post-title">
-            [Flink] Flink 时间、窗口和函数等相关原理解析
-        </h2>
-        
-    </a>
-    <p class="post-meta">
-        <!-- Date and Author -->
-        
-        2020-05-14
-    </p>
-</div>
-<hr>
-            
-                <div class="post-preview">
-    <a href="/2020/05/13/Flink-Flink-Kafka-Connector-实现机制简析/">
-        <h2 class="post-title">
-            [Flink] Flink Kafka Connector 实现机制简析
-        </h2>
-        
-    </a>
-    <p class="post-meta">
-        <!-- Date and Author -->
-        
-        2020-05-13
-    </p>
-</div>
-<hr>
-            
-                <div class="post-preview">
-    <a href="/2020/03/15/JAVA-Failed-to-load-class-“org-slf4j-impl-StaticLoggerBinder”-问题解决/">
-        <h2 class="post-title">
-            [JAVA] Failed to load class “org.slf4j.impl.StaticLoggerBinder” 问题解决
-        </h2>
-        
-    </a>
-    <p class="post-meta">
-        <!-- Date and Author -->
-        
-        2020-03-15
-    </p>
-</div>
-<hr>
-            
-                <div class="post-preview">
-    <a href="/2017/07/16/SPARK-Spark-Streaming-在进行-YARN-kill-的时候无法对-eventlog-的-inprogress-进行-rename/">
-        <h2 class="post-title">
-            [SPARK] Spark Streaming 在进行 YARN kill 的时候无法对 eventlog 的 inprogress 进行 rename
-        </h2>
-        
-    </a>
-    <p class="post-meta">
-        <!-- Date and Author -->
-        
-        2017-07-16
-    </p>
-</div>
-<hr>
-            
-                <div class="post-preview">
-    <a href="/2017/05/30/HDFS-HDFS调优笔记/">
-        <h2 class="post-title">
-            [HDFS] HDFS 调优笔记
-        </h2>
-        
-    </a>
-    <p class="post-meta">
-        <!-- Date and Author -->
-        
-        2017-05-30
-    </p>
-</div>
-<hr>
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+            <!-- Tags and categories -->
+           
+                <div class="col-lg-4 col-lg-offset-2 col-md-5 col-md-offset-1 post-tags">
+                    
+                        
+
+
+<a href="/tags/HADOOP/">#HADOOP</a> <a href="/tags/HDFS/">#HDFS</a>
+
+
+                    
+                </div>
+                <div class="col-lg-4 col-md-5 post-categories">
+                    
+                </div>
             
 
-            <ul class="pager">
-    
-    
-        <li class="next"><a href="/page/2/">Older Posts  &rarr;</a></li>
-    
-</ul>
+            <!-- Gallery -->
+            
+
+            <!-- Post Main Content -->
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <h3 id="一、上线节点"><a href="#一、上线节点" class="headerlink" title="一、上线节点"></a>一、<strong>上线节点</strong></h3><p>1、将新增节点追加到&#x2F;etc&#x2F;hosts中，同步到集群所有节点</p>
+<p>2、将新节点生成新的机架信息更新到rack.data中，并同步到集群所有节点</p>
+<p>3、将新的节点加入到$HADOOP_CONF_DIR&#x2F;slaves，$HADOOP_CONF_DIR&#x2F;hosts&#x2F;datanode_hosts，$HADOOP_CONF_DIR&#x2F;hosts&#x2F;exclude_mapred_hosts，$HADOOP_CONF_DIR&#x2F;hosts&#x2F;mapred_hosts中，同步到集群所有节点。</p>
+<p>4、刷新NN，RM</p>
+<h5 id="刷新NN"><a href="#刷新NN" class="headerlink" title="刷新NN"></a>刷新NN</h5><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hdfs dfsadmin -refreshNodes</span><br></pre></td></tr></table></figure>
+
+<h5 id="刷新RM"><a href="#刷新RM" class="headerlink" title="刷新RM"></a>刷新RM</h5><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yarn rmadmin -refreshNodes</span><br></pre></td></tr></table></figure>
+
+<p>5、启动DN,并继续保持balance，直到达到一定(建议40%)存储左右的容量</p>
+<p><strong>Tips1：</strong> 因为在机器刚加进集群时，如果该节点启动计算，将会耗费大量的网络带宽，影响在上面跑的Task，从而影响任务，而任务在写数据时，如果来自DN节点的请求，会先在本地写一份数据，再写远程节点，因此不会影响原有任务，当新节点数据达到一定量时，可以启动NM，换句话说，相当于提高了任务的本地化率,降低影响任务的风险.</p>
+<p><strong>Tips2：</strong> 在Balance同时，我们可以适当的增加某些目录的副本数一定时间后，恢复副本数量，这样可以加快Balance的效率，让节点能够较快的达到平衡状态。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hadoop-daemon.sh start datanode</span><br></pre></td></tr></table></figure>
+
+<p>6、将节点从$HADOOP_CONF_DIR&#x2F;hosts&#x2F;exclude_mapred_hosts去掉，刷新yarn rmadmin -refreshNodes，在启动NM</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yarn-daemon.sh start nodemanager</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="二、下线节点"><a href="#二、下线节点" class="headerlink" title="二、下线节点"></a>二、<strong>下线节点</strong></h3><p>1、将下线节点加入到$HADOOP_CONF_DIR&#x2F;hosts&#x2F;exclude_datanode_hosts，$HADOOP_CONF_DIR&#x2F;hosts&#x2F;exclude_mapred_hosts中，同步到所有节点，刷新</p>
+<p>刷新NN</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hdfs dfsadmin -refreshNodes</span><br></pre></td></tr></table></figure>
+
+<p>刷新RM</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yarn rmadmin -refreshNodes</span><br></pre></td></tr></table></figure>
+
+<p>2、直到页面Decommissioned: NUM完成，或者 Number of Under-Replicated Blocks变得较小，几乎没变化时，即可完成下线节点</p>
+<p>3、节点下线完成后，把节点从slaves,datanode_hosts,exclude_datanode_hosts,exclude_mapred_hosts,mapred_hosts，机架信息中删除对应的机器信息。</p>
+<p>其实也就是选择适合的方式把集群的变动变到最小，这里只做参考</p>
+
+
+                
+            </div>
+
+            <!-- Comments -->
+            
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                    
+
+
+                </div>
+            
         </div>
     </div>
-</div>
-
-
+</article>
 
     <!-- Footer -->
     <hr />

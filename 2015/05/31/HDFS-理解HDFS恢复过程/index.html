@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- Head tag -->
+<head>
+
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+    <!--Description-->
+
+    
+
+    
+        <meta name="description" content="HDFS的一个重要的设计需求就是能够确保连续且正确的操作去支持生产环境的部署，其中复杂的地方在于要在存在网络和节点异常的情况下确保写入HDFS文件的正确性。租约恢复、block恢复、pipeline恢复会在什么时候起作用，理解什么时候和为什么这些恢复机制会被调用和他们做了什么，可以帮助用户以及开发人"/>
+    
+
+    <!--Author-->
+    
+        <meta name="author" content="shangwen_"/>
+    
+
+    <!--Open Graph Title-->
+    
+        <meta property="og:title" content="[HDFS] 理解 HDFS 恢复过程"/>
+    
+
+    <!--Open Graph Description-->
+    
+        <meta property="og:description" content="HDFS的一个重要的设计需求就是能够确保连续且正确的操作去支持生产环境的部署，其中复杂的地方在于要在存在网络和节点异常的情况下确保写入HDFS文件的正确性。租约恢复、block恢复、pipeline恢复会在什么时候起作用，理解什么时候和为什么这些恢复机制会被调用和他们做了什么，可以帮助用户以及开发人"/>
+    
+
+    <!--Open Graph Site Name-->
+        <meta property="og:site_name" content="Tang&#39;s Blog"/>
+
+    <!--Type page-->
+    
+        <meta property="og:type" content="article"/>
+    
+
+    <!--Page Cover-->
+    
+    
+        <meta property="og:image" content="http://example.comimg/home-bg.jpg"/>
+    
+
+        <meta name="twitter:card" content="summary_large_image"/>
+
+    
+
+    
+        <meta name="twitter:image" content="http://example.comimg/home-bg.jpg"/>
+    
+
+    <!-- Title -->
+    
+    <title>[HDFS] 理解 HDFS 恢复过程 - Tang&#39;s Blog</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet"/>
+
+    <!-- Custom CSS -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+
+    <!-- Custom Fonts -->
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css"/>
+    <link href="//fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic" rel="stylesheet" type="text/css"/>
+    <link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css"/>
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="//oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="//oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- Gallery -->
+    <link href="//cdnjs.cloudflare.com/ajax/libs/featherlight/1.3.5/featherlight.min.css" type="text/css" rel="stylesheet"/>
+
+    <!-- Google Analytics -->
+    
+
+
+    <!-- favicon -->
+    
+
+<meta name="generator" content="Hexo 7.2.0"></head>
+
+
+<body>
+
+    <!-- Menu -->
+    <!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">Tang's blog</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav navbar-right">
+                
+                    <li>
+                        <a href="/">
+                            
+                                Home
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/archives">
+                            
+                                Archives
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/tags">
+                            
+                                Tags
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/categories">
+                            
+                                Categories
+                            
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a target="_blank" rel="noopener" href="https://github.com/klugjo/hexo-theme-clean-blog">
+                            
+                                <i class="fa fa-github fa-stack-2x"></i>
+                            
+                        </a>
+                    </li>
+                
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+
+    <!-- Main Content -->
+    <!-- Page Header -->
+<!-- Set your background image for this header in your post front-matter: cover -->
+
+<header class="intro-header" style="background-image: url('/img/home-bg.jpg')">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <h1>[HDFS] 理解 HDFS 恢复过程</h1>
+                    
+                    <span class="meta">
+                        <!-- Date and Author -->
+                        
+                        
+                            2015-05-31
+                        
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+            <!-- Tags and categories -->
+           
+                <div class="col-lg-4 col-lg-offset-2 col-md-5 col-md-offset-1 post-tags">
+                    
+                        
+
+
+<a href="/tags/HADOOP/">#HADOOP</a> <a href="/tags/HDFS/">#HDFS</a>
+
+
+                    
+                </div>
+                <div class="col-lg-4 col-md-5 post-categories">
+                    
+                </div>
+            
+
+            <!-- Gallery -->
+            
+
+            <!-- Post Main Content -->
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <hr>
+<p>HDFS的一个重要的设计需求就是能够确保连续且正确的操作去支持生产环境的部署，其中复杂的地方在于要在存在网络和节点异常的情况下确保写入HDFS文件的正确性。租约恢复、block恢复、pipeline恢复会在什么时候起作用，理解什么时候和为什么这些恢复机制会被调用和他们做了什么，可以帮助用户以及开发人员理解集群出现的异常问题。</p>
+<p><strong>背景</strong></p>
+<p>在HDFS中，文件被分割为block，文件的访问跟随着multi-reader，single-writer语义，为了满足容错需求，一个块的多个副本存储在不同的datanode中，副本的数量被称为副本因子（replication factor），当一个新的文件block被创建，或者已经存在的文件被打开进行append操作，HDFS的写操作就会创建pipeline到datanode，datanode接受和存储这些备份（副本因子通常决定pipeline中datanode的数量）,后续的操作也是通过pipeline(如图)</p>
+<p><img src="http://outline.vipsinaapp.com//image/recover-f1.png" alt="recover-f1"></p>
+<p>client的读取操作则是选择拥有块副本的其中一个datanode进行</p>
+<p>下面有两个应用的场景突显需要容错的需求。</p>
+<ul>
+<li>HBase的Region Server（RS）的WAL（Write Ahead Log），它是一个HDFS文件，帮助防止数据丢失，如果一个RS宕机，一个新的将会读取WAL文件重建上一个RS的状态，如果写pipeline在RS死掉之前没有完成操作，在pipeline中的不同datanode可能不会同步，HDFS必须保证所有从WAL读的数据的正确性才能重建正确的RS的状态</li>
+<li>当Flume client写到HDFS文件的时候，它必须保证写是连续的，即使一些datanode在pipeline中失败或者停止响应。</li>
+</ul>
+<p><strong>租约恢复、block恢复、和pipeline恢复在这种情况下发挥作用。</strong></p>
+<ul>
+<li>在client可以写一个HDFS文件之前，它必须维护一个租约(lease)，它本质上是一个锁。这确保了single-write语义，client必须要预定的时间间隔内对租约进行renew才能保持写的操作，如果这个租约没有被renew或者拿着这个租约的client死了，租约就会过期，如果这发生了，HDFS将会代表client关闭这个文件并且释放租约，这样其他的client就能够写这个文件了，这个过程被称为<strong>租约恢复</strong></li>
+<li>当租约恢复发生时，如果文件的最后一个block在写的时候并没有传播到pipeline中的所有DataNode，然后写入不同节点的数据量可能会有所不同，在租约恢复导致文件关闭之前，有必要保证最后一个block的所有replica拥有同样的长度，这个过程被称为block恢复，block恢复只有在租约恢复的过程中被触发，并且文件的最后一个block不在COMPLETE状态的时候租约恢复才能触发 <strong>block恢复</strong> 。</li>
+<li>在写pipeline操作的过程中，一些在pipeline中的datanode可能会出现错误，当它发生时，底层写的操作不能仅是失败，相反的，HDFS将会尝试从这个错误进行恢复去允许pipeline继续和client可以继续去写这个文件，从pipeline错误中的恢复机制被称为 <strong>pipeline恢复</strong> 。</li>
+</ul>
+<p>接下来将会解释更多关于这些的细节</p>
+<p><strong>Blocks，Replicas，and Their States</strong></p>
+<p>为了区分NameNode上下文中的blocks和DataNode上下文中的blocks，我们把前者称为block，后者称为replica。</p>
+<p>一个replica在DataNode上下文中跟随以下状态(org.apache.hadoop.hdfs.server.common.HdfsServerConstants.java):</p>
+<ul>
+<li><strong>FINALIZED：</strong> 当一个replica在这个状态，代表写入replica已经完成并且副本中的数据是“frozen”（长度是固定的），除非这个replica被打开进行append操作，所有这个block的finalized状态的replica都有相同的GS（ <em>generation stamp</em> ），也应该有着相同的数据，一个finalized的replica的GS可能会因为recovery而增加。</li>
+<li><strong>RBW (Replica Being Written)：</strong> 这是所有replica在开始写的时候的状态，无论这个文件是被write操作创建还是append操作创建，一个RBW状态的replica总是一个打开的文件的最后一个block，数据在写入到replica的过程中，处于RBW状态的replica中的数据对读的client来说仍然是可见的。</li>
+<li><strong>RWR (Replica Waiting to be Recovered)：</strong> 如果一个datanode死了或者重启，所有它的RBW状态的replica将会变为RWR状态，一个RWR状态的replica要么变成过期的replica被丢弃，要么参与租约恢复。</li>
+<li><strong>RUR (Replica Under Recovery):</strong> 当一个非TEMPORARY状态的replica参与租约恢复时，它将会变为RUR状态。</li>
+<li><strong>TEMPORARY:</strong> 一个临时的replica创建目的是为了block的复制（被replication monitor或者集群的balance触发），它和RBW状态的replica类似，除了它的数据对所有读的client是不可见的，如果block复制出现错误，TEMPORARY状态replica将会被删除。</li>
+</ul>
+<p>一个block在NameNode可能会跟随下列状态(see enum BlockUCState in org.apache.hadoop.hdfs.server.common.HdfsServerConstants.java):</p>
+<ul>
+<li><strong>UNDER_CONSTRUCTION:</strong> 这个状态是在开始写的时候。一个UNDER_CONSTRUCTION状态的是打开的文件的最后一个block; 他的长度和GS是不可变的，它的数据对reader是可见的， 一个UNDER_CONSTRUCTION的block在NameNode中 会追踪写的pipeline (合法的RBW replicas的位置), 和定位它RWR的replicas的位置.</li>
+<li><strong>UNDER_RECOVERY:</strong> 如果client的租约过期，它对应文件的最后一个block处于 UNDER_CONSTRUCTION状态，当block恢复开始时它将会变成UNDER_RECOVERY状态。</li>
+<li><strong>COMMITTED:</strong> COMMITTED 意味着一个block的数据和GS不在是可变的 (除非它被重新打开进行append操作)，还有在DataNode中不足最小副本数则会汇报相同GS和长度的FINALIZED replicas，为了服务读的请求，一个COMMITTED的block必须跟踪RBW replica的位置、GS和FINALIZED replicas的长度。当client向NameNode请求新增一个block到这个文件，或者关闭文件时，一个UNDER_CONSTRUCTION状态的block就会变为COMMITTED状态，如果最后或倒数第二个block在COMMITTED状态，这个文件不能被关闭，client必须进行重试。</li>
+<li><strong>COMPLETE:</strong> 当NameNode看最小副本数和FINALIZED的replicas相匹配，一个COMMITTED block 变为 COMPLETE。 一个文件可以被关闭只有所有他的block状态变为COMPLETE状态。一个block可能会被强制的变为COMPLETE状态，即使他没能达到最小副本的数量， 例如, 当一个client请求新的block，并且上一个block还没变为COMPLETE。</li>
+</ul>
+<p>DataNode会存储replica的状态在磁盘上，但NameNode它不会存储block的状态在磁盘上，当NameNode重启，他则会把之前打开的文件的最后一个block的状态变为UNDER_CONSTRUCTION状态，其他block则变为COMPLETE状态。</p>
+<p>简单的replica和block状态转换图如下</p>
+<p><img src="http://outline.vipsinaapp.com//image/recover-f2.png" alt="recover-f2"></p>
+<p><img src="http://outline.vipsinaapp.com//image/recover-f3.png" alt="recover-f3"></p>
+<p><strong>Generation Stamp</strong></p>
+<p>GS对于每个block来说是一个单调递增的8位数，它被维护在NameNode中. block和replica的GS (设计规范: <a target="_blank" rel="noopener" href="https://issues.apache.org/jira/secure/attachment/12445209/appendDesign3.pdf">HDFS Append and Truncates</a>) 被用于以下目的:</p>
+<p><strong>检测一个block的陈旧replica(s):</strong> 也就是说, 当这个replica GS比block GS要老,这是可能发生的, 例如, 一个append操作以某种方法跳过了这个replica. datanode检测过期的replica(s)，当datanode死了很长时间且重新加入到这个cluster中.</p>
+<p>如果下面的情况发生，则需要新的GS:</p>
+<ul>
+<li>一个新的文件被创建</li>
+<li>client打开一个已经存在的文件进行append或truncate</li>
+<li>client在写data到DataNode(s)的过程中出现错误，并且请求一个新的GS</li>
+<li>NameNode初始化文件的租约机制</li>
+</ul>
+<p><strong>Lease Recovery and Block Recovery</strong></p>
+<p><strong>Lease Manager</strong></p>
+<p>NameNode中的lease manager管理着租约，NameNode追踪每个打开文件进行写的client。租约被NameNode上的lease manager管理。NameNode追踪每个打开文件进行写的client。client对其打开的每个文件枚举进行租约更新是没必要的，相反的，可以定期的发送请求到NameNode一次进行更新所有的租约。</p>
+<p>每一个NameNode管理着单一的HDFS namespace，且对应的都有一个lease manager管理着所有client的租约，联邦集群虽然有多个namespace,它们都会有自己的lease manager。</p>
+<p>lease manager维护着一个soft limit(1 minute)和一个hard limit(1 hour)的过期时间(这些限制当前是不可配置的)，并且所有的租约在lease manager中进行维护，他们有相同的soft limit和hard limit。在soft limit过期之前，client拿着这个文件特有的写访问租约，如果soft limit过期并且client并没有重新更新租约或者关闭了这个文件(文件关闭时这个文件的租约将会被释放)，其他client就能强制的接管这个租约，如果硬链接过期并且client没有重新更新这个租约，HDFS将会假定client已经退出并且自动关闭，从而恢复这个租约。</p>
+<p>事实是这个文件的租约被一个client拿着是不会阻止其他client读这个文件的，这个文件可能当前会有很多client正在在读，即使有一个client正在写入。</p>
+<p>lease manager支持的操作包括:</p>
+<p>为一个client增加一个租约和路径(如果这个client已经有了一个租约，则增加这个路径到这个租约。否则，创建一个新的租约，并添加路径到租约里面) 移除client的租约和路径(如果这是租约的最后一个路径，则移除这个租约) 检查soft &#x2F; hard limit是否过期，和对给定的client进行renew租约。 lease manager有一个监控线程周期行的检查租约是否超过了hard limit，如果过期，则触发这个文件的租约恢复。</p>
+<p>HDFS client会通过org.apache.hadoop.hdfs.LeaseRenewer.LeaseRenewer类renews它自己的租约。</p>
+<p>(注意: 一个HDFS client只会关联一个NameNode; 请看它的构造器 org.apache.hadoop.hdfs.DFSClient)。 如果同一个应用想要访问联邦集群的不同NS的不同的文件，需要为每一个NameNode创建client。</p>
+<p><strong>Lease Recovery Process</strong></p>
+<p>租约的恢复过程被NameNode触发用来对给定的client进行恢复租约，通过监控线程检查到达hard limit的有效期，或者soft limit过期时，其他客户端尝试接管租约，它检查每个相同的client打开的文件，如果这个文件的最后一个block不在COMPLETE状态中，则执行块恢复，并且关闭这个文件，一个文件的block恢复只有在恢复这个文件的租约的时候被触发。</p>
+<p>下面是给定文件f 租约恢复算法的过程，当client死了，该过程同样应用于每个client打开文件进行写的操作。</p>
+<ul>
+<li>获取包含文件f最后一个block的DataNode</li>
+<li>分配一个DataNode作为主要的DataNode p</li>
+<li>p 在NameNode中维护一个新的GS</li>
+<li>p 从其他DataNode获取这个block的信息</li>
+<li>p 计算这个block的最小长度</li>
+<li>p 更新DataNodes, 拥有合法的GS, 即新的GS和最小的block长度。</li>
+<li>p 确认NameNode更新的结果.</li>
+<li>NameNode更新BlockInfo</li>
+<li>NameNode 移除文件 f 的租约(其他写的操作现在可以维护这个文件f的租约，进行写入操作)</li>
+<li>NameNode 提交这些改变到edit log.</li>
+</ul>
+<p>步骤3到步骤7是block恢复部分的算法，如果一个文件需要block恢复，NameNode将会挑选这个文件的的最后一个block的副本的DataNode作为主datanode，并告诉这个DataNode协调其他DataNode进行block恢复工作，那些DataNode完成后将会汇报给NameNode，NameNode会定期更新这个block的状态，移除它的租约，并提交这些改变到edit log中。</p>
+<p><strong>总结</strong></p>
+<p>租约恢复，块恢复，和pipeline恢复对HDFS容错至关重要，他们可以确保存在网络故障和节点故障的情况下保证HDFS的持久性和一致性。</p>
+<p><strong>参考资料</strong></p>
+<p><a target="_blank" rel="noopener" href="http://blog.cloudera.com/blog/2015/02/understanding-hdfs-recovery-processes-part-1/">Understanding HDFS Recovery Processes</a></p>
+
+
+                
+            </div>
+
+            <!-- Comments -->
+            
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                    
+
+
+                </div>
+            
+        </div>
+    </div>
+</article>
+
+    <!-- Footer -->
+    <hr />
+
+<!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                    
+
+                    
+
+                    
+                        <li>
+                            <a href="https://github.com/shangwen" target="_blank">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    
+
+                    
+
+                    
+                        <li>
+                            <a href="mailto:kevin.shangwen@gmail.com" target="_blank">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-envelope-o fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    
+
+                    
+                </ul>
+                <p class="copyright text-muted">&copy; 2024 shangwen_<br></p>
+                <p class="copyright text-muted">Original Theme <a target="_blank" href="http://startbootstrap.com/template-overviews/clean-blog/">Clean Blog</a> from <a href="http://startbootstrap.com/" target="_blank">Start Bootstrap</a></p>
+                <p class="copyright text-muted">Adapted for <a target="_blank" href="https://hexo.io/">Hexo</a> by <a href="http://www.codeblocq.com/" target="_blank">Jonathan Klughertz</a></p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+
+    <!-- After footer scripts -->
+    
+<!-- jQuery -->
+<script src="//code.jquery.com/jquery-2.1.4.min.js"></script>
+
+<!-- Bootstrap -->
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+
+<!-- Gallery -->
+<script src="//cdnjs.cloudflare.com/ajax/libs/featherlight/1.3.5/featherlight.min.js" type="text/javascript" charset="utf-8"></script>
+
+<!-- Disqus Comments -->
+
+
+
+</body>
+
+</html>

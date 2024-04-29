@@ -13,6 +13,9 @@
     
 
     
+        <meta name="description" content="场景是这样的，有些用户因为某些原因将几个目录的副本从３降为１(一般情况下是不建议这么做的)，后来出现丢块后，在把副本升为２了，后来还是出现文件无法读取这种情况：
+1234****/user/username/fileName-000xx.lzo                            "/>
+    
 
     <!--Author-->
     
@@ -21,10 +24,13 @@
 
     <!--Open Graph Title-->
     
-        <meta property="og:title" content="Tang&#39;s Blog"/>
+        <meta property="og:title" content="[HDFS] DataNode 日志中出现 Input/output error"/>
     
 
     <!--Open Graph Description-->
+    
+        <meta property="og:description" content="场景是这样的，有些用户因为某些原因将几个目录的副本从３降为１(一般情况下是不建议这么做的)，后来出现丢块后，在把副本升为２了，后来还是出现文件无法读取这种情况：
+1234****/user/username/fileName-000xx.lzo                            "/>
     
 
     <!--Open Graph Site Name-->
@@ -32,7 +38,7 @@
 
     <!--Type page-->
     
-        <meta property="og:type" content="website"/>
+        <meta property="og:type" content="article"/>
     
 
     <!--Page Cover-->
@@ -51,7 +57,7 @@
 
     <!-- Title -->
     
-    <title>Tang&#39;s Blog</title>
+    <title>[HDFS] DataNode 日志中出现 Input/output error - Tang&#39;s Blog</title>
 
     <!-- Bootstrap Core CSS -->
     <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet"/>
@@ -156,188 +162,83 @@
 
     <!-- Main Content -->
     <!-- Page Header -->
-<!-- Set your background image for this header in the theme's configuration: index_cover -->
+<!-- Set your background image for this header in your post front-matter: cover -->
+
 <header class="intro-header" style="background-image: url('/img/home-bg.jpg')">
     <div class="container">
         <div class="row">
             <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
-                <div class="site-heading">
-                    <h1>Tang's Blog</h1>
-                    <hr class="small">
-                    <span class="subheading"></span>
+                <div class="post-heading">
+                    <h1>[HDFS] DataNode 日志中出现 Input/output error</h1>
+                    
+                    <span class="meta">
+                        <!-- Date and Author -->
+                        
+                        
+                            2016-01-27
+                        
+                    </span>
                 </div>
             </div>
         </div>
     </div>
 </header>
 
-<!-- Main Content -->
-<div class="container">
-    <div class="row">
-        <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
-            
-                <div class="post-preview">
-    <a href="/2020/08/28/Flink-Flink-SQL-原理解析-1/">
-        <h2 class="post-title">
-            [Flink] Flink SQL 原理解析 (1)
-        </h2>
-        
-    </a>
-    <p class="post-meta">
-        <!-- Date and Author -->
-        
-        2020-08-28
-    </p>
-</div>
-<hr>
-            
-                <div class="post-preview">
-    <a href="/2020/06/22/HDFS-浅谈-Hadoop-Distcp-工具的-InputFormat/">
-        <h2 class="post-title">
-            [HDFS] 浅谈 Hadoop Distcp 工具的 InputFormat
-        </h2>
-        
-    </a>
-    <p class="post-meta">
-        <!-- Date and Author -->
-        
-        2020-06-22
-    </p>
-</div>
-<hr>
-            
-                <div class="post-preview">
-    <a href="/2020/06/15/HDFS-Standby-NameNode性能问题排查/">
-        <h2 class="post-title">
-            [HDFS] Standby NameNode性能问题排查
-        </h2>
-        
-    </a>
-    <p class="post-meta">
-        <!-- Date and Author -->
-        
-        2020-06-15
-    </p>
-</div>
-<hr>
-            
-                <div class="post-preview">
-    <a href="/2020/06/09/Flink-记-Flink-1-10-0-JDBC-Connectors-重连失效分析/">
-        <h2 class="post-title">
-            [Flink] 记 Flink 1.10.0 JDBC Connectors 重连失效分析
-        </h2>
-        
-    </a>
-    <p class="post-meta">
-        <!-- Date and Author -->
-        
-        2020-06-09
-    </p>
-</div>
-<hr>
-            
-                <div class="post-preview">
-    <a href="/2020/05/20/JVM-如何通过jcmd画火焰图/">
-        <h2 class="post-title">
-            [JVM] 如何通过jcmd画火焰图
-        </h2>
-        
-    </a>
-    <p class="post-meta">
-        <!-- Date and Author -->
-        
-        2020-05-20
-    </p>
-</div>
-<hr>
-            
-                <div class="post-preview">
-    <a href="/2020/05/14/Flink-Flink-时间、窗口和函数等相关原理解析/">
-        <h2 class="post-title">
-            [Flink] Flink 时间、窗口和函数等相关原理解析
-        </h2>
-        
-    </a>
-    <p class="post-meta">
-        <!-- Date and Author -->
-        
-        2020-05-14
-    </p>
-</div>
-<hr>
-            
-                <div class="post-preview">
-    <a href="/2020/05/13/Flink-Flink-Kafka-Connector-实现机制简析/">
-        <h2 class="post-title">
-            [Flink] Flink Kafka Connector 实现机制简析
-        </h2>
-        
-    </a>
-    <p class="post-meta">
-        <!-- Date and Author -->
-        
-        2020-05-13
-    </p>
-</div>
-<hr>
-            
-                <div class="post-preview">
-    <a href="/2020/03/15/JAVA-Failed-to-load-class-“org-slf4j-impl-StaticLoggerBinder”-问题解决/">
-        <h2 class="post-title">
-            [JAVA] Failed to load class “org.slf4j.impl.StaticLoggerBinder” 问题解决
-        </h2>
-        
-    </a>
-    <p class="post-meta">
-        <!-- Date and Author -->
-        
-        2020-03-15
-    </p>
-</div>
-<hr>
-            
-                <div class="post-preview">
-    <a href="/2017/07/16/SPARK-Spark-Streaming-在进行-YARN-kill-的时候无法对-eventlog-的-inprogress-进行-rename/">
-        <h2 class="post-title">
-            [SPARK] Spark Streaming 在进行 YARN kill 的时候无法对 eventlog 的 inprogress 进行 rename
-        </h2>
-        
-    </a>
-    <p class="post-meta">
-        <!-- Date and Author -->
-        
-        2017-07-16
-    </p>
-</div>
-<hr>
-            
-                <div class="post-preview">
-    <a href="/2017/05/30/HDFS-HDFS调优笔记/">
-        <h2 class="post-title">
-            [HDFS] HDFS 调优笔记
-        </h2>
-        
-    </a>
-    <p class="post-meta">
-        <!-- Date and Author -->
-        
-        2017-05-30
-    </p>
-</div>
-<hr>
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+            <!-- Tags and categories -->
+           
+                <div class="col-lg-4 col-lg-offset-2 col-md-5 col-md-offset-1 post-tags">
+                    
+                        
+
+
+<a href="/tags/HADOOP/">#HADOOP</a> <a href="/tags/HDFS/">#HDFS</a>
+
+
+                    
+                </div>
+                <div class="col-lg-4 col-md-5 post-categories">
+                    
+                </div>
             
 
-            <ul class="pager">
-    
-    
-        <li class="next"><a href="/page/2/">Older Posts  &rarr;</a></li>
-    
-</ul>
+            <!-- Gallery -->
+            
+
+            <!-- Post Main Content -->
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <hr>
+<p>场景是这样的，有些用户因为某些原因将几个目录的副本从３降为１(一般情况下是不建议这么做的)，后来出现丢块后，在把副本升为２了，后来还是出现文件<strong>无法读取</strong>这种情况：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">****/user/username/fileName-000xx.lzo                                                    </span><br><span class="line">0. BP-1422437282658:blk_1344672165_270983563 len=134217728 repl=2 [host1:50010, host3:50010]</span><br><span class="line">1. BP-1422437282658:blk_1344672816_270984214 len=134217728 repl=1 [host11:50010]</span><br><span class="line">2. BP-1422437282658:blk_1344672898_270984296 len=134217728 repl=2 [host19:50010, host16:50010]</span><br></pre></td></tr></table></figure>
+
+<p>对于NameNode来说，他是感知这个块是正常的，从datanode的日志看出，该datanode一直进行块复制操作，但每次想把这个块复制出去时，却出现了以下异常:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">java.io.IOException: Input/output error</span><br><span class="line">at sun.nio.ch.FileChannelImpl.transferTo0(Native Method)</span><br><span class="line">at sun.nio.ch.FileChannelImpl.transferToDirectly(FileChannelImpl.java:433)</span><br><span class="line">at sun.nio.ch.FileChannelImpl.transferTo(FileChannelImpl.java:565)</span><br><span class="line">at org.apache.hadoop.net.SocketOutputStream.transferToFully(SocketOutputStream.java:223)</span><br></pre></td></tr></table></figure>
+
+<p>然后我们通过locate这个块所在的目录，进行了scp操作，还是出现了Input&#x2F;output error，意味着这个块是无法完整读取的，所以我们进行了fsck了那个磁盘进行修复，因为磁盘问题导致无法读取，所以对这个并无太大影响，毕竟副本为１是风险很大的，所以那个文件是恢复不了了。</p>
+<p>另外一个场景是集群有些datanode因为报 <strong>block pool BP-1337805335-XXX-1422437282658 is not found</strong> ，造成在联邦模式下有些NS显示为live节点，有些NS为dead节点，但是block pool在那个data盘是存在的</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">2016-01-15 21:30:48,225 WARN org.apache.hadoop.hdfs.server.datanode.DataNode: IOException in offerService</span><br><span class="line">java.io.IOException: block pool BP-1337805335-XXX-1422437282658 is not found</span><br><span class="line">at org.apache.hadoop.hdfs.server.datanode.fsdataset.impl.FsVolumeImpl.getBlockPoolSlice(FsVolumeImpl.java:122)</span><br><span class="line">at org.apache.hadoop.hdfs.server.datanode.fsdataset.impl.FsVolumeImpl.getBlockPoolUsed(FsVolumeImpl.java:92)</span><br><span class="line">at org.apache.hadoop.hdfs.server.datanode.fsdataset.impl.FsVolumeList.getBlockPoolUsed(FsVolumeList.java:74)</span><br></pre></td></tr></table></figure>
+
+<p>这些节点的数据量比较大，因为死了比较久，而且副本为３的情况下，把一个DataNode停止是不会影响集群的，后来进行了fsck的操作，发现一个盘有问题，并修复了，后来启动datanode，节点也再也没有死了,fsck这个命令请在专业的人指导下面操作把，毕竟数据安全为最重要。</p>
+
+
+                
+            </div>
+
+            <!-- Comments -->
+            
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                    
+
+
+                </div>
+            
         </div>
     </div>
-</div>
-
-
+</article>
 
     <!-- Footer -->
     <hr />
